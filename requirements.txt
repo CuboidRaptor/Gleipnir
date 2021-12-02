@@ -1,4 +1,4 @@
-git+https://github.com/Pycord-development/pycord.git
+py-cord
 python-dotenv
 asyncio
 pymongo
