@@ -9,7 +9,7 @@ if platform.system() == "Windows":
     dotenv.load_dotenv()
     #Otherwise load from heroku config_var
     
-bot = interactions.Client(token=str(os.getenv("DISCORD_TOKEN")))
+bot = discord.Client(token=str(os.getenv("DISCORD_TOKEN")))
 
 @bot.command(
     name="ping",
