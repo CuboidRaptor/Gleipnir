@@ -1,5 +1,5 @@
 #Imports
-import discord_interactions as discord
+import discord
 import os
 import dotenv
 import platform
@@ -9,11 +9,10 @@ if platform.system() == "Windows":
     dotenv.load_dotenv()
     #Otherwise load from heroku config_var
     
-bot = discord.Client(token=str(os.getenv("DISCORD_TOKEN")))
+bot = discord.Bot()
 
-@bot.command(
-    name="ping",
-    description="ping. pong. ping. pong.",
-)
+@bot.slash_comand()
 async def ping(ctx):
     await ctx.send("pong")
+    
+bot.run(str(os.getenv("DISCORD_TOKEN")))

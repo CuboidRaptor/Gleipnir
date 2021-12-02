@@ -1,4 +1,4 @@
-discord-interactions
+py-cord
 python-dotenv
 asyncio
 pymongo
