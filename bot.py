@@ -1,3 +1,4 @@
+#v1.2.2
 #Imports
 import discord
 import os
@@ -19,6 +20,13 @@ dotenv.load_dotenv()
 client = MongoClient(str(os.getenv("MON_STRING")), tlsCAFile=certifi.where())
 db = client["CRBOT2Dat"]
 warnsc = db["warns"]
+
+warnid = "000000000000000000010f2c"
+
+#Regexes
+mentionre = re.compile(r"<@[0-9]+>")
+mentionre2 = re.compile(r"<@![0-9]+>")
+iUAT = re.compile(r".*#[0-9]{4}")
 
 #stuff
 
@@ -53,7 +61,7 @@ async def on_message(message):
                 await message.delete()
                 await message.channel.send(f"Don't swear, {message.author.mention}")
                 
-        if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)):
+        if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
             #Did you say bot name?
             await message.channel.send("Hello there, I heard my name?")
                 
@@ -66,12 +74,14 @@ def g_role(ctx, rname):
         role_t.append(get(ctx.guild.roles, name=str(item)) in ctx.message.author.roles)
         
     out = role_t[0]
+    #lol 69th line
     for item in role_t[1:]:
         out = out or item
         
     return out
 
 def isCuboid(ctx):
+    #Is message author in ctx me (Cuboid)?
     if (ctx.message.author.id == 588132098875850752) or (ctx.message.author.id == 885900826638442546):
         return True
     
@@ -79,22 +89,51 @@ def isCuboid(ctx):
         return False
     
 def isMention(text):
-    if text.strip().startswith("<@") and text.strip().endswith(">"):
-        mentionre = re.compile(r"<@([0-9]+)>")
-        mentionre2 = re.compile(r"<@!([0-9]+)>")
-        if mentionre.match(text) == None:
-            out = False
+    #Is text a mention?
+    global mentionre, mentionre2
+    if mentionre.match(text) == None:
+        out = False
+    
+    else:
+        out = True
+        
+    if mentionre2.match(text) == None:
+        out = out or False
+    
+    else:
+        out = out or True
+        
+    return out
+    
+def idFromMention(mention):
+    #Get User ID from mention
+    if mention.startswith("<@!"):
+        return str(mention)[3:-1]
+    
+    else:
+        return str(mention)[2:-1]
+    
+def isCB2(text):
+    #Is text CRBOT2
+    text = text.strip()
+    if (text == str(bot.user.name)) or (text == str(bot.user)) or (text == "<@" + str(bot.user.id) + ">") or (text == "<@!" + str(bot.user.id) + ">"):
+        return True
+    
+    else:
+        return False
+    
+def isUserAndTag(text):
+    #Checks if the string contains a username and tag
+    global iUAT
+    if iUAT.match(text.strip()) == None:
+        return False
+    
+    else:
+        if len(text.split("#")) != 2:
+            return False
         
         else:
-            out = True
-            
-        if mentionre2.match(text) == None:
-            out = out or False
-        
-        else:
-            out = out or True
-            
-        return out
+            return True
 
 #Commands
 @bot.command()
@@ -104,9 +143,8 @@ async def ping(ctx):
     
 @bot.command()
 async def killcr2(ctx):
-    #lol 69th line
     #Kill da bot
-    if g_role(ctx, ["Admin"]) or isCuboid(ctx):
+    if isCuboid(ctx):
         #r u me or r u admin?
         await ctx.send("Ok, Ending...")
         print("Ending...")
@@ -127,28 +165,37 @@ async def test(ctx):
 
 @bot.command(aliases=["8ball"])
 async def magic8ball(ctx):
+    #Magic 8-Ball
     global answers
     await ctx.send(choice(answers))
     
 @bot.command()
 async def quote(ctx):
+    #Spews a random quote in chat.
     global quoteslist
     await ctx.send(choice(quoteslist))
     
 @bot.command()
 async def shoot(ctx, person):
+    #SHOOT PERSON BOOM BOOM CHK CHK PEW! POW POW BOOM CRASH POOM BAM!
     await ctx.send(f"{ctx.message.author.mention} ( う-´)づ︻╦̵̵̿╤──   \\\\(˚☐˚”)/ {person}")
     
 @bot.command()
-async def warn(ctx, person):
+async def warn(ctx, person, *args):
+    #Warn person.
     if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
         if not isMention(person):
             await ctx.send(f"That person is not a mention.")
             
         else:
+            reason = " ".join(args)
+                
+            if reason == "" or reason.isspace():
+                reason = "no good reason at all"
+                
             tempd = warnsc.find_one(
                 {
-                    "_id": ObjectId("000000000000000000010f2c")
+                    "_id": ObjectId(warnid)
                 }
             )
             try:
@@ -159,26 +206,32 @@ async def warn(ctx, person):
                 
             warnsc.delete_one(
                 {
-                    "_id": ObjectId("000000000000000000010f2c")
+                    "_id": ObjectId(warnid)
                 }
             )
             warnsc.insert_one(tempd)
             
-            await ctx.send(f"{person} has been warned by {ctx.message.author.mention}!")
+            await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
         
     else:
         await ctx.send(f"You do not have the sufficient permissions to run this command.")
     
 @bot.command()
-async def rmwarn(ctx, person):
+async def rmwarn(ctx, person, *args):
+    #Remove warn from person.
     if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
         if not isMention(person):
             await ctx.send(f"That person is not a mention.")
             
         else:
+            reason = " ".join(args)
+                
+            if reason == "" or reason.isspace():
+                reason = "no good reason at all"
+                    
             tempd = warnsc.find_one(
                 {
-                    "_id": ObjectId("000000000000000000010f2c")
+                    "_id": ObjectId(warnid)
                 }
             )
             try:
@@ -195,15 +248,128 @@ async def rmwarn(ctx, person):
                 
             warnsc.delete_one(
                 {
-                    "_id": ObjectId("000000000000000000010f2c")
+                    "_id": ObjectId(warnid)
                 }
             )
             warnsc.insert_one(tempd)
             
-            await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention}!")
+            await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention} for {reason}!")
         
     else:
         await ctx.send(f"You do not have the sufficient permissions to run this command.")
-    
+        
+@bot.command()
+async def warns(ctx, person):
+    #Shows warns of person
+    if not isMention(person):
+        await ctx.send(f"That person is not a mention.")
+        
+    else:
+        tempd = warnsc.find_one(
+            {
+                "_id": ObjectId(warnid)
+            }
+        )
+        out = str(tempd[str(person)])
+        if not bool(int(out) - 1):
+            await ctx.send(f"{person} has " + out + " warn!")
+            
+        else:
+            await ctx.send(f"{person} has " + out + " warns!")
+
+@bot.command()
+async def warnclear(ctx):
+    if g_role(ctx, ["Admin"]):
+        tempd = {
+            "_id": ObjectId(warnid)
+        }
+        warnsc.delete_one(
+            {
+                "_id": ObjectId(warnid)
+            }
+        )
+        warnsc.insert_one(tempd)
+
+@bot.command()
+async def kick(ctx, person, *args):
+    #kicky
+    if isCB2(str(person)):
+        await ctx.send(":(")
+        
+    else:
+        if isMention(person):
+            if g_role(ctx, ["Admin", "Sr. Mod"]):
+                reason = " ".join(args)
+                
+                if reason == "" or reason.isspace():
+                    reason = "no good reason at all"
+                    
+                user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
+                user = user[0]
+                await user.kick(reason=reason)
+                await ctx.send(f"{person} was kicked by {ctx.message.author.mention} for {reason}!")
+            
+            else:
+                await ctx.send("You don't have the proper permissions to do that.")
+            
+        else:
+            await ctx.send("That person isn't a mention.")
+
+@bot.command()
+async def ban(ctx, person, *args):
+    #get ban'd
+    if isCB2(str(person)):
+        await ctx.send("""██╗░░██╗
+╚═╝░██╔╝
+░░░██╔╝░
+░░░╚██╗░
+██╗░╚██╗
+╚═╝░░╚═╝
+""")
+        
+    else:
+        if isMention(person):
+            if g_role(ctx, ["Admin", "Sr. Mod"]):
+                reason = " ".join(args)
+                
+                if reason == "" or reason.isspace():
+                    reason = "no good reason at all"
+                    
+                user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
+                user = user[0]
+                await user.ban(reason=reason)
+                await ctx.send(f"{person} was banned by {ctx.message.author.mention} for {reason}!")
+            
+            else:
+                await ctx.send("You don't have the proper permissions to do that.")
+            
+        else:
+            await ctx.send("That person isn't a mention.")
+
+@bot.command()
+async def unban(ctx, person, *args):
+    #unban ppl
+    if isCB2(str(person)):
+        await ctx.send("Thanks for the attempt, but I haven't been banned in this server yet :)")
+        
+    else:
+        if isUserAndTag(person):
+            if g_role(ctx, ["Admin", "Sr. Mod"]):
+                reason = " ".join(args)
+                
+                if reason == "" or reason.isspace():
+                    reason = "no good reason at all"
+                    
+                mname, mdisc = person.split("#")
+                
+                await ctx.send(f"{person} was unbanned by {ctx.message.author.mention} for {reason}!")
+            
+            else:
+                await ctx.send("You don't have the proper permissions to do that.")
+            
+        else:
+            await ctx.send("That person isn't a Username and Tag seperated by \"#\".")
+
+
 #R U N .
 bot.run(str(os.getenv("DISCORD_TOKEN")))
