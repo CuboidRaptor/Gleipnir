@@ -1,4 +1,5 @@
 py-cord
 python-dotenv
 asyncio
-pymongo
+pymongo[srv]
+certifi
