@@ -42,12 +42,12 @@ async def on_message(message):
                 await message.channel.send(f"Don't swear, {message.author.mention}")
 
 #Commands
-@bot.command()
+@bot.command(pass_context=True)
 async def ping(ctx):
     print("ping")
     await ctx.send("pong")
     
-@bot.command()
+@bot.command(pass_context=True)
 async def killcr2(ctx):
     #Kill da bot
     await ctx.send("Ok, Ending...")
