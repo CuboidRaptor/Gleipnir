@@ -66,6 +66,13 @@ async def on_message(message):
             await message.channel.send("Hello there, I heard my name?")
                 
     await bot.process_commands(message)
+#lol 69th line
+
+#test command
+@bot.command()
+async def test(ctx):
+    #test for when I need to do dumb stuff
+    pass
 
 #Functions
 def g_role(ctx, rname):
@@ -74,7 +81,6 @@ def g_role(ctx, rname):
         role_t.append(get(ctx.guild.roles, name=str(item)) in ctx.message.author.roles)
         
     out = role_t[0]
-    #lol 69th line
     for item in role_t[1:]:
         out = out or item
         
@@ -157,11 +163,6 @@ async def killcr2(ctx):
 async def no_u(ctx, person):
     #no u
     await ctx.send(f"No u, {person}")
-    
-@bot.command()
-async def test(ctx):
-    #test for when I need to do dumb stuff
-    pass
 
 @bot.command(aliases=["8ball"])
 async def magic8ball(ctx):
