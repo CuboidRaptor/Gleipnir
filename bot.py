@@ -14,6 +14,7 @@ dotenv.load_dotenv()
     
 bot = commands.Bot(command_prefix=".")
 with open("dat.json", "r") as f:
+    #Load crap from data file
     yeetus = json.loads(f.read())
     curselist = yeetus["curses"]
     answers = yeetus["8ball"]
@@ -41,7 +42,8 @@ async def on_message(message):
                 await message.delete()
                 await message.channel.send(f"Don't swear, {message.author.mention}")
                 
-        if bot.user.name in message.content:
+        if (bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content):
+            #Did you say bot name?
             await message.channel.send("Hello there, I heard my name?")
                 
     await bot.process_commands(message)
@@ -56,8 +58,8 @@ def g_role(ctx, rname):
         return False
 
 #Commands
-@bot.command(pass_context=True)
-async def ping(ctx):
+@bot.command()
+async def ping():
     #ping pong
     await ctx.send("pong")
     
@@ -88,7 +90,14 @@ async def magic8ball(ctx):
     global answers
     await ctx.send(choice(answers))
     
-#def quote
+@bot.command(pass_context=True)
+async def quote(ctx):
+    global quoteslist
+    await ctx.send(choice(quoteslist))
+    
+@bot.command(pass_context=True)
+async def shoot(ctx, person):
+    await ctx.send(f"{ctx.message.author.mention} ( う-´)づ︻╦̵̵̿╤──   \(˚☐˚”)/ {person}")
     
 #R U N .
 bot.run(str(os.getenv("DISCORD_TOKEN")))
