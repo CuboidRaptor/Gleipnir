@@ -40,11 +40,15 @@ async def on_message(message):
                 print("somebody swore uh oh")
                 await message.delete()
                 await message.channel.send(f"Don't swear, {message.author.mention}")
+                
+        if bot.user.name in message.content:
+            await message.channel.send("Hello there, I heard my name?")
+                
+    await bot.process_commands(message)
 
 #Commands
 @bot.command(pass_context=True)
 async def ping(ctx):
-    print("ping")
     await ctx.send("pong")
     
 @bot.command(pass_context=True)
