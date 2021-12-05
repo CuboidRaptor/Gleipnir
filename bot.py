@@ -22,6 +22,7 @@ db = client["CRBOT2Dat"]
 warnsc = db["warns"]
 
 warnid = "000000000000000000010f2c"
+emojismade = False
 
 #Regexes
 mentionre = re.compile(r"<@[0-9]+>")
@@ -337,7 +338,14 @@ async def ban(ctx, person, *args):
                     reason = "no good reason at all"
                     
                 user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
-                user = user[0]
+                try:
+                    user = user[0]
+                    
+                except IndexError:
+                    await ctx.send("hey bub that person doesn't exist, or some error has been thrown")
+                    await ctx.send("(if that person does exist, notify Cuboid_Raptor#7340)")
+                    return
+                
                 await user.ban(reason=reason)
                 await ctx.send(f"{person} was banned by {ctx.message.author.mention} for {reason}!")
             
@@ -363,7 +371,13 @@ async def unban(ctx, person, *args):
                     
                 mname, mdisc = person.split("#")
                 
-                await ctx.send(f"{person} was unbanned by {ctx.message.author.mention} for {reason}!")
+                banned_users = await ctx.message.guild.bans()
+                for ban_entry in banned_users:
+                    user = ban_entry.user
+                    
+                    if (user.name, user.discriminator) == (mname, mdisc):
+                        await ctx.message.guild.unban(user)
+                        await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
             
             else:
                 await ctx.send("You don't have the proper permissions to do that.")
@@ -371,6 +385,14 @@ async def unban(ctx, person, *args):
         else:
             await ctx.send("That person isn't a Username and Tag seperated by \"#\".")
 
+@bot.command()
+async def emojis(ctx):
+    if emojismade:
+        return
+    
+    else:
+        with open("logo.png", "rb") as f:
+            CRBOT2e = await bot.create_custom_emoji(ctx.guild, name="CRBOT2", image=f)
 
-#R U N .
+#R U N .   
 bot.run(str(os.getenv("DISCORD_TOKEN")))
