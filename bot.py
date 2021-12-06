@@ -7,6 +7,7 @@ import json
 import certifi
 import re
 import asyncio
+import random
 
 from pymongo import *
 from bson.objectid import ObjectId
@@ -14,6 +15,7 @@ from random import randint, choice
 from discord.ext import commands
 from discord.utils import get
 from dotenv import load_dotenv
+from Levenshtein import ratio as lsr
 
 load_dotenv()
 
@@ -21,14 +23,17 @@ load_dotenv()
 client = MongoClient(str(os.getenv("MON_STRING")), tlsCAFile=certifi.where())
 db = client["CRBOT2Dat"]
 warnsc = db["warns"]
+doughc = db["money"]
 
 warnid = "000000000000000000010f2c"
+moneyid = "0000000000000000000aa289"
 emojismade = False
 
 #Regexes
 mentionre = re.compile(r"<@[0-9]+>")
 mentionre2 = re.compile(r"<@![0-9]+>")
 iUAT = re.compile(r".*#[0-9]{4}")
+iRPr = re.compile(r"[0-9]+d[0-9]+")
 
 #stuff
 
@@ -62,11 +67,11 @@ async def on_message(message):
                 print("somebody swore uh oh")
                 await message.delete()
                 await message.channel.send(f"Don't swear, {message.author.mention}")
+                #lol 69th line
                 
         if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
             #Did you say bot name?
             await message.channel.send("Hello there, I heard my name?")
-            #lol 69th line
                 
     await bot.process_commands(message)
 
@@ -162,6 +167,18 @@ def reasonRet(arr):
         
     return reason
 
+def rollParse(string):
+    #Parses roll number
+    global iRPr
+    if iRPr.match(string) == None:
+        return False
+    
+    elif len(string.lower().split("d")) != 2:
+        return False
+    
+    else:
+        return string.lower().split("d")
+
 #Commands
 @bot.command()
 async def ping(ctx):
@@ -213,74 +230,82 @@ async def shoot(ctx, person):
 @bot.command()
 async def warn(ctx, person, *args):
     """Warn people."""
-    if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-        if not isMention(person):
-            await ctx.send(f"That person is not a mention.")
-            
-        else:
-            reason = reasonRet(args)
-                
-            tempd = warnsc.find_one(
-                {
-                    "_id": ObjectId(warnid)
-                }
-            )
-            try:
-                tempd[str(person)] += 1
-                
-            except KeyError:
-                tempd[str(person)] = 1
-                
-            warnsc.delete_one(
-                {
-                    "_id": ObjectId(warnid)
-                }
-            )
-            warnsc.insert_one(tempd)
-            
-            await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
+    if isCB2(person):
+        await ctx.send("I HAVEN'T DONE ANYTHING!")
         
     else:
-        await ctx.send(f"You do not have the sufficient permissions to run this command.")
+        if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
+            if not isMention(person):
+                await ctx.send(f"That person is not a mention.")
+                
+            else:
+                reason = reasonRet(args)
+                    
+                tempd = warnsc.find_one(
+                    {
+                        "_id": ObjectId(warnid)
+                    }
+                )
+                try:
+                    tempd[str(person)] += 1
+                    
+                except KeyError:
+                    tempd[str(person)] = 1
+                    
+                warnsc.delete_one(
+                    {
+                        "_id": ObjectId(warnid)
+                    }
+                )
+                warnsc.insert_one(tempd)
+                
+                await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
+            
+        else:
+            await ctx.send(f"You do not have the sufficient permissions to run this command.")
     
 @bot.command()
 async def rmwarn(ctx, person, *args):
     """Remove warn from people."""
-    if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-        if not isMention(person):
-            await ctx.send(f"That person is not a mention.")
-            
-        else:
-            reason = reasonRet(args)
-                    
-            tempd = warnsc.find_one(
-                {
-                    "_id": ObjectId(warnid)
-                }
-            )
-            try:
-                tempd[str(person)] -= 1
-                if tempd[str(person)] < 0:
-                    tempd[str(person)] = 0
-                    
-                    await ctx.send(f"{person} doesn't have any warns.")
-                    return
-                
-            except KeyError:
-                await ctx.send(f"{person} doesn't have any warns.")
-                return
-                
-            warnsc.delete_one(
-                {
-                    "_id": ObjectId(warnid)
-                }
-            )
-            warnsc.insert_one(tempd)
-            
-            await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention} for {reason}!")
+    if isCB2(person):
+        await ctx.send("I haven't been warned yet. I wouldn't warn myself.")
         
     else:
-        await ctx.send(f"You do not have the sufficient permissions to run this command.")
+        if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
+            if not isMention(person):
+                await ctx.send(f"That person is not a mention.")
+                
+            else:
+                reason = reasonRet(args)
+                        
+                tempd = warnsc.find_one(
+                    {
+                        "_id": ObjectId(warnid)
+                    }
+                )
+                try:
+                    tempd[str(person)] -= 1
+                    if tempd[str(person)] < 0:
+                        tempd[str(person)] = 0
+                        
+                        await ctx.send(f"{person} doesn't have any warns.")
+                        return
+                    
+                except KeyError:
+                    await ctx.send(f"{person} doesn't have any warns.")
+                    return
+                    
+                warnsc.delete_one(
+                    {
+                        "_id": ObjectId(warnid)
+                    }
+                )
+                warnsc.insert_one(tempd)
+                
+                await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention} for {reason}!")
+            
+        else:
+            await ctx.send(f"You do not have the sufficient permissions to run this command.")
         
 @bot.command()
 async def warns(ctx, person):
@@ -393,6 +418,7 @@ async def unban(ctx, person, *args):
                     user = ban_entry.user
                     
                     if (user.name, user.discriminator) == (mname, mdisc):
+                        #lol 420th line
                         await ctx.message.guild.unban(user)
                         await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
             
@@ -415,7 +441,6 @@ async def mute(ctx, person, *args, **kwargs):
                         
                 geeld = ctx.message.guild
                 mutedRole = get(
-                    #lol 420th line
                     geeld.roles,
                     name="Muted"
                 )
@@ -527,6 +552,80 @@ async def tempmute(ctx, person, time, *args):
 
         else:
             await ctx.send("That person isn't a mention.")
+
+@bot.command()
+async def roll(ctx, roll):
+    """Roll die."""
+    if not rollParse(roll):
+        await ctx.send("That isn't a valid dice to roll.")
+        
+    else:
+        proll = rollParse(roll)
+        s = 0
+        try:
+            for i in range(0, int(proll[0])):
+                s += random.randint(1, int(proll[1]))
+                
+            await ctx.send(f"{ctx.message.author.mention} rolled {roll} and got {s}")
+            
+        except ValueError:
+            await ctx.send("That isn't a valid roll.")
+
+@bot.command()
+async def ship(ctx, person, person2=None):
+    """Ship ship ship"""
+    if person2 == None:
+        person2 = ctx.message.author.mention
+    
+    personn, person2n = person, person2
+    try:
+        if isMention(person):
+            personn = await bot.fetch_user(idFromMention(personn))
+            
+            personn = personn.name
+            
+        if isMention(person2):
+            person2n = await bot.fetch_user(idFromMention(person2n))
+            person2n = person2n.name
+            
+    except discord.errors.NotFound:
+        await ctx.send("Couldn't find names of one or more mentions.")
+        return
+        
+    perc = (lsr(personn, person2n) * 100)
+    perc += ((-perc) ** (3 / 4)) + 32
+    perc = round(perc.real)
+    
+    if perc > 100:
+        perc = 100
+    await ctx.send(f"{person} x {person2} ship compatibility percentage: {perc}%")
+
+@bot.command(aliases=["open-account"])
+async def open_account(ctx):
+    """Open STONKS! account"""
+    person = ctx.message.author
+    
+    tempd = doughc.find_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    try:
+        stupid = tempd[person.mention]
+        del stupid
+        await ctx.send("You already have a STONKS! account.")
+        return
+        
+    except KeyError:
+        tempd[person.mention] = 100
+        
+    doughc.delete_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    doughc.insert_one(tempd)
+    await ctx.send(f"{person.mention} has been registered with STONKS!!")
 
 #R U N .
 bot.run(str(os.getenv("DISCORD_TOKEN")))
