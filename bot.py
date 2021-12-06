@@ -665,7 +665,7 @@ async def reset_stonks(ctx):
             }
         )
         stonksc.insert_one(tempd)
-        await ctx.send("STONKS! have been resetted!")
+        await ctx.send("STONKS! has been resetted!")
         
     else:
         await ctx.send("You don't have the proper permissions to run that command.")
