@@ -55,9 +55,9 @@ async def da_muns():
             "_id": ObjectId(stonksid)
         }
     )
-    tempd["STANKS!"] += tempd["trend"]
-    tempd["trend"] += tempd["instability"]
     tempd["instability"] += random.randint(-5, 5)
+    tempd["trend"] += tempd["instability"]
+    tempd["STANKS!"] += abs(tempd["trend"])
         
     stonksc.delete_one(
         {
@@ -655,7 +655,9 @@ async def reset_stonks(ctx):
                 "_id": ObjectId(stonksid)
             }
         )
-        tempd["STANKS!"] = tempd["trend"] = tempd["instability"] = 1
+        tempd["STANKS!"] = 1
+        tempd["trend"] = 0
+        tempd["instability"] = 0
             
         stonksc.delete_one(
             {
