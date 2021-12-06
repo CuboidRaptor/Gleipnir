@@ -7,6 +7,7 @@ import dotenv
 import json
 import certifi
 import re
+import asyncio
 
 from pymongo import *
 from bson.objectid import ObjectId
@@ -65,9 +66,9 @@ async def on_message(message):
         if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
             #Did you say bot name?
             await message.channel.send("Hello there, I heard my name?")
+            #lol 69th line
                 
     await bot.process_commands(message)
-#lol 69th line
 
 #test command
 @bot.command()
@@ -141,6 +142,13 @@ def isUserAndTag(text):
         
         else:
             return True
+        
+def isEmpty(text):
+    if text == "" or text.isspace():
+        return True
+    
+    else:
+        return False
 
 #Commands
 @bot.command()
@@ -163,7 +171,11 @@ async def killcr2(ctx):
 @bot.command(aliases=["no-u"])
 async def no_u(ctx, person):
     #no u
-    await ctx.send(f"No u, {person}")
+    if isCB2(person):
+        await ctx.send(f"I have been vaccinated against no-u's.")
+        
+    else:
+        await ctx.send(f"No u, {person}")
 
 @bot.command(aliases=["8ball"])
 async def magic8ball(ctx):
@@ -180,7 +192,11 @@ async def quote(ctx):
 @bot.command()
 async def shoot(ctx, person):
     #SHOOT PERSON BOOM BOOM CHK CHK PEW! POW POW BOOM CRASH POOM BAM!
-    await ctx.send(f"{ctx.message.author.mention} ( う-´)づ︻╦̵̵̿╤──   \\\\(˚☐˚”)/ {person}")
+    if isCB2(person):
+        await ctx.send(f"stop trying to shoot me you meanie")
+        
+    else:
+        await ctx.send(f"{ctx.message.author.mention} ( う-´)づ︻╦̵̵̿╤──   \\\\(˚☐˚”)/ {person}")
     
 @bot.command()
 async def warn(ctx, person, *args):
@@ -192,7 +208,7 @@ async def warn(ctx, person, *args):
         else:
             reason = " ".join(args)
                 
-            if reason == "" or reason.isspace():
+            if isEmpty(reason):
                 reason = "no good reason at all"
                 
             tempd = warnsc.find_one(
@@ -228,7 +244,7 @@ async def rmwarn(ctx, person, *args):
         else:
             reason = " ".join(args)
                 
-            if reason == "" or reason.isspace():
+            if isEmpty(reason):
                 reason = "no good reason at all"
                     
             tempd = warnsc.find_one(
@@ -303,7 +319,7 @@ async def kick(ctx, person, *args):
             if g_role(ctx, ["Admin", "Sr. Mod"]):
                 reason = " ".join(args)
                 
-                if reason == "" or reason.isspace():
+                if isEmpty(reason):
                     reason = "no good reason at all"
                     
                 user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
@@ -334,7 +350,7 @@ async def ban(ctx, person, *args):
             if g_role(ctx, ["Admin", "Sr. Mod"]):
                 reason = " ".join(args)
                 
-                if reason == "" or reason.isspace():
+                if isEmpty(reason):
                     reason = "no good reason at all"
                     
                 user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
@@ -366,7 +382,7 @@ async def unban(ctx, person, *args):
             if g_role(ctx, ["Admin", "Sr. Mod"]):
                 reason = " ".join(args)
                 
-                if reason == "" or reason.isspace():
+                if isEmpty(reason):
                     reason = "no good reason at all"
                     
                 mname, mdisc = person.split("#")
@@ -386,13 +402,135 @@ async def unban(ctx, person, *args):
             await ctx.send("That person isn't a Username and Tag seperated by \"#\".")
 
 @bot.command()
-async def emojis(ctx):
-    if emojismade:
-        return
-    
+async def mute(ctx, person, *args, **kwargs):
+    #moot perzen
+    if isCB2(str(person)):
+        await ctx.send("dood you're a rude guy >:(")
+        
     else:
-        with open("logo.png", "rb") as f:
-            CRBOT2e = await bot.create_custom_emoji(ctx.guild, name="CRBOT2", image=f)
+        if isMention(person):
+            if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
+                reason = " ".join(args)
+                    
+                if isEmpty(reason):
+                    reason = "no good reason at all"
+                        
+                geeld = ctx.message.guild
+                mutedRole = get(
+                    #lol 420th line
+                    geeld.roles,
+                    name="Muted"
+                )
+                
+                if not mutedRole:
+                    mutedRole = await geeld.create_role(name="Muted")
+                    
+                    for channel in geeld.channels:
+                        await channel.set_permissions(
+                            mutedRole,
+                            speak=False,
+                            send_messages=False,
+                            read_message_history=True,
+                            read_messages=True,
+                            view_channel=True,
+                            mention_everyone=False,
+                            reason=reason
+                        )
+                        
+                cMember = await geeld.fetch_member(idFromMention(person))
+                
+                try:
+                    await cMember.add_roles(mutedRole, reason=reason)
+                    await cMember.remove_roles(
+                        get(geeld.roles, name="Verified Member"),
+                        reason=reason
+                    )
+                    
+                except discord.errors.Forbidden:
+                    await ctx.send("This bot's role/permissions need to be higher in the hierarchy, or some error has occured.")
+                    return
+                
+                if not kwargs.get(
+                    "silent",
+                    False
+                ):
+                    await ctx.send(f"{person} has been muted by {ctx.message.author.mention} for {reason}!")
 
-#R U N .   
+            else:
+                await ctx.send("You don't have the proper permissions to run this command.")
+
+        else:
+            await ctx.send("That person isn't a mention.")
+
+@bot.command()
+async def unmute(ctx, person, *args, **kwargs):
+    #unmoot perzen
+    if isCB2(str(person)):
+        await ctx.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
+        
+    else:
+        if isMention(person):
+            if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
+                reason = " ".join(args)
+                    
+                if isEmpty(reason):
+                    reason = "no good reason at all"
+                        
+                geeld = ctx.message.guild
+                mutedRole = get(
+                    geeld.roles,
+                    name="Muted"
+                )
+                
+                if not mutedRole:
+                    await ctx.send("No one has been muted in this server yet.")
+                    return
+                        
+                cMember = await geeld.fetch_member(idFromMention(person))
+                
+                try:
+                    await cMember.add_roles(get(geeld.roles, name="Verified Member"), reason=reason)
+                    await cMember.remove_roles(
+                        mutedRole,
+                        reason=reason
+                    )
+                    
+                except discord.errors.Forbidden:
+                    await ctx.send("That person is already unmuted.")
+                    return
+                
+                if not kwargs.get(
+                    "silent",
+                    False
+                ):
+                    await ctx.send(f"{person} has been unmuted by {ctx.message.author.mention} for {reason}!")
+
+            else:
+                await ctx.send("You don't have the proper permissions to run this command.")
+
+        else:
+            await ctx.send("That person isn't a mention.")
+
+@bot.command()
+async def tempmute(ctx, person, time, *args):
+    #tempmoot
+    if isCB2(str(person)):
+        await ctx.send("stahp go away")
+        
+    else:
+        if isMention(person):
+            if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
+                
+                await mute(ctx, person, *args, silent=True)
+                await asyncio.sleep(round(float(time) * 60))
+                await unmute(ctx, person, *args, silent=True)  
+                await ctx.send(f"{person} has been tempmuted by {ctx.message.author.mention} for {reason} for {time} minutes!")
+
+            else:
+                await ctx.send("You don't have the proper permissions to run this command.")
+
+        else:
+            await ctx.send("That person isn't a mention.")
+
+#R U N .
 bot.run(str(os.getenv("DISCORD_TOKEN")))
