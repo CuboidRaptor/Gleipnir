@@ -12,7 +12,7 @@ import random
 from pymongo import *
 from bson.objectid import ObjectId
 from random import randint, choice
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 from dotenv import load_dotenv
 from Levenshtein import ratio as lsr
@@ -24,9 +24,11 @@ client = MongoClient(str(os.getenv("MON_STRING")), tlsCAFile=certifi.where())
 db = client["CRBOT2Dat"]
 warnsc = db["warns"]
 doughc = db["money"]
+stonksc = db["STONKS!"]
 
 warnid = "000000000000000000010f2c"
 moneyid = "0000000000000000000aa289"
+stonksid = "000000000000000000066a44"
 emojismade = False
 
 #Regexes
@@ -45,6 +47,24 @@ with open("dat.json", "r") as f:
     curselist = yeetus["curses"]
     answers = yeetus["8ball"]
     quoteslist = yeetus["quotes"]
+
+@tasks.loop(minutes=1)
+async def da_muns():
+    tempd = stonksc.find_one(
+        {
+            "_id": ObjectId(stonksid)
+        }
+    )
+    tempd["STANKS!"] += random.randint(-abs(tempd["trend"]), abs(tempd["trend"]))
+    tempd["trend"] += random.randint(-abs(tempd["instability"]), abs(tempd["instability"]))
+    tempd["instability"] += random.randint(-2, 2)
+        
+    stonksc.delete_one(
+        {
+            "_id": ObjectId(stonksid)
+        }
+    )
+    stonksc.insert_one(tempd)
 
 @bot.event
 async def on_ready():
@@ -628,4 +648,5 @@ async def open_account(ctx):
     await ctx.send(f"{person.mention} has been registered with STONKS!!")
 
 #R U N .
+da_muns.start()
 bot.run(str(os.getenv("DISCORD_TOKEN")))
