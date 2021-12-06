@@ -159,6 +159,8 @@ def reasonRet(arr):
                     
     if isEmpty(reason):
         reason = "no good reason at all"
+        
+    return reason
 
 #Commands
 @bot.command()
