@@ -55,9 +55,9 @@ async def da_muns():
             "_id": ObjectId(stonksid)
         }
     )
-    tempd["STANKS!"] += random.randint(-abs(tempd["trend"]), abs(tempd["trend"]))
-    tempd["trend"] += random.randint(-abs(tempd["instability"]), abs(tempd["instability"]))
-    tempd["instability"] += random.randint(-2, 2)
+    tempd["STANKS!"] += tempd["trend"]
+    tempd["trend"] += tempd["instability"]
+    tempd["instability"] += random.randint(-5, 5)
         
     stonksc.delete_one(
         {
@@ -646,6 +646,27 @@ async def open_account(ctx):
     )
     doughc.insert_one(tempd)
     await ctx.send(f"{person.mention} has been registered with STONKS!!")
+
+@bot.command(aliases=["reset-stonks"])
+async def reset_stonks(ctx):
+    if isCuboid(ctx):
+        tempd = stonksc.find_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )
+        tempd["STANKS!"] = tempd["trend"] = tempd["instability"] = 1
+            
+        stonksc.delete_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )
+        stonksc.insert_one(tempd)
+        await ctx.send("STONKS! have been resetted!")
+        
+    else:
+        await ctx.send("You don't have the proper permissions to run that command.")
 
 #R U N .
 da_muns.start()
