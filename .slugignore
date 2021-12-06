@@ -1,2 +1,6 @@
 logo.png
 test.py
+LICENSE
+README.md
+*.env
+.env
