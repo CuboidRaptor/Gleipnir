@@ -60,11 +60,7 @@ async def da_muns():
     tempd["STANKS!"] += tempd["trend"]
     
     if tempd["STANKS!"] < 1:
-        tempd["STANKS!"] = 1
-        
-    if (tempd["STANKS!"] < random.randint(1, 2)) and (tempd["trend"] < random.randint(1, 2)):
-        tempd["trend"] = random.randint(1, 2)
-        tempd["instability"] += random.randint(1, 3)
+        tempd["STANKS!"] = 1 + random.randint(0, abs(tempd["STANKS!"]))
         
     stonksc.delete_one(
         {
@@ -658,6 +654,7 @@ async def open_account(ctx):
 
 @bot.command(aliases=["reset-stonks"])
 async def reset_stonks(ctx):
+    """Reset STONKS!"""
     if isCuboid(ctx):
         tempd = stonksc.find_one(
             {
@@ -679,6 +676,16 @@ async def reset_stonks(ctx):
         
     else:
         await ctx.send("You don't have the proper permissions to run that command.")
+
+@bot.command(aliases=["stonk-price"])
+async def stonk_price(ctx):
+    await ctx.send(
+        "The current STONKS! price is: " + stonksc.find_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )["STONKS!"]
+    )
 
 #R U N .
 da_muns.start()
