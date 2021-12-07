@@ -8,6 +8,7 @@ import certifi
 import re
 import asyncio
 import random
+import math
 
 from pymongo import *
 from bson.objectid import ObjectId
@@ -50,17 +51,18 @@ with open("dat.json", "r") as f:
 
 @tasks.loop(minutes=1)
 async def da_muns():
+    #Change STONKS! price
     tempd = stonksc.find_one(
         {
             "_id": ObjectId(stonksid)
         }
     )
-    tempd["instability"] += random.randint(-5, 5)
-    tempd["trend"] += tempd["instability"]
-    tempd["STANKS!"] += tempd["trend"]
+    
+    tempd["inc"] += random.random() * 3
+    tempd["STANKS!"] = abs(((random.random() * 5) + 1) * math.sin(tempd["inc"] * ((random.random() * 2) + 1)) + 6)
     
     if tempd["STANKS!"] < 1:
-        tempd["STANKS!"] = 1 + random.randint(0, abs(tempd["STANKS!"]))
+        tempd["STANKS!"] = 1 + random.random() / 2
         
     stonksc.delete_one(
         {
@@ -68,6 +70,24 @@ async def da_muns():
         }
     )
     stonksc.insert_one(tempd)
+
+@tasks.loop(minutes=1)
+async def daily():
+    tempd = doughc.find_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    for item in tempd:
+        if item != "_id":
+            tempd["item"] += 50
+            
+    doughc.delete_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    doughc.insert_one(tempd)
 
 @bot.event
 async def on_ready():
@@ -623,7 +643,30 @@ async def ship(ctx, person, person2=None):
     
     if perc > 100:
         perc = 100
-    await ctx.send(f"{person} x {person2} ship compatibility percentage: {perc}%")
+        
+    string = f"{person} x {person2} ship compatibility percentage: {perc}%"
+    if perc < 10:
+        compat = "Terrible. :("
+        
+    elif perc >= 10 and perc < 25:
+        compat = "Pretty Bad."
+        
+    elif perc >= 25 and perc < 50:
+        compat = "Meh."
+        
+    elif perc == 69:
+        compat = "( ͡° ͜ʖ ͡°)"
+        
+    elif perc >= 50 and perc < 75:
+        compat = "Okay."
+        
+    elif perc >= 75 and perc < 90:
+        compat = "Pretty Good!"
+        
+    elif perc >= 90:
+        compat = "Amazing!"
+        
+    await ctx.send("\n".join([string, f"Compatibility score: {compat}"]))
 
 @bot.command(aliases=["open-account"])
 async def open_account(ctx):
@@ -662,8 +705,7 @@ async def reset_stonks(ctx):
             }
         )
         tempd["STANKS!"] = 1
-        tempd["trend"] = 0
-        tempd["instability"] = 0
+        tempd["inc"] = 0
             
         stonksc.delete_one(
             {
@@ -680,11 +722,13 @@ async def reset_stonks(ctx):
 @bot.command(aliases=["stonk-price"])
 async def stonk_price(ctx):
     await ctx.send(
-        "The current STONKS! price is: " + stonksc.find_one(
-            {
-                "_id": ObjectId(stonksid)
-            }
-        )["STONKS!"]
+        "The current STONKS! price is: " + str(
+            stonksc.find_one(
+                {
+                    "_id": ObjectId(stonksid)
+                }
+            )["STANKS!"]
+        ) + " Cuboid Dollars!"
     )
 
 #R U N .
