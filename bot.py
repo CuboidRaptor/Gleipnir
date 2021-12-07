@@ -106,7 +106,7 @@ async def on_ready():
     )
     for item in tempd:
         if item != "_id":
-            tempd[item] -= 5
+            tempd[item] -= 2.5
             
     doughc.delete_one(
         {
@@ -789,7 +789,7 @@ async def erase_money(ctx):
         await ctx.send("You don't have the proper permissions to run that command.")
 
 @bot.command()
-async def wallet(ctx):
+async def wallet(ctx, silent=False):
     """Shows current amount of money if you have a registered account."""
     tempd = doughc.find_one(
         {
@@ -798,8 +798,12 @@ async def wallet(ctx):
     )
     for item in tempd:
         if item == ctx.message.author.mention:
-            await ctx.send(f"You have ${tempd[item]}")
-            return
+            if silent == False:
+                await ctx.send(f"You have ${tempd[item]}")
+                return
+            
+            else:
+                return tempd[item]
             
     await ctx.send("You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
         
@@ -819,7 +823,8 @@ async def buy(ctx, amount):
         
     sp = await stonk_price(ctx, silent=True)
     sp *= amount
-    
+    if (await wallet(ctx, silent=True)) < sp:
+        await ctx.send("You don't have enough money.")
 
 #R U N .
 da_muns.start()
