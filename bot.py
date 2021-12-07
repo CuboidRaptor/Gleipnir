@@ -58,8 +58,8 @@ async def da_muns():
         }
     )
     
-    tempd["inc"] += random.random() * 3
-    tempd["STANKS!"] = abs(((random.random() * 5) + 1) * math.sin(tempd["inc"] * ((random.random() * 2) + 1)) + 6)
+    tempd["inc"] += random.random() * 6
+    tempd["STANKS!"] = round(abs(((random.random() * 5) + 1) * math.sin(tempd["inc"] * ((random.random() * 2) + 1)) + 6), 1)
     
     if tempd["STANKS!"] < 1:
         tempd["STANKS!"] = 1 + random.random() / 2
@@ -71,8 +71,8 @@ async def da_muns():
     )
     stonksc.insert_one(tempd)
 
-@tasks.loop(minutes=1)
-async def daily():
+@tasks.loop(minutes=144)
+async def allowance():
     tempd = doughc.find_one(
         {
             "_id": ObjectId(moneyid)
@@ -80,7 +80,7 @@ async def daily():
     )
     for item in tempd:
         if item != "_id":
-            tempd["item"] += 50
+            tempd[item] += 5
             
     doughc.delete_one(
         {
@@ -140,7 +140,7 @@ def g_role(ctx, rname):
 
 def isCuboid(ctx):
     #Is message author in ctx me (Cuboid)?
-    if (ctx.message.author.id == 588132098875850752) or (ctx.message.author.id == 885900826638442546):
+    if (ctx.message.author.id == 588132098875850752):
         return True
     
     else:
@@ -697,7 +697,7 @@ async def open_account(ctx):
 
 @bot.command(aliases=["reset-stonks"])
 async def reset_stonks(ctx):
-    """Reset STONKS!"""
+    """Reset STONKS! Only Cuboid_Raptor#7340 can run this command"""
     if isCuboid(ctx):
         tempd = stonksc.find_one(
             {
@@ -720,17 +720,84 @@ async def reset_stonks(ctx):
         await ctx.send("You don't have the proper permissions to run that command.")
 
 @bot.command(aliases=["stonk-price"])
-async def stonk_price(ctx):
-    await ctx.send(
-        "The current STONKS! price is: " + str(
+async def stonk_price(ctx, silent=False):
+    """Print current STONKS! price"""
+    if silent == False:
+        await ctx.send(
+            "The current STONKS! price is: " + str(
+                stonksc.find_one(
+                    {
+                        "_id": ObjectId(stonksid)
+                    }
+                )["STANKS!"]
+            ) + " Cuboid Dollars!"
+        )
+        
+    else:
+        return float(
             stonksc.find_one(
                 {
                     "_id": ObjectId(stonksid)
                 }
             )["STANKS!"]
-        ) + " Cuboid Dollars!"
+        )
+
+@bot.command(aliases=["erase-money"])
+async def erase_money(ctx):
+    if isCuboid(ctx):
+        tempd = doughc.find_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        for item in tempd:
+            if item != "_id":
+                tempd[item] = 100
+                
+        doughc.delete_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        doughc.insert_one(tempd)
+        
+        await ctx.send("All global money records have been erased.")
+    
+    else:
+        await ctx.send("You don't have the proper permissions to run that command.")
+
+@bot.command()
+async def wallet(ctx):
+    tempd = doughc.find_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
     )
+    for item in tempd:
+        if item == ctx.message.author.mention:
+            await ctx.send(f"You have ${tempd[item]}")
+            return
+            
+    await ctx.send("You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
+        
+
+@bot.command()
+async def buy(ctx, amount):
+    try:
+        amount = int(round(float(amount)))
+        if amount < 1:
+            await ctx.send(f"bruh u can't buy {amount} STONKS!.")
+            return
+        
+    except ValueError:
+        await ctx.send(f"bruh u can't buy \"{amount}\" STONKS!.")
+        return
+        
+    sp = await stonk_price(ctx, silent=True)
+    sp *= amount
+    
 
 #R U N .
 da_muns.start()
+allowance.start()
 bot.run(str(os.getenv("DISCORD_TOKEN")))
