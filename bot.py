@@ -71,7 +71,7 @@ async def da_muns():
     )
     stonksc.insert_one(tempd)
 
-@tasks.loop(minutes=144)
+@tasks.loop(minutes=72)
 async def allowance():
     tempd = doughc.find_one(
         {
@@ -80,7 +80,7 @@ async def allowance():
     )
     for item in tempd:
         if item != "_id":
-            tempd[item] += 5
+            tempd[item] += 2.5
             
     doughc.delete_one(
         {
@@ -93,6 +93,24 @@ async def allowance():
 async def on_ready():
     #logged in?
     print(f"CRBOT2 has logged on in to Discord as {bot.user}")
+    
+    #Remove accidental allowance
+    await asyncio.sleep(2)
+    tempd = doughc.find_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    for item in tempd:
+        if item != "_id":
+            tempd[item] -= 5
+            
+    doughc.delete_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    doughc.insert_one(tempd)
 
 #events
 @bot.event
@@ -744,6 +762,7 @@ async def stonk_price(ctx, silent=False):
 
 @bot.command(aliases=["erase-money"])
 async def erase_money(ctx):
+    """Erase all money, globally. Only Cuboid_Raptor#7340 can run this command."""
     if isCuboid(ctx):
         tempd = doughc.find_one(
             {
@@ -768,6 +787,7 @@ async def erase_money(ctx):
 
 @bot.command()
 async def wallet(ctx):
+    """Shows current amount of money if you have a registered account."""
     tempd = doughc.find_one(
         {
             "_id": ObjectId(moneyid)
@@ -783,6 +803,7 @@ async def wallet(ctx):
 
 @bot.command()
 async def buy(ctx, amount):
+    """Buy some STONKS! from STONKS!."""
     try:
         amount = int(round(float(amount)))
         if amount < 1:
