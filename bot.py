@@ -41,7 +41,10 @@ iRPr = re.compile(r"[0-9]+d[0-9]+")
 #stuff
 
 pf = "."
-bot = commands.Bot(command_prefix=pf)
+bot = commands.Bot(
+    command_prefix=pf,
+    strip_after_prefix=True
+)
 with open("dat.json", "r") as f:
     #Load crap from data file
     yeetus = json.loads(f.read())
@@ -51,7 +54,7 @@ with open("dat.json", "r") as f:
 
 @tasks.loop(minutes=1)
 async def da_muns():
-    #Change STONKS! price
+    #Fluctuates STONKS! price
     tempd = stonksc.find_one(
         {
             "_id": ObjectId(stonksid)
