@@ -57,7 +57,14 @@ async def da_muns():
     )
     tempd["instability"] += random.randint(-5, 5)
     tempd["trend"] += tempd["instability"]
-    tempd["STANKS!"] += abs(tempd["trend"])
+    tempd["STANKS!"] += tempd["trend"]
+    
+    if tempd["STANKS!"] < 1:
+        tempd["STANKS!"] = 1
+        
+    if (tempd["STANKS!"] < random.randint(1, 2)) and (tempd["trend"] < random.randint(1, 2)):
+        tempd["trend"] = random.randint(1, 2)
+        tempd["instability"] += random.randint(1, 3)
         
     stonksc.delete_one(
         {
@@ -359,6 +366,8 @@ async def warnclear(ctx):
             }
         )
         warnsc.insert_one(tempd)
+        await ctx.send("All global warns have been cleared.")
+        print("All global warns have been cleared.")
         
     else:
         await ctx.send("You don't have the proper permissions to run this command.")
@@ -666,6 +675,7 @@ async def reset_stonks(ctx):
         )
         stonksc.insert_one(tempd)
         await ctx.send("STONKS! has been resetted!")
+        print("STONKS! has been resetted!")
         
     else:
         await ctx.send("You don't have the proper permissions to run that command.")
