@@ -17,6 +17,7 @@ from discord.ext import commands, tasks
 from discord.utils import get
 from dotenv import load_dotenv
 from Levenshtein import ratio as lsr
+from decimal import Decimal
 
 load_dotenv()
 
@@ -62,10 +63,12 @@ async def da_muns():
     )
     
     tempd["inc"] += random.random() * 6
-    tempd["STANKS!"] = round(abs(((random.random() * 5) + 1) * math.sin(tempd["inc"] * ((random.random() * 2) + 1)) + 6), 1)
+    tempd["STANKS!"] = bround(abs(((random.random() * 5) + 1) * math.sin(tempd["inc"] * ((random.random() * 2) + 1)) + 6), 3)
+    tempd["STANKS!"] += int(tempd["trend"])
     
     if tempd["STANKS!"] < 1:
         tempd["STANKS!"] = 1 + random.random() / 2
+        #lol 69th line
         
     stonksc.delete_one(
         {
@@ -74,7 +77,7 @@ async def da_muns():
     )
     stonksc.insert_one(tempd)
 
-@tasks.loop(minutes=72)
+@tasks.loop(minutes=18)
 async def allowance():
     tempd = doughc.find_one(
         {
@@ -83,7 +86,7 @@ async def allowance():
     )
     for item in tempd:
         if item != "_id":
-            tempd[item] += 2.5
+            tempd[item][0] += 0.625
             
     doughc.delete_one(
         {
@@ -98,7 +101,7 @@ async def on_ready():
     print(f"CRBOT2 has logged on in to Discord as {bot.user}")
     
     #Remove accidental allowance
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
     tempd = doughc.find_one(
         {
             "_id": ObjectId(moneyid)
@@ -106,7 +109,7 @@ async def on_ready():
     )
     for item in tempd:
         if item != "_id":
-            tempd[item] -= 2.5
+            tempd[item][0] -= 0.625
             
     doughc.delete_one(
         {
@@ -131,7 +134,6 @@ async def on_message(message):
                 print("somebody swore uh oh")
                 await message.delete()
                 await message.channel.send(f"Don't swear, {message.author.mention}")
-                #lol 69th line
                 
         if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
             #Did you say bot name?
@@ -147,6 +149,20 @@ async def test(ctx):
     pass
 
 #Functions
+def d(n):
+    #precision
+    return Decimal(str(n))
+
+def bround(n, a=0):
+    #better rounding, I was too lazy to swap names so here is a keyword name
+    #(FYI afaik this is bad pratice but I'm LAZ.)
+    #I was too lazy to type the "Y".
+    if a == 0:
+        return int(round(d(n), a))
+    
+    else:
+        return float(round(d(n), a))
+
 def g_role(ctx, rname):
     #Checks if ctx.message.author has any one of the roles in [rname]
     role_t = []
@@ -417,6 +433,7 @@ async def kick(ctx, person, *args):
         
     else:
         if isMention(person):
+            #lol 420th line
             if g_role(ctx, ["Admin", "Sr. Mod"]):
                 reason = reasonRet(args)
                     
@@ -484,7 +501,6 @@ async def unban(ctx, person, *args):
                     user = ban_entry.user
                     
                     if (user.name, user.discriminator) == (mname, mdisc):
-                        #lol 420th line
                         await ctx.message.guild.unban(user)
                         await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
             
@@ -610,7 +626,7 @@ async def tempmute(ctx, person, time, *args):
                     
                 await mute(ctx, person, *args, silent=True)
                 await ctx.send(f"{person} has been tempmuted by {ctx.message.author.mention} for {reason} for {time} minutes!")
-                await asyncio.sleep(round(float(time) * 60))
+                await asyncio.sleep(bround(float(time) * 60))
                 await unmute(ctx, person, *args, silent=True)  
 
             else:
@@ -660,7 +676,7 @@ async def ship(ctx, person, person2=None):
         
     perc = (lsr(personn, person2n) * 100)
     perc += ((-perc) ** (3 / 4)) + 32
-    perc = round(perc.real)
+    perc = bround(perc.real)
     
     if perc > 100:
         perc = 100
@@ -706,7 +722,7 @@ async def open_account(ctx):
         return
         
     except KeyError:
-        tempd[person.mention] = 100
+        tempd[person.mention] = [100, 0]
         
     doughc.delete_one(
         {
@@ -739,6 +755,31 @@ async def reset_stonks(ctx):
         
     else:
         await ctx.send("You don't have the proper permissions to run that command.")
+
+@bot.command(aliases=["erase-stonks"])
+async def erase_stonks(ctx):
+    """Erase all global STONKS! from shareholders. Only Cuboid_Raptor#7340"""
+    if isCuboid(ctx):
+        tempd = doughc.find_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        for item in tempd:
+            if item != "_id":
+                tempd[item][1] = 0
+                
+        doughc.delete_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        doughc.insert_one(tempd)
+        
+        await ctx.send("All global STONKS! records have been erased.")
+    
+    else:
+        await ctx.send("You don't have the proper permissions to run that command")
 
 @bot.command(aliases=["stonk-price"])
 async def stonk_price(ctx, silent=False):
@@ -774,7 +815,7 @@ async def erase_money(ctx):
         )
         for item in tempd:
             if item != "_id":
-                tempd[item] = 100
+                tempd[item][0] = 100
                 
         doughc.delete_one(
             {
@@ -799,11 +840,11 @@ async def wallet(ctx, silent=False):
     for item in tempd:
         if item == ctx.message.author.mention:
             if silent == False:
-                await ctx.send(f"You have ${tempd[item]}")
+                await ctx.send(f"You have ${tempd[item][0]} and {tempd[item][1]} STONKS!")
                 return
             
             else:
-                return tempd[item]
+                return [tempd[item][0], tempd[item][1]]
             
     await ctx.send("You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
         
@@ -812,7 +853,7 @@ async def wallet(ctx, silent=False):
 async def buy(ctx, amount):
     """Buy some STONKS! from STONKS!."""
     try:
-        amount = int(round(float(amount)))
+        amount = int(bround(float(amount)))
         if amount < 1:
             await ctx.send(f"bruh u can't buy {amount} STONKS!.")
             return
@@ -823,8 +864,28 @@ async def buy(ctx, amount):
         
     sp = await stonk_price(ctx, silent=True)
     sp *= amount
-    if (await wallet(ctx, silent=True)) < sp:
+    if (await wallet(ctx, silent=True))[0] < sp:
         await ctx.send("You don't have enough money.")
+        
+    else:
+        tempd = doughc.find_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        for item in tempd:
+            if item == ctx.message.author.mention:
+                tempd[item][0] -=sp
+                tempd[item][1] += amount
+                
+        doughc.delete_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        doughc.insert_one(tempd)
+        
+        await ctx.send(f"You have bought {amount} STONKS! for ${sp}!")
 
 #R U N .
 da_muns.start()
