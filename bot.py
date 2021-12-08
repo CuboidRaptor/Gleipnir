@@ -62,13 +62,15 @@ async def da_muns():
         }
     )
     
-    tempd["inc"] += random.random() * 6
-    tempd["STANKS!"] = bround(abs(((random.random() * 5) + 1) * math.sin(tempd["inc"] * ((random.random() * 2) + 1)) + 6), 3)
+    tempd["inc"] += random.random() * 12
+    tempd["STANKS!"] = bround(abs(((random.random() * 10) + 1) * math.sin(tempd["inc"] * ((random.random() * 4) + 1)) + 6), 3)
     tempd["STANKS!"] += int(tempd["trend"])
     
+    #lol 69th line
     if tempd["STANKS!"] < 1:
         tempd["STANKS!"] = 1 + random.random() / 2
-        #lol 69th line
+        
+    tempd["STANKS!"] = abs(tempd["STANKS!"])
         
     stonksc.delete_one(
         {
@@ -415,6 +417,7 @@ async def warnclear(ctx):
         }
         warnsc.delete_one(
             {
+                #lol 420th line
                 "_id": ObjectId(warnid)
             }
         )
@@ -433,7 +436,6 @@ async def kick(ctx, person, *args):
         
     else:
         if isMention(person):
-            #lol 420th line
             if g_role(ctx, ["Admin", "Sr. Mod"]):
                 reason = reasonRet(args)
                     
@@ -781,8 +783,8 @@ async def erase_stonks(ctx):
     else:
         await ctx.send("You don't have the proper permissions to run that command")
 
-@bot.command(aliases=["stonk-price"])
-async def stonk_price(ctx, silent=False):
+@bot.command(aliases=["stonks-price"])
+async def stonks_price(ctx, silent=False):
     """Print current STONKS! price"""
     if silent == False:
         await ctx.send(
@@ -847,7 +849,6 @@ async def wallet(ctx, silent=False):
                 return [tempd[item][0], tempd[item][1]]
             
     await ctx.send("You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
-        
 
 @bot.command()
 async def buy(ctx, amount):
@@ -862,7 +863,7 @@ async def buy(ctx, amount):
         await ctx.send(f"bruh u can't buy \"{amount}\" STONKS!.")
         return
         
-    sp = await stonk_price(ctx, silent=True)
+    sp = await stonks_price(ctx, silent=True)
     sp *= amount
     if (await wallet(ctx, silent=True))[0] < sp:
         await ctx.send("You don't have enough money.")
@@ -875,7 +876,7 @@ async def buy(ctx, amount):
         )
         for item in tempd:
             if item == ctx.message.author.mention:
-                tempd[item][0] -=sp
+                tempd[item][0] -= sp
                 tempd[item][1] += amount
                 
         doughc.delete_one(
@@ -885,7 +886,75 @@ async def buy(ctx, amount):
         )
         doughc.insert_one(tempd)
         
+        tempd = stonksc.find_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )
+        
+        tempd["trend"] += (random.random() / 2) + 0.75
+            
+        stonksc.delete_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )
+        stonksc.insert_one(tempd)
+            
         await ctx.send(f"You have bought {amount} STONKS! for ${sp}!")
+
+@bot.command()
+async def sell(ctx, amount):
+    """Sell some STONKS! from STONKS!."""
+    try:
+        amount = int(bround(float(amount)))
+        if amount < 1:
+            await ctx.send(f"bruh u can't sell {amount} STONKS!.")
+            return
+        
+    except ValueError:
+        await ctx.send(f"bruh u can't sell \"{amount}\" STONKS!.")
+        return
+        
+    sp = await stonks_price(ctx, silent=True)
+    sp *= amount
+    if (await wallet(ctx, silent=True))[1] < amount:
+        await ctx.send("You don't have enough STONKS! to sell.")
+        
+    else:
+        tempd = doughc.find_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        for item in tempd:
+            if item == ctx.message.author.mention:
+                tempd[item][0] += sp
+                tempd[item][1] -= amount
+                
+        doughc.delete_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        doughc.insert_one(tempd)
+        
+        tempd = stonksc.find_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )
+        
+        tempd["trend"] -= (random.random() / 2) + 0.75
+            
+        stonksc.delete_one(
+            {
+                "_id": ObjectId(stonksid)
+            }
+        )
+        stonksc.insert_one(tempd)
+        
+        await ctx.send(f"You have sold {amount} STONKS! for ${sp}!")
 
 #R U N .
 da_muns.start()
