@@ -755,7 +755,7 @@ async def open_account(ctx):
     await ctx.send(f"{person.mention} has been registered with STONKS!!")
 
 @bot.command(aliases=["reset-stonks"])
-async def reset_stonks(ctx):
+async def reset_stonks(ctx, silent=False):
     """Reset STONKS! Only Cuboid_Raptor#7340 can run this command"""
     if isCuboid(ctx):
         tempd = stonksc.find_one(
@@ -772,14 +772,15 @@ async def reset_stonks(ctx):
             }
         )
         stonksc.insert_one(tempd)
-        await ctx.send("STONKS! has been resetted!")
-        print("STONKS! has been resetted!")
+        if silent == False:
+            await ctx.send("STONKS! has been resetted!")
+            print("STONKS! has been resetted!")
         
     else:
         await ctx.send("You don't have the proper permissions to run that command.")
 
 @bot.command(aliases=["erase-stonks"])
-async def erase_stonks(ctx):
+async def erase_stonks(ctx, silent=False):
     """Erase all global STONKS! from shareholders. Only Cuboid_Raptor#7340"""
     if isCuboid(ctx):
         tempd = doughc.find_one(
@@ -798,7 +799,8 @@ async def erase_stonks(ctx):
         )
         doughc.insert_one(tempd)
         
-        await ctx.send("All global STONKS! records have been erased.")
+        if silent == False:
+            await ctx.send("All global STONKS! records have been erased.")
     
     else:
         await ctx.send("You don't have the proper permissions to run that command")
@@ -827,7 +829,7 @@ async def stonks_price(ctx, silent=False):
         )
 
 @bot.command(aliases=["erase-money"])
-async def erase_money(ctx):
+async def erase_money(ctx, silent=False):
     """Erase all money, globally. Only Cuboid_Raptor#7340 can run this command."""
     if isCuboid(ctx):
         tempd = doughc.find_one(
@@ -846,8 +848,21 @@ async def erase_money(ctx):
         )
         doughc.insert_one(tempd)
         
-        await ctx.send("All global money records have been erased.")
+        if silent == False:
+            await ctx.send("All global money records have been erased.")
     
+    else:
+        await ctx.send("You don't have the proper permissions to run that command.")
+
+@bot.command(aliases=["reset-finance"])
+async def reset_finance(ctx):
+    """Reset all finances. Dangerous command. Ony can be user by Cuboid_Raptor#7340."""
+    if isCuboid(ctx):
+        await reset_stonks(ctx, silent=True)
+        await erase_stonks(ctx, silent=True)
+        await erase_money(ctx, silent=True)
+        await ctx.send("All finances have been globally reset.")
+        
     else:
         await ctx.send("You don't have the proper permissions to run that command.")
 
