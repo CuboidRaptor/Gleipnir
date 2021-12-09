@@ -42,9 +42,11 @@ iRPr = re.compile(r"[0-9]+d[0-9]+")
 #stuff
 
 pf = "."
+intents = discord.Intents.all()
 bot = commands.Bot(
     command_prefix=pf,
-    strip_after_prefix=True
+    strip_after_prefix=True,
+    intents=intents
 )
 with open("dat.json", "r") as f:
     #Load crap from data file
@@ -121,6 +123,24 @@ async def on_ready():
     doughc.insert_one(tempd)
 
 #events
+@bot.event
+async def on_member_join(member):
+    await member.send("""Hello there!
+This is an automated message.:robot: 
+I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
+I have DM'd you to say, welcome to Cuboid's Café!:coffee: 
+I sincerely hope you have a great time in the server!:laughing:
+You can also interact with me in the server, do be sure to use *[.]* as a command prefix.
+
+||P.S. the STONKS! market fluctuates regularly||""")
+    channel = get(member.guild.text_channels, name="📢events-announcements📢")
+    await channel.send(f"*{member.mention} is here! We hope you have a nice time here, {member.mention}!*")
+    
+@bot.event
+async def on_member_remove(member):
+    channel = get(member.guild.text_channels, name="📢events-announcements📢")
+    await channel.send(f"*{member.mention} has left. Goodbye, {member.mention}*")
+
 @bot.event
 async def on_message(message):
     #When someone messages
