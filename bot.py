@@ -132,6 +132,14 @@ I have DM'd you to say, welcome to Cuboid's Café!:coffee:
 I sincerely hope you have a great time in the server!:laughing:
 You can also interact with me in the server, do be sure to use *[.]* as a command prefix.
 
+We also have many sister servers, servers which you can join as well.
+If you are interested in becoming a sister server, DM <@718106301196009544> ig.
+
+* https://discord.gg/8Fhkj7k7aN
+* https://discord.gg/aVvtgaqWPN
+* https://discord.gg/hVwzNST69k
+* https://discord.gg/RkPMG9Rs6k
+
 ||P.S. the STONKS! market fluctuates regularly||""")
     channel = get(member.guild.text_channels, name="📢events-announcements📢")
     await channel.send(f"*{member.mention} is here! We hope you have a nice time here, {member.mention}!*")
