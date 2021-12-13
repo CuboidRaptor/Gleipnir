@@ -190,10 +190,10 @@ def bround(n, a=0):
     #(FYI afaik this is bad pratice but I'm LAZ.)
     #I was too lazy to type the "Y".
     if a == 0:
-        return int(round(d(n), a))
+        return int(round(d(str(n)), a))
     
     else:
-        return float(round(d(n), a))
+        return float(round(d(str(n)), a))
 
 def g_role(ctx, rname):
     #Checks if ctx.message.author has any one of the roles in [rname]
