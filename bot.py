@@ -917,6 +917,7 @@ async def buy(ctx, amount):
         
     sp = await stonks_price(ctx, silent=True)
     sp *= amount
+    sp = bround(sp)
     if (await wallet(ctx, silent=True))[0] < sp:
         await ctx.send("You don't have enough money.")
         
@@ -970,6 +971,7 @@ async def sell(ctx, amount):
         
     sp = await stonks_price(ctx, silent=True)
     sp *= amount
+    sp = bround(sp)
     if (await wallet(ctx, silent=True))[1] < amount:
         await ctx.send("You don't have enough STONKS! to sell.")
         
