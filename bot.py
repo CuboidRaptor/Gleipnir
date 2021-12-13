@@ -331,10 +331,11 @@ async def quote(ctx):
 @bot.command()
 async def shoot(ctx, person):
     """Thingy that allows you to joke shoot people."""
+    
     if isCB2(person):
         await ctx.send(f"stop trying to shoot me you meanie")
-    
-    elif (ctx.message.author.mention == person) or (ctx.message.author.name == person):
+
+    elif (idFromMention(ctx.message.author.mention) == idFromMention(person)) or (ctx.message.author.name == person):
         await ctx.send(f"Don't commit suicide, {ctx.message.author.mention}")
     
     else:
