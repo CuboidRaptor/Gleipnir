@@ -825,11 +825,14 @@ async def stonks_price(ctx, silent=False):
     if silent == False:
         await ctx.send(
             "The current STONKS! price is: " + str(
-                stonksc.find_one(
-                    {
-                        "_id": ObjectId(stonksid)
-                    }
-                )["STANKS!"]
+                bround(
+                    stonksc.find_one(
+                        {
+                            "_id": ObjectId(stonksid)
+                        }
+                    )["STANKS!"],
+                    3
+                )
             ) + " Cuboid Dollars!"
         )
         
@@ -891,7 +894,7 @@ async def wallet(ctx, silent=False):
     for item in tempd:
         if item == ctx.message.author.mention:
             if silent == False:
-                await ctx.send(f"You have ${tempd[item][0]} and {tempd[item][1]} STONKS!")
+                await ctx.send(f"You have ${bround(tempd[item][0], 3)} and {bround(tempd[item][1], 3)} STONKS!")
                 return
             
             else:
