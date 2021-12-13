@@ -64,6 +64,8 @@ async def da_muns():
         }
     )
     
+    tempd["inc"], tempd["STANKS!"], tempd["trend"] = float(tempd["inc"]), float(tempd["STANKS!"]), float(tempd["trend"])
+    
     tempd["inc"] += random.random() * 12
     tempd["STANKS!"] = bround(abs(((random.random() * 10) + 1) * math.sin(tempd["inc"] * ((random.random() * 4) + 1)) + 6), 3)
     tempd["STANKS!"] += int(tempd["trend"])
