@@ -290,6 +290,9 @@ def rollParse(string):
     
     else:
         return string.lower().split("d")
+    
+def numform(n):
+    return "{:,}".format(bround(float(n)))
 
 #Commands
 @bot.command()
@@ -679,6 +682,7 @@ async def roll(ctx, roll):
         
     else:
         proll = rollParse(roll)
+        proll[0], proll[1] = proll[0].replace(",", ""), proll[1].replace(",", "")
         s = 0
         try:
             for i in range(0, int(proll[0])):
@@ -954,7 +958,7 @@ async def buy(ctx, amount):
         )
         stonksc.insert_one(tempd)
             
-        await ctx.send(f"You have bought {amount} STONKS! for ${sp}!")
+        await ctx.send(f"You have bought {numform(amount)} STONKS! for ${numform(sp)}!")
 
 @bot.command()
 async def sell(ctx, amount):
@@ -1008,7 +1012,7 @@ async def sell(ctx, amount):
         )
         stonksc.insert_one(tempd)
         
-        await ctx.send(f"You have sold {amount} STONKS! for ${sp}!")
+        await ctx.send(f"You have sold {numform(amount)} STONKS! for ${numform(sp)}!")
 
 #R U N .
 da_muns.start()
