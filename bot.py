@@ -291,8 +291,8 @@ def rollParse(string):
     else:
         return string.lower().split("d")
     
-def numform(n):
-    return "{:,}".format(bround(float(n)))
+def numform(n, a=0):
+    return "{:,}".format(bround(float(n), a))
 
 #Commands
 @bot.command()
