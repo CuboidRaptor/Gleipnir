@@ -953,7 +953,7 @@ async def buy(ctx, amount):
             }
         )
         
-        tempd["trend"] += ((random.random() / 2) + 0.75) * amount
+        tempd["trend"] += (random.random() / 10) * amount
             
         stonksc.delete_one(
             {
@@ -1012,7 +1012,7 @@ async def sell(ctx, amount):
             }
         )
         
-        tempd["trend"] -= ((random.random() / 2) + 0.75) * amount
+        tempd["trend"] -= (random.random() / 10) * amount
             
         stonksc.delete_one(
             {
