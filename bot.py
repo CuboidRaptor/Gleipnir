@@ -30,7 +30,7 @@ stonksc = db["STONKS!"]
 
 warnid = "000000000000000000010f2c"
 moneyid = "0000000000000000000aa289"
-stonksid = "000000000000000000066a44"
+stonksid = "61bf8fc2ad877a0d31f685ea"
 emojismade = False
 
 #Regexes
@@ -54,6 +54,10 @@ with open("dat.json", "r") as f:
     curselist = yeetus["curses"]
     answers = yeetus["8ball"]
     quoteslist = yeetus["quotes"]
+
+isSwear = r"\|\|" + ("((" + ")|(".join(curselist) + "))") + r"\|\|"
+#print(isSwear)
+isSwear = re.compile(isSwear)
 
 @tasks.loop(minutes=1)
 async def da_muns():
@@ -159,9 +163,9 @@ async def on_message(message):
         return
     
     else:
-        global curselist
-        for item in curselist:
-            if item in str(message.content).lower().replace("```brainfuck", "```bf"):
+        tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
+        for word in curselist:
+            if word in tingy:
                 #you swore, idot.
                 print("somebody swore uh oh")
                 await message.delete()
@@ -921,7 +925,7 @@ async def buy(ctx, amount):
         
     sp = await stonks_price(ctx, silent=True)
     sp *= amount
-    sp = bround(sp)
+    sp = bround(sp, 3)
     if (await wallet(ctx, silent=True))[0] < sp:
         await ctx.send("You don't have enough money.")
         
@@ -958,7 +962,7 @@ async def buy(ctx, amount):
         )
         stonksc.insert_one(tempd)
             
-        await ctx.send(f"You have bought {numform(amount)} STONKS! for ${numform(sp)}!")
+        await ctx.send(f"You have bought {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
 @bot.command()
 async def sell(ctx, amount):
@@ -975,7 +979,8 @@ async def sell(ctx, amount):
         
     sp = await stonks_price(ctx, silent=True)
     sp *= amount
-    sp = bround(sp)
+    sp = bround(sp, 3)
+    
     if (await wallet(ctx, silent=True))[1] < amount:
         await ctx.send("You don't have enough STONKS! to sell.")
         
@@ -987,6 +992,10 @@ async def sell(ctx, amount):
         )
         for item in tempd:
             if item == ctx.message.author.mention:
+                if (tempd[item][0] + sp) > 2000000000:
+                    await ctx.send("You have hit the money limit. Try giving some away.")
+                    return
+                
                 tempd[item][0] += sp
                 tempd[item][1] -= amount
                 
@@ -1012,7 +1021,68 @@ async def sell(ctx, amount):
         )
         stonksc.insert_one(tempd)
         
-        await ctx.send(f"You have sold {numform(amount)} STONKS! for ${numform(sp)}!")
+        await ctx.send(f"You have sold {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
+
+@bot.command()
+async def give(ctx, tgt, amount):
+    """give da STONKS! muns to someone else"""
+    if isMention(tgt):
+        tgt = f"<@{idFromMention(tgt)}>"
+        try:
+            amount = bround(float(amount), 3)
+            if amount < 1:
+                await ctx.send(f"bruh u can't sell {amount} STONKS!.")
+                return
+            
+        except ValueError:
+            await ctx.send(f"bruh u can't sell \"{amount}\" STONKS!.")
+            return
+        
+        if (await wallet(ctx, silent=True))[0] < amount:
+            await ctx.send("You don't have enough money to give.")
+            
+        else:
+            tempd = doughc.find_one(
+                {
+                    "_id": ObjectId(moneyid)
+                }
+            )
+            
+            try:
+                this_is_a_stupid_variable = tempd["<@" + idFromMention(tgt) + ">"]
+                del this_is_a_stupid_variable
+                
+            except KeyError as error:
+                await ctx.send("That person hasn't signed up for STONKS! yet.")
+                return
+            
+            for item in tempd:
+                if item == ctx.message.author.mention:
+                    tempd[item][0] -= amount
+                    
+                elif item == tgt:
+                    if (tempd[item][0] + amount) > 2000000000:
+                        await ctx.send("Your target hit the money limit. Try giving some to someone else.")
+                        
+                        for item in tempd:
+                            if item == ctx.message.author.mention:
+                                tempd[item][0] += amount
+                                
+                        return
+                    
+                    tempd[item][0] += amount
+                    
+            doughc.delete_one(
+                {
+                    "_id": ObjectId(moneyid)
+                }
+            )
+            doughc.insert_one(tempd)
+            
+            await ctx.send(f"You have given ${numform(amount, 3)} to {tgt}")
+            
+    else:
+        await ctx.send("That person isn't a mention.")
 
 #R U N .
 da_muns.start()
