@@ -298,6 +298,9 @@ def rollParse(string):
 def numform(n, a=0):
     return "{:,}".format(bround(float(n), a))
 
+def containsEveryone(message):
+    return ("@everyone" in message) or ("@here" in message)
+
 #Commands
 @bot.command()
 async def ping(ctx):
@@ -319,7 +322,10 @@ async def killcr2(ctx):
 @bot.command(aliases=["no-u"])
 async def no_u(ctx, person):
     """No you, people."""
-    if isCB2(person):
+    if containsEveryone(person):
+        await ctx.send(f"***\\*GASP\\****")
+        
+    elif isCB2(person):
         await ctx.send(f"I have been vaccinated against no-u's.")
         
     else:
@@ -341,7 +347,10 @@ async def quote(ctx):
 async def shoot(ctx, person):
     """Thingy that allows you to joke shoot people."""
     
-    if isCB2(person):
+    if containsEveryone(person):
+        await ctx.send(f"Mass genocide is not allowed in this channel.")
+    
+    elif isCB2(person):
         await ctx.send(f"stop trying to shoot me you meanie")
 
     elif (idFromMention(ctx.message.author.mention) == idFromMention(person)) or (ctx.message.author.name == person):
