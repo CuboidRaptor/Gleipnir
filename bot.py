@@ -555,6 +555,8 @@ async def unban(ctx, person, *args):
                     if (user.name, user.discriminator) == (mname, mdisc):
                         await ctx.message.guild.unban(user)
                         await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
+                        
+                    
             
             else:
                 await ctx.send("You don't have the proper permissions to do that.")
@@ -709,81 +711,85 @@ async def roll(ctx, roll):
 @bot.command()
 async def ship(ctx, person, person2=None):
     """Ship ship ship"""
-    if person2 == None:
-        person2 = ctx.message.author.mention
-    
-    personn, person2n = person, person2
-    try:
-        if isMention(person):
-            personn = await bot.fetch_user(idFromMention(personn))
+    if isCB2(person) or isCB2(person2):
+        await ctx.send("bruh why")
+        
+    else:
+        if person2 == None:
+            person2 = ctx.message.author.mention
+        
+        personn, person2n = person, person2
+        try:
+            if isMention(person):
+                personn = await bot.fetch_user(idFromMention(personn))
+                
+                personn = personn.name
+                
+            if isMention(person2):
+                person2n = await bot.fetch_user(idFromMention(person2n))
+                person2n = person2n.name
+                
+        except discord.errors.NotFound:
+            await ctx.send("Couldn't find names of one or more mentions.")
+            return
             
-            personn = personn.name
+        perc = (lsr(personn, person2n) * 100)
+        perc += ((-perc) ** (3 / 4)) + 32
+        perc = bround(perc.real)
+        
+        if perc > 100:
+            perc = 100
             
-        if isMention(person2):
-            person2n = await bot.fetch_user(idFromMention(person2n))
-            person2n = person2n.name
+        string = f"{person} x {person2} ship compatibility percentage: {perc}%"
+        if perc < 10:
+            compat = "Terrible. :("
             
-    except discord.errors.NotFound:
-        await ctx.send("Couldn't find names of one or more mentions.")
-        return
-        
-    perc = (lsr(personn, person2n) * 100)
-    perc += ((-perc) ** (3 / 4)) + 32
-    perc = bround(perc.real)
-    
-    if perc > 100:
-        perc = 100
-        
-    string = f"{person} x {person2} ship compatibility percentage: {perc}%"
-    if perc < 10:
-        compat = "Terrible. :("
-        
-    elif perc >= 10 and perc < 25:
-        compat = "Pretty Bad."
-        
-    elif perc >= 25 and perc < 50:
-        compat = "Meh."
-        
-    elif perc == 69:
-        compat = "( ͡° ͜ʖ ͡°)"
-        
-    elif perc >= 50 and perc < 75:
-        compat = "Okay."
-        
-    elif perc >= 75 and perc < 90:
-        compat = "Pretty Good!"
-        
-    elif perc >= 90:
-        compat = "Amazing!"
-        
-    await ctx.send("\n".join([string, f"Compatibility score: {compat}"]))
+        elif perc >= 10 and perc < 25:
+            compat = "Pretty Bad."
+            
+        elif perc >= 25 and perc < 50:
+            compat = "Meh."
+            
+        elif perc == 69:
+            compat = "( ͡° ͜ʖ ͡°)"
+            
+        elif perc >= 50 and perc < 75:
+            compat = "Okay."
+            
+        elif perc >= 75 and perc < 90:
+            compat = "Pretty Good!"
+            
+        elif perc >= 90:
+            compat = "Amazing!"
+            
+        await ctx.send("\n".join([string, f"Compatibility score: {compat}"]))
 
-@bot.command(aliases=["open-account"])
-async def open_account(ctx):
-    """Open STONKS! account"""
-    person = ctx.message.author
-    
-    tempd = doughc.find_one(
-        {
-            "_id": ObjectId(moneyid)
-        }
-    )
-    try:
-        stupid = tempd[person.mention]
-        del stupid
-        await ctx.send("You already have a STONKS! account.")
-        return
+    @bot.command(aliases=["open-account"])
+    async def open_account(ctx):
+        """Open STONKS! account"""
+        person = ctx.message.author
         
-    except KeyError:
-        tempd[person.mention] = [100, 0]
-        
-    doughc.delete_one(
-        {
-            "_id": ObjectId(moneyid)
-        }
-    )
-    doughc.insert_one(tempd)
-    await ctx.send(f"{person.mention} has been registered with STONKS!!")
+        tempd = doughc.find_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        try:
+            stupid = tempd[person.mention]
+            del stupid
+            await ctx.send("You already have a STONKS! account.")
+            return
+            
+        except KeyError:
+            tempd[person.mention] = [100, 0]
+            
+        doughc.delete_one(
+            {
+                "_id": ObjectId(moneyid)
+            }
+        )
+        doughc.insert_one(tempd)
+        await ctx.send(f"{person.mention} has been registered with STONKS!!")
 
 @bot.command(aliases=["reset-stonks"])
 async def reset_stonks(ctx, silent=False):
