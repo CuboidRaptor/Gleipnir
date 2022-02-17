@@ -3,7 +3,6 @@
 import discord
 import os
 import sys
-import json
 import certifi
 import re
 import asyncio
@@ -18,6 +17,16 @@ from discord.utils import get
 from dotenv import load_dotenv
 from Levenshtein import ratio as lsr
 from decimal import Decimal
+
+try:
+    import ujson as json
+    
+except (ModuleNotFoundError, ImportError):
+    try:
+        import simplejson as json
+        
+    except (ModuleNotFoundError, ImportError):
+        import json
 
 load_dotenv()
 
@@ -34,8 +43,8 @@ stonksid = "61bf8fc2ad877a0d31f685ea"
 emojismade = False
 
 #Regexes
-mentionre = re.compile(r"<@[0-9]+>")
-mentionre2 = re.compile(r"<@![0-9]+>")
+mentionre = re.compile(r".*<@[0-9]+>.*")
+mentionre2 = re.compile(r".*<@![0-9]+>.*")
 iUAT = re.compile(r".*#[0-9]{4}")
 iRPr = re.compile(r"[0-9]+d[0-9]+")
 
@@ -164,13 +173,14 @@ async def on_message(message):
     
     else:
         tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
+        
         for word in curselist:
             if word in tingy:
                 #you swore, idot.
                 print("somebody swore uh oh")
                 await message.delete()
                 await message.channel.send(f"Don't swear, {message.author.mention}")
-                
+        
         if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
             #Did you say bot name?
             await message.channel.send("Hello there, I heard my name?")
