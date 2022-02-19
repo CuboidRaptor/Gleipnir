@@ -1,5 +1,10 @@
+# Environment
 *.env
-
 .env
+
+# Test files
 test.py
 create.py
+
+# Logs
+latest.log

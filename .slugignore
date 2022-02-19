@@ -1,8 +1,17 @@
+# Logo
 logo.png
+
+# Test
 test.py
-LICENSE
-README.md
-.env
 create.py
 
+# License/README
+LICENSE
+README.md
+
+#Environment
+.env
 *.env
+
+# Logs
+latest.log

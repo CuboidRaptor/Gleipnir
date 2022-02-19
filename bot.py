@@ -1,5 +1,17 @@
-#v1.2.2
+#Logging
+import logging
+
+with open("latest.log", "w") as f: pass
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename="latest.log",
+    format="[%(levelname)s]: %(message)s"
+)
+logging.debug("1.3.0.0")
+
 #Imports
+logging.debug("Importing...")
 import discord
 import os
 import sys
@@ -29,9 +41,11 @@ except (ModuleNotFoundError, ImportError):
     except (ModuleNotFoundError, ImportError):
         import json
 
+logging.debug("Loading environment...")
 load_dotenv()
 
 #MongoDB twash
+logging.debug("Defining MongoDB Constants...")
 client = MongoClient(str(os.getenv("MON_STRING")), tlsCAFile=certifi.where())
 db = client["CRBOT2Dat"]
 warnsc = db["warns"]
@@ -45,13 +59,16 @@ moneyid = "0000000000000000000aa289"
 stonksid = "61bf8fc2ad877a0d31f685ea"
 emojismade = False
 
+msgst = {}
+
 #Regexes
+logging.debug("Defining regexes...")
 mentionre = re.compile(r"(.*<@[0-9]+>.*)|(.*<@![0-9]+>.*)")
 iUAT = re.compile(r".*#[0-9]{4}")
 iRPr = re.compile(r"[0-9]+d[0-9]+")
 
 #stuff
-
+logging.debug("Defining bot constants...")
 pf = "."
 intents = discord.Intents.all()
 bot = commands.Bot(
@@ -61,6 +78,7 @@ bot = commands.Bot(
 )
 with open("dat.json", "r") as f:
     #Load crap from data file
+    logging.debug("Loading from JSON datafile...")
     yeetus = json.loads(f.read())
     curselist = yeetus["curses"]
     answers = yeetus["8ball"]
@@ -73,6 +91,7 @@ isSwear = re.compile(isSwear)
 @tasks.loop(minutes=1)
 async def da_muns():
     #Fluctuates STONKS! price
+    logging.debug("Changing STONKS! price")
     tempd = stonksc.find_one(
         {
             "_id": ObjectId(stonksid)
@@ -100,6 +119,7 @@ async def da_muns():
 
 @tasks.loop(minutes=18)
 async def allowance():
+    logging.debug("Giving allowance...")
     tempd = doughc.find_one(
         {
             "_id": ObjectId(moneyid)
@@ -119,6 +139,7 @@ async def allowance():
 @bot.event
 async def on_ready():
     #logged in?
+    logging.debug("call: on_ready()")
     print(f"CRBOT2 has logged on in to Discord as {bot.user}")
     
     #Remove accidental allowance
@@ -142,6 +163,7 @@ async def on_ready():
 #events
 @bot.event
 async def on_member_join(member):
+    logging.debug("call: on_member_join()")
     await member.send("""Hello there!
 This is an automated message.:robot: 
 I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
@@ -163,12 +185,14 @@ If you are interested in becoming a sister server, DM <@718106301196009544> ig.
     
 @bot.event
 async def on_member_remove(member):
+    logging.debug("call: on_member_remove()")
     channel = get(member.guild.text_channels, name="📢events-announcements📢")
     await channel.send(f"*{member.mention} has left. Goodbye, {member.mention}*")
 
 @bot.event
 async def on_message(message):
     #When someone messages
+    logging.debug("call: on_message()")
     if message.author == bot.user:
         #Is the bot messaging.
         return
@@ -224,18 +248,18 @@ async def on_message(message):
 @bot.command()
 async def test(ctx):
     """Test command for testing code. Doesn't do anything at the moment."""
-    #test for when I need to do dumb stuff
+    logging.debug("call: test()")
     pass
 
 #Functions
 def d(n):
     #precision
+    logging.debug("call: d()")
     return Decimal(str(n))
 
 def bround(n, a=0):
-    #better rounding, I was too lazy to swap names so here is a keyword name
-    #(FYI afaik this is bad pratice but I'm LAZ.)
-    #I was too lazy to type the "Y".
+    #better rounding
+    logging.debug("call: bround()")
     if a == 0:
         return int(round(d(str(n)), a))
     
@@ -244,6 +268,7 @@ def bround(n, a=0):
 
 def g_role(ctx, rname):
     #Checks if ctx.message.author has any one of the roles in [rname]
+    logging.debug("call: g_role()")
     role_t = []
     for item in rname:
         role_t.append(get(ctx.guild.roles, name=str(item)) in ctx.message.author.roles)
@@ -256,6 +281,7 @@ def g_role(ctx, rname):
 
 def isCuboid(ctx):
     #Is message author in ctx me (Cuboid)?
+    logging.debug("call: isCuboid()")
     if (ctx.message.author.id == 588132098875850752):
         return True
     
@@ -264,11 +290,13 @@ def isCuboid(ctx):
     
 def isMention(text):
     #Is text a mention?
+    logging.debug("call: isMention()")
     global mentionre
     return mentionre.match(text) != None
     
 def idFromMention(mention):
     #Get User ID from mention
+    logging.debug("call: idFromMention()")
     if mention.startswith("<@!"):
         return str(mention)[3:-1]
     
@@ -277,6 +305,7 @@ def idFromMention(mention):
     
 def isCB2(text):
     #Is text CRBOT2
+    logging.debug("call: isCB2()")
     text = text.strip()
     if (text == str(bot.user.name)) or (text == str(bot.user)) or (text == "<@" + str(bot.user.id) + ">") or (text == "<@!" + str(bot.user.id) + ">"):
         return True
@@ -286,6 +315,7 @@ def isCB2(text):
     
 def isUserAndTag(text):
     #Checks if the string contains a username and tag
+    logging.debug("call: isUserAndTag()")
     global iUAT
     if iUAT.match(text.strip()) == None:
         return False
@@ -299,6 +329,7 @@ def isUserAndTag(text):
         
 def isEmpty(text):
     #Checks if string is empty
+    logging.debug("call: isEmpty()")
     if text == "" or text.isspace():
         return True
     
@@ -307,6 +338,7 @@ def isEmpty(text):
     
 def reasonRet(arr):
     #Returns reason from *args
+    logging.debug("call: reasonRet()")
     reason = " ".join(arr)
                     
     if isEmpty(reason):
@@ -316,6 +348,7 @@ def reasonRet(arr):
 
 def rollParse(string):
     #Parses roll number
+    logging.debug("call: rollParse()")
     global iRPr
     if iRPr.match(string) == None:
         return False
@@ -336,11 +369,13 @@ def containsEveryone(message):
 @bot.command()
 async def ping(ctx):
     """pings, this is just for tests"""
+    logging.debug("call: ping()")
     await ctx.send("pong")
     
 @bot.command()
 async def killcr2(ctx):
     """Kills CRBOT2. Only Cuboid_Raptor#7340 can run this command."""
+    logging.debug("call: killcr2()")
     if isCuboid(ctx):
         #r u me?
         await ctx.send("Ok, Ending...")
@@ -353,6 +388,7 @@ async def killcr2(ctx):
 @bot.command(aliases=["no-u"])
 async def no_u(ctx, person):
     """No you, people."""
+    logging.debug("call: no_u()")
     if containsEveryone(person):
         await ctx.send(f"***\\*GASP\\****")
         
@@ -365,19 +401,21 @@ async def no_u(ctx, person):
 @bot.command(aliases=["8ball"])
 async def magic8ball(ctx):
     """Magic 8ball. Ask it questions."""
+    logging.debug("call: magic8ball()")
     global answers
     await ctx.send(choice(answers))
     
 @bot.command()
 async def quote(ctx):
     """Draws from my quotesbook and prints in chat."""
+    logging.debug("call: quote()")
     global quoteslist
     await ctx.send(choice(quoteslist))
     
 @bot.command()
 async def shoot(ctx, person):
     """Thingy that allows you to joke shoot people."""
-    
+    logging.debug("call: shoot()")
     if containsEveryone(person):
         await ctx.send(f"Mass genocide is not allowed in this channel.")
     
@@ -393,6 +431,7 @@ async def shoot(ctx, person):
 @bot.command()
 async def warn(ctx, person, *args):
     """Warn people."""
+    logging.debug("call: warn()")
     if isCB2(person):
         await ctx.send("I HAVEN'T DONE ANYTHING!")
         
@@ -430,6 +469,7 @@ async def warn(ctx, person, *args):
 @bot.command()
 async def rmwarn(ctx, person, *args):
     """Remove warn from people."""
+    logging.debug("call: rmwarn()")
     if isCB2(person):
         await ctx.send("I haven't been warned yet. I wouldn't warn myself.")
         
@@ -473,6 +513,7 @@ async def rmwarn(ctx, person, *args):
 @bot.command()
 async def warns(ctx, person):
     """Shows warns of people"""
+    logging.debug("call: warns()")
     if not isMention(person):
         await ctx.send(f"That person is not a mention.")
         
@@ -492,6 +533,7 @@ async def warns(ctx, person):
 @bot.command()
 async def warnclear(ctx):
     """Clears all warns globally. Only Cuboid_Raptor#7340 can run this command."""
+    logging.debug("call: warnclear()")
     if isCuboid(ctx):
         tempd = {
             "_id": ObjectId(warnid)
@@ -512,6 +554,7 @@ async def warnclear(ctx):
 @bot.command()
 async def kick(ctx, person, *args):
     """kicky"""
+    logging.debug("call: kick()")
     if isCB2(str(person)):
         await ctx.send(":(")
         
@@ -534,6 +577,7 @@ async def kick(ctx, person, *args):
 @bot.command()
 async def ban(ctx, person, *args):
     """make ppl get ban'd"""
+    logging.debug("call: ban()")
     if isCB2(str(person)):
         await ctx.send("""██╗░░██╗
 ╚═╝░██╔╝
@@ -569,6 +613,7 @@ async def ban(ctx, person, *args):
 @bot.command()
 async def unban(ctx, person, *args):
     """Unban people."""
+    logging.debug("call: unban()")
     if isCB2(str(person)):
         await ctx.send("Thanks for the attempt, but I haven't been banned in this server yet :)")
         
@@ -598,6 +643,7 @@ async def unban(ctx, person, *args):
 @bot.command()
 async def mute(ctx, person, *args, **kwargs):
     """Mute people until unmuted."""
+    logging.debug("call: mute()")
     if isCB2(str(person)):
         await ctx.send("dood you're a rude guy >:(")
         
@@ -655,6 +701,7 @@ async def mute(ctx, person, *args, **kwargs):
 @bot.command()
 async def unmute(ctx, person, *args, **kwargs):
     """Unmute people."""
+    logging.debug("call: unmute()")
     if isCB2(str(person)):
         await ctx.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
         
@@ -701,6 +748,7 @@ async def unmute(ctx, person, *args, **kwargs):
 @bot.command()
 async def tempmute(ctx, person, time, *args):
     """Temporarily mute people."""
+    logging.debug("call: tempmute()")
     if isCB2(str(person)):
         await ctx.send("stahp go away")
         
@@ -723,6 +771,7 @@ async def tempmute(ctx, person, time, *args):
 @bot.command()
 async def roll(ctx, roll):
     """Roll die."""
+    logging.debug("call: roll()")
     if not rollParse(roll):
         await ctx.send("That isn't a valid dice to roll.")
         
@@ -742,6 +791,7 @@ async def roll(ctx, roll):
 @bot.command()
 async def ship(ctx, person, person2=None):
     """Ship ship ship"""
+    logging.debug("call: ship()")
     if isCB2(person) or isCB2(person2):
         await ctx.send("bruh why")
         
@@ -798,6 +848,7 @@ async def ship(ctx, person, person2=None):
     @bot.command(aliases=["open-account"])
     async def open_account(ctx):
         """Open STONKS! account"""
+        logging.debug("call: open_account()")
         person = ctx.message.author
         
         tempd = doughc.find_one(
@@ -825,6 +876,7 @@ async def ship(ctx, person, person2=None):
 @bot.command(aliases=["reset-stonks"])
 async def reset_stonks(ctx, silent=False):
     """Reset STONKS! Only Cuboid_Raptor#7340 can run this command"""
+    logging.debug("call: reset_stonks()")
     if isCuboid(ctx):
         tempd = stonksc.find_one(
             {
@@ -849,6 +901,7 @@ async def reset_stonks(ctx, silent=False):
 
 @bot.command(aliases=["erase-stonks"])
 async def erase_stonks(ctx, silent=False):
+    logging.debug("call: erase_stonks()")
     """Erase all global STONKS! from shareholders. Only Cuboid_Raptor#7340"""
     if isCuboid(ctx):
         tempd = doughc.find_one(
@@ -876,6 +929,7 @@ async def erase_stonks(ctx, silent=False):
 @bot.command(aliases=["stonks-price"])
 async def stonks_price(ctx, silent=False):
     """Print current STONKS! price"""
+    logging.debug("call: stonks_price()")
     if silent == False:
         await ctx.send(
             "The current STONKS! price is: " + str(
@@ -902,6 +956,7 @@ async def stonks_price(ctx, silent=False):
 @bot.command(aliases=["erase-money"])
 async def erase_money(ctx, silent=False):
     """Erase all money, globally. Only Cuboid_Raptor#7340 can run this command."""
+    logging.debug("call: erase_money()")
     if isCuboid(ctx):
         tempd = doughc.find_one(
             {
@@ -928,6 +983,7 @@ async def erase_money(ctx, silent=False):
 @bot.command(aliases=["reset-finance"])
 async def reset_finance(ctx):
     """Reset all finances. Dangerous command. Ony can be user by Cuboid_Raptor#7340."""
+    logging.debug("call: reset_finance()")
     if isCuboid(ctx):
         await reset_stonks(ctx, silent=True)
         await erase_stonks(ctx, silent=True)
@@ -940,6 +996,7 @@ async def reset_finance(ctx):
 @bot.command()
 async def wallet(ctx, silent=False):
     """Shows current amount of money if you have a registered account."""
+    logging.debug("call: wallet()")
     tempd = doughc.find_one(
         {
             "_id": ObjectId(moneyid)
@@ -959,6 +1016,7 @@ async def wallet(ctx, silent=False):
 @bot.command()
 async def buy(ctx, amount):
     """Buy some STONKS! from STONKS!."""
+    logging.debug("call: buy()")
     try:
         amount = int(bround(float(amount)))
         if amount < 1:
@@ -1013,6 +1071,7 @@ async def buy(ctx, amount):
 @bot.command()
 async def sell(ctx, amount):
     """Sell some STONKS! from STONKS!."""
+    logging.debug("call: sell()")
     try:
         amount = int(bround(float(amount)))
         if amount < 1:
@@ -1072,6 +1131,7 @@ async def sell(ctx, amount):
 @bot.command()
 async def give(ctx, tgt, amount):
     """give da STONKS! muns to someone else"""
+    logging.debug("call: give()")
     if isMention(tgt):
         tgt = f"<@{idFromMention(tgt)}>"
         try:
@@ -1135,6 +1195,7 @@ async def points(ctx, user=None, silent=False):
     """Show number of points of others, or yourself."""
     logging.debug("call: points()")
     if user == None:
+        isSelf = True
         user = ctx.message.author.id
 
     elif not isMention(user):
@@ -1143,9 +1204,11 @@ async def points(ctx, user=None, silent=False):
 
         else:
             logging.info("That person isn't a mention (callback from points())")
+
         return
 
     else:
+        isSelf = False
         user = idFromMention(user)
 
     tempd = pointsc.find_one(
@@ -1155,13 +1218,19 @@ async def points(ctx, user=None, silent=False):
     )
 
     try:
-        out = f"{tempd[str(user)]} points"
+        out = f"{tempd[str(user)]} cp"
 
     except KeyError:
         out = "0 points"
 
     if not silent:
-        await ctx.send(out)
+        if isSelf:
+            await ctx.send("You have " + out)
+
+        else:
+            temp = await bot.fetch_user(user)
+            await ctx.send(f"{temp.name} has " + out)
+            del temp
 
     else:
         return tempd[str(user)]
@@ -1195,7 +1264,7 @@ async def leaderboard(ctx):
                 await add(a, n)
                 return
 
-            output += f"{str(a) + str(temp.name)} - {str(thingy[n][1])} points\n"
+            output += f"{str(a) + str(temp.name)} - {str(thingy[n][1])} cp\n"
             del temp
             return 0
 
@@ -1224,12 +1293,12 @@ async def leaderboard(ctx):
     except ValueError:
         yay = "Last"
 
-    output += f"{ctx.message.author.name} - {curp} points (Place " + yay + ")"
+    output += f"{ctx.message.author.name} - {curp} cp (Place " + yay + ")"
 
     await ctx.send(output)
 
-@bot.command(aliases=["givepoints"])
-async def give(ctx, person, pointa):
+@bot.command()
+async def givepoints(ctx, person, pointa):
     """Give points to others."""
     logging.debug("call: give()")
 
@@ -1248,7 +1317,7 @@ async def give(ctx, person, pointa):
     hasp = await points(ctx, silent=True)
 
     if hasp < pointa:
-        await ctx.send("You cannot afford to send that many points.")
+        await ctx.send("You cannot afford to send that many Cuboid Points.")
         return
 
     tempd[str(ctx.message.author.id)] -= int(pointa)
@@ -1258,7 +1327,11 @@ async def give(ctx, person, pointa):
         raise ValueError("WTF")
         return
 
-    tempd[str(idFromMention(person))] += int(pointa)
+    try:
+        tempd[str(idFromMention(person))] += int(pointa)
+
+    except KeyError:
+        tempd[str(idFromMention(person))] = int(pointa)
 
     pointsc.delete_one(
         {
@@ -1268,7 +1341,7 @@ async def give(ctx, person, pointa):
 
     pointsc.insert_one(tempd)
 
-    await ctx.send(f"{pointa} points have been sent to {person}!")
+    await ctx.send(f"{pointa} cp have been sent to {person}!")
 
 #R U N .
 da_muns.start()
