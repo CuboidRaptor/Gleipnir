@@ -8,6 +8,7 @@ import re
 import asyncio
 import random
 import math
+import time
 
 from pymongo import *
 from bson.objectid import ObjectId
@@ -36,15 +37,16 @@ db = client["CRBOT2Dat"]
 warnsc = db["warns"]
 doughc = db["money"]
 stonksc = db["STONKS!"]
+pointsc = db["points"]
 
+pointsid = "620cfe72f63ae0339129c774"
 warnid = "000000000000000000010f2c"
 moneyid = "0000000000000000000aa289"
 stonksid = "61bf8fc2ad877a0d31f685ea"
 emojismade = False
 
 #Regexes
-mentionre = re.compile(r".*<@[0-9]+>.*")
-mentionre2 = re.compile(r".*<@![0-9]+>.*")
+mentionre = re.compile(r"(.*<@[0-9]+>.*)|(.*<@![0-9]+>.*)")
 iUAT = re.compile(r".*#[0-9]{4}")
 iRPr = re.compile(r"[0-9]+d[0-9]+")
 
@@ -170,20 +172,51 @@ async def on_message(message):
     if message.author == bot.user:
         #Is the bot messaging.
         return
-    
-    else:
-        tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
-        
-        for word in curselist:
-            if word in tingy:
-                #you swore, idot.
-                print("somebody swore uh oh")
-                await message.delete()
-                await message.channel.send(f"Don't swear, {message.author.mention}")
-        
-        if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
-            #Did you say bot name?
-            await message.channel.send("Hello there, I heard my name?")
+
+    if message.author.bot:
+        return #Prevent bots from running commands.
+
+    tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
+
+    for word in curselist:
+        if word in tingy:
+            #you swore, idot.
+            print("somebody swore uh oh")
+            await message.delete()
+            await message.channel.send(f"Don't swear, {message.author.mention}")
+            return
+
+    if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
+        #Did you say bot name?
+        await message.channel.send("Hello there, I heard my name?")
+
+    try:
+        dif = time.time() - msgst[message.author.id]
+
+    except KeyError:
+        dif = 7 #Could be any number >0.5
+
+    if dif > 1:
+        tempd = pointsc.find_one(
+            {
+                "_id": ObjectId(pointsid)
+            }
+        )
+
+        try:
+            tempd[str(message.author.id)] += 10
+
+        except KeyError:
+            tempd[str(message.author.id)] = 10
+
+        pointsc.delete_one(
+            {
+                "_id": ObjectId(pointsid)
+            }
+        )
+
+        pointsc.insert_one(tempd)
+        msgst[message.author.id] = time.time()
                 
     await bot.process_commands(message)
 
@@ -231,20 +264,8 @@ def isCuboid(ctx):
     
 def isMention(text):
     #Is text a mention?
-    global mentionre, mentionre2
-    if mentionre.match(text) == None:
-        out = False
-    
-    else:
-        out = True
-        
-    if mentionre2.match(text) == None:
-        out = out or False
-    
-    else:
-        out = out or True
-        
-    return out
+    global mentionre
+    return mentionre.match(text) != None
     
 def idFromMention(mention):
     #Get User ID from mention
@@ -731,12 +752,12 @@ async def ship(ctx, person, person2=None):
         personn, person2n = person, person2
         try:
             if isMention(person):
-                personn = await bot.fetch_user(idFromMention(personn))
+                personn = await bot.fetch_user(int(idFromMention(personn)))
                 
                 personn = personn.name
                 
             if isMention(person2):
-                person2n = await bot.fetch_user(idFromMention(person2n))
+                person2n = await bot.fetch_user(int(idFromMention(person2n)))
                 person2n = person2n.name
                 
         except discord.errors.NotFound:
@@ -769,7 +790,7 @@ async def ship(ctx, person, person2=None):
         elif perc >= 75 and perc < 90:
             compat = "Pretty Good!"
             
-        elif perc >= 90:
+        else:
             compat = "Amazing!"
             
         await ctx.send("\n".join([string, f"Compatibility score: {compat}"]))
@@ -1108,6 +1129,146 @@ async def give(ctx, tgt, amount):
             
     else:
         await ctx.send("That person isn't a mention.")
+
+@bot.command()
+async def points(ctx, user=None, silent=False):
+    """Show number of points of others, or yourself."""
+    logging.debug("call: points()")
+    if user == None:
+        user = ctx.message.author.id
+
+    elif not isMention(user):
+        if not silent:
+            await ctx.send("That person isn't a mention.")
+
+        else:
+            logging.info("That person isn't a mention (callback from points())")
+        return
+
+    else:
+        user = idFromMention(user)
+
+    tempd = pointsc.find_one(
+        {
+            "_id": ObjectId(pointsid)
+        }
+    )
+
+    try:
+        out = f"{tempd[str(user)]} points"
+
+    except KeyError:
+        out = "0 points"
+
+    if not silent:
+        await ctx.send(out)
+
+    else:
+        return tempd[str(user)]
+
+@bot.command(aliases=["lb"])
+async def leaderboard(ctx):
+    """Leaderboard function for points."""
+    logging.debug("call: leaderboard()")
+    global output, thingy
+    tempd = pointsc.find_one(
+        {
+            "_id": ObjectId(pointsid)
+        }
+    )
+    del tempd["_id"]
+    thingy = [[k, v] for k, v in tempd.items()]
+    thingy = sorted(thingy, key=lambda x: x[1])[::-1]
+    places = []
+
+    for item in thingy:
+        places.append(item[0])
+
+    output = ""
+    async def add(a, n):
+        global output, thingy
+        try:
+            temp = await bot.fetch_user(thingy[n][0])
+
+            if temp.bot:
+                del thingy[n]
+                await add(a, n)
+                return
+
+            output += f"{str(a) + str(temp.name)} - {str(thingy[n][1])} points\n"
+            del temp
+            return 0
+
+        except (KeyError) as error:
+            logging.debug("Error occured in leaderboard.add(), could be incomplete leaderboard")
+            logging.warning(f"{type(error).name}: {str(error)}")
+            return 1
+
+        except Exception as error:
+            logging.debug("Unexpected error occured in leaderboard.add().")
+            logging.error(f"{type(error).name}: {str(error)}")
+            return 1
+
+    if not await add("🥇", 0):
+        if not await add("🥈", 1):
+            if not await add("🥉", 2):
+                if not await add("🏵️", 3):
+                    await add("🏵️", 4)
+
+    curp = await points(ctx, silent=True)
+    curp = int(curp)
+
+    try:
+        yay = "#" + str(places.index(str(ctx.message.author.id)) + 1)
+
+    except ValueError:
+        yay = "Last"
+
+    output += f"{ctx.message.author.name} - {curp} points (Place " + yay + ")"
+
+    await ctx.send(output)
+
+@bot.command(aliases=["givepoints"])
+async def give(ctx, person, pointa):
+    """Give points to others."""
+    logging.debug("call: give()")
+
+    pointa = bround(pointa)
+
+    tempd = pointsc.find_one(
+        {
+            "_id": ObjectId(pointsid)
+        }
+    )
+
+    if not isMention(person):
+        await ctx.send("That person isn't a mention.")
+        return
+
+    hasp = await points(ctx, silent=True)
+
+    if hasp < pointa:
+        await ctx.send("You cannot afford to send that many points.")
+        return
+
+    tempd[str(ctx.message.author.id)] -= int(pointa)
+
+    if tempd[str(ctx.message.author.id)] < 0:
+        logging.error("PANIC!!!!! CALCULATIONS DON'T MAKE SENSE")
+        raise ValueError("WTF")
+        return
+
+    tempd[str(idFromMention(person))] += int(pointa)
+
+    pointsc.delete_one(
+        {
+            "_id": ObjectId(pointsid)
+        }
+    )
+
+    pointsc.insert_one(tempd)
+
+    await ctx.send(f"{pointa} points have been sent to {person}!")
 
 #R U N .
 da_muns.start()
