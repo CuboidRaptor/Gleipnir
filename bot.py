@@ -139,6 +139,52 @@ async def allowance():
     )
     doughc.insert_one(tempd)
 
+# Gender Menu
+class Select(discord.ui.Select):
+    def __init__(self):
+        self.roptions = [
+            "He/Him",
+            "She/Her",
+            "They/Them"
+        ]
+        options = [
+            discord.SelectOption(
+                label="He/Him",
+                emoji="🔵"
+            ),
+            discord.SelectOption(
+                label="She/Her",
+                emoji="🟣"
+            ),
+            discord.SelectOption(
+                label="They/Them",
+                emoji="⚪"
+            )
+        ]
+        super().__init__(
+            placeholder="Select a set of gender pronouns",
+            max_values=1,
+            min_values=1,
+            options=options
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        member = interaction.user
+        role = get(member.guild.roles, name=self.values[0])
+        await member.add_roles(role)
+
+        for item in self.roptions:
+            if item != self.values[0]:
+                role = get(member.guild.roles, name=item)
+                await member.remove_roles(role)
+
+class SelectView(discord.ui.View):
+    def __init__(self, *, timeout=180):
+        super().__init__(timeout=timeout)
+        self.add_item(Select())
+
+#events
+
 @bot.event
 async def on_ready():
     #logged in?
@@ -163,7 +209,16 @@ async def on_ready():
     )
     doughc.insert_one(tempd)
 
-#events
+    server = get(bot.guilds, name="☕Cuboid's Café☕")
+    channel = get(server.text_channels, name="✅verify✅")
+
+    msgs = await channel.history(limit=200).flatten()
+    for i in msgs:
+        if "Pick a set of pronouns for others to call you by." in i.content:
+            await i.delete()
+
+    await channel.send("Pick a set of pronouns for others to call you by.", view=SelectView())
+
 @bot.event
 async def on_member_join(member):
     logging.debug("call: on_member_join()")
@@ -399,15 +454,7 @@ def fullName(author):
     #Returns name + tag from user/Member object
     return author.name + "#" + author.discriminator
 
-# Gender Menu
-
 #Commands
-@bot.command()
-async def menu(ctx):
-    if True:
-        if iCuboid(ctx):
-
-
 @bot.command()
 async def ping(ctx):
     """pings, this is just for tests"""
@@ -474,7 +521,7 @@ async def shoot(ctx, person):
         return
 
     if isMention(person):
-        person = await bot.fetch_user(idFromMention(person))
+        person = await bot.fetch_user(int(idFromMention(person)))
         person = person.name
 
     else:
