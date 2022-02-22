@@ -21,6 +21,7 @@ import asyncio
 import random
 import math
 import time
+import requests
 
 from pymongo import *
 from bson.objectid import ObjectId
@@ -60,6 +61,8 @@ stonksid = "61bf8fc2ad877a0d31f685ea"
 emojismade = False
 
 msgst = {}
+# Endpoints: https://kawaii.red/api/gif/endpoints/token=token/
+kawaiit = str(os.getenv("KAWAII"))
 
 #Regexes
 logging.debug("Defining regexes...")
@@ -164,30 +167,50 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     logging.debug("call: on_member_join()")
-    await member.send("""Hello there!
+    try:
+        embed = discord.Embed(
+            title=f"Thank you for joining!",
+            description="Have fun!"
+        )
+        embed.set_image(url=kawaii("happy"))
+
+        await member.send("""Hello there!
 This is an automated message.:robot: 
 I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
 I have DM'd you to say, welcome to Cuboid's Café!:coffee: 
 I sincerely hope you have a great time in the server!:laughing:
-You can also interact with me in the server, do be sure to use *[.]* as a command prefix.
+You can also interact with me in the server, do be sure to use *[.]* as a command prefix.""",
+            embed=embed
+        )
+    except discord.errors.HTTPException:
+        logging.warning("HTTPException when DMing new user")
 
-We also have many sister servers, servers which you can join as well.
-If you are interested in becoming a sister server, DM <@718106301196009544> ig.
-
-* https://discord.gg/8Fhkj7k7aN
-* https://discord.gg/aVvtgaqWPN
-* https://discord.gg/hVwzNST69k
-* https://discord.gg/RkPMG9Rs6k
-
-||P.S. the STONKS! market fluctuates regularly||""")
     channel = get(member.guild.text_channels, name="📢events-announcements📢")
+
+    embed = discord.Embed(
+        title=f"{member.mention} has joined!",
+        description="yay and stuff"
+    )
+    embed.set_image(url=kawaii("wave"))
+
     await channel.send(f"*{member.mention} is here! We hope you have a nice time here, {member.mention}!*")
+    await channel.send(embed=embed)
     
 @bot.event
 async def on_member_remove(member):
     logging.debug("call: on_member_remove()")
+
+    embed = discord.Embed(
+        title=f"Oh no! {member.mention} has left.",
+        description="\\:'\\("
+    )
+    embed.set_image(url=kawaii("cry"))
+
     channel = get(member.guild.text_channels, name="📢events-announcements📢")
-    await channel.send(f"*{member.mention} has left. Goodbye, {member.mention}*")
+    await channel.send(
+        f"*{member.mention} has left. Goodbye, {member.mention}*",
+        embed=embed
+    )
 
 @bot.event
 async def on_message(message):
@@ -360,12 +383,31 @@ def rollParse(string):
         return string.lower().split("d")
     
 def numform(n, a=0):
+    #Adds commas and round number.
     return "{:,}".format(bround(float(n), a))
 
 def containsEveryone(message):
+    #Check if message contains @everyone pings.
     return ("@everyone" in message) or ("@here" in message)
 
+def kawaii(sub):
+    #Gets GIF from kawaii.red
+    r = requests.get(f"https://kawaii.red/api/gif/{sub}/token={kawaiit}/")
+    return str(r.json()['response'])
+
+def fullName(author):
+    #Returns name + tag from user/Member object
+    return author.name + "#" + author.discriminator
+
+# Gender Menu
+
 #Commands
+@bot.command()
+async def menu(ctx):
+    if True:
+        if iCuboid(ctx):
+
+
 @bot.command()
 async def ping(ctx):
     """pings, this is just for tests"""
@@ -411,22 +453,40 @@ async def quote(ctx):
     logging.debug("call: quote()")
     global quoteslist
     await ctx.send(choice(quoteslist))
-    
+
 @bot.command()
 async def shoot(ctx, person):
-    """Thingy that allows you to joke shoot people."""
+    """Shoot people. Idk y."""
     logging.debug("call: shoot()")
-    if containsEveryone(person):
-        await ctx.send(f"Mass genocide is not allowed in this channel.")
-    
-    elif isCB2(person):
-        await ctx.send(f"stop trying to shoot me you meanie")
 
-    elif (idFromMention(ctx.message.author.mention) == idFromMention(person)) or (ctx.message.author.name == person):
-        await ctx.send(f"Don't commit suicide, {ctx.message.author.mention}")
-    
+    if isMention(person):
+        if int(ctx.message.author.id) == int(idFromMention(person)):
+            await ctx.send("Aw c'mon, don't kill yourself.")
+            return
+
     else:
-        await ctx.send(f"{ctx.message.author.mention} ( う-´)づ︻╦̵̵̿╤──   \\\\(˚☐˚”)/ {person}")
+        if person.strip() == ctx.message.author.name:
+            await ctx.send("Aw c'mon, don't kill yourself.")
+            return
+
+    if ("@everyone" in person) or ("@here" in person):
+        await ctx.send("Mass genocide isn't allowed yet. Try again later.")
+        return
+
+    if isMention(person):
+        person = await bot.fetch_user(idFromMention(person))
+        person = person.name
+
+    else:
+        pass
+
+    embed = discord.Embed(
+        title=f"{ctx.message.author.name} has shot {person}!",
+        description="oof",
+    )
+    embed.set_image(url=kawaii("shoot"))
+
+    await ctx.send(embed=embed)
     
 @bot.command()
 async def warn(ctx, person, *args):
