@@ -8,3 +8,6 @@ create.py
 
 # Logs
 latest.log
+
+# Hardpull
+__hardpull__.sh

@@ -22,8 +22,8 @@ import random
 import math
 import time
 import requests
+import motor.motor_asyncio
 
-from pymongo import *
 from bson.objectid import ObjectId
 from random import randint, choice
 from discord.ext import commands, tasks
@@ -47,7 +47,14 @@ load_dotenv()
 
 #MongoDB twash
 logging.debug("Defining MongoDB Constants...")
-client = MongoClient(str(os.getenv("MON_STRING")), tlsCAFile=certifi.where())
+client = motor.motor_asyncio.AsyncIOMotorClient(
+    str(
+        os.getenv(
+            "MON_STRING"
+        )
+    ),
+    tlsCAFile=certifi.where()
+)
 db = client["CRBOT2Dat"]
 warnsc = db["warns"]
 doughc = db["money"]
@@ -95,7 +102,7 @@ isSwear = re.compile(isSwear)
 async def da_muns():
     #Fluctuates STONKS! price
     logging.debug("Changing STONKS! price")
-    tempd = stonksc.find_one(
+    tempd = await stonksc.find_one(
         {
             "_id": ObjectId(stonksid)
         }
@@ -132,17 +139,17 @@ async def da_muns():
         
     tempd["STANKS!"] = abs(tempd["STANKS!"])
         
-    stonksc.delete_one(
+    await stonksc.delete_one(
         {
             "_id": ObjectId(stonksid)
         }
     )
-    stonksc.insert_one(tempd)
+    await stonksc.insert_one(tempd)
 
 @tasks.loop(minutes=18)
 async def allowance():
     logging.debug("Giving allowance...")
-    tempd = doughc.find_one(
+    tempd = await doughc.find_one(
         {
             "_id": ObjectId(moneyid)
         }
@@ -151,12 +158,12 @@ async def allowance():
         if item != "_id":
             tempd[item][0] += 0.625
             
-    doughc.delete_one(
+    await doughc.delete_one(
         {
             "_id": ObjectId(moneyid)
         }
     )
-    doughc.insert_one(tempd)
+    await doughc.insert_one(tempd)
 
 #events
 
@@ -168,7 +175,7 @@ async def on_ready():
     
     #Remove accidental allowance
     await asyncio.sleep(1)
-    tempd = doughc.find_one(
+    tempd = await doughc.find_one(
         {
             "_id": ObjectId(moneyid)
         }
@@ -177,12 +184,12 @@ async def on_ready():
         if item != "_id":
             tempd[item][0] -= 0.625
             
-    doughc.delete_one(
+    await doughc.delete_one(
         {
             "_id": ObjectId(moneyid)
         }
     )
-    doughc.insert_one(tempd)
+    await doughc.insert_one(tempd)
 
 @bot.event
 async def on_member_join(member):
@@ -264,7 +271,7 @@ async def on_message(message):
         dif = 7 #Could be any number >0.5
 
     if dif > 1:
-        tempd = pointsc.find_one(
+        tempd = await pointsc.find_one(
             {
                 "_id": ObjectId(pointsid)
             }
@@ -276,15 +283,15 @@ async def on_message(message):
         except KeyError:
             tempd[str(message.author.id)] = 10
 
-        pointsc.delete_one(
+        await pointsc.delete_one(
             {
                 "_id": ObjectId(pointsid)
             }
         )
 
-        pointsc.insert_one(tempd)
+        await pointsc.insert_one(tempd)
         msgst[message.author.id] = time.time()
-                
+
     await bot.process_commands(message)
 
 #test command
@@ -515,7 +522,7 @@ async def warn(ctx, person, *args):
             else:
                 reason = reasonRet(args)
                     
-                tempd = warnsc.find_one(
+                tempd = await warnsc.find_one(
                     {
                         "_id": ObjectId(warnid)
                     }
@@ -526,12 +533,12 @@ async def warn(ctx, person, *args):
                 except KeyError:
                     tempd[str(person)] = 1
                     
-                warnsc.delete_one(
+                await warnsc.delete_one(
                     {
                         "_id": ObjectId(warnid)
                     }
                 )
-                warnsc.insert_one(tempd)
+                await warnsc.insert_one(tempd)
                 
                 await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
             
@@ -553,7 +560,7 @@ async def rmwarn(ctx, person, *args):
             else:
                 reason = reasonRet(args)
                         
-                tempd = warnsc.find_one(
+                tempd = await warnsc.find_one(
                     {
                         "_id": ObjectId(warnid)
                     }
@@ -570,12 +577,12 @@ async def rmwarn(ctx, person, *args):
                     await ctx.send(f"{person} doesn't have any warns.")
                     return
                     
-                warnsc.delete_one(
+                await warnsc.delete_one(
                     {
                         "_id": ObjectId(warnid)
                     }
                 )
-                warnsc.insert_one(tempd)
+                await warnsc.insert_one(tempd)
                 
                 await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention} for {reason}!")
             
@@ -590,7 +597,7 @@ async def warns(ctx, person):
         await ctx.send(f"That person is not a mention.")
         
     else:
-        tempd = warnsc.find_one(
+        tempd = await warnsc.find_one(
             {
                 "_id": ObjectId(warnid)
             }
@@ -610,13 +617,12 @@ async def warnclear(ctx):
         tempd = {
             "_id": ObjectId(warnid)
         }
-        warnsc.delete_one(
+        await warnsc.delete_one(
             {
-                #lol 420th line
                 "_id": ObjectId(warnid)
             }
         )
-        warnsc.insert_one(tempd)
+        await warnsc.insert_one(tempd)
         await ctx.send("All global warns have been cleared.")
         print("All global warns have been cleared.")
         
@@ -864,12 +870,13 @@ async def roll(ctx, roll):
 async def ship(ctx, person, person2=None):
     """Ship ship ship"""
     logging.debug("call: ship()")
+    if person2 == None:
+        person2 = ctx.message.author.mention
+
     if isCB2(person) or isCB2(person2):
         await ctx.send("bruh why")
         
     else:
-        if person2 == None:
-            person2 = ctx.message.author.mention
         
         personn, person2n = person, person2
         try:
@@ -917,40 +924,40 @@ async def ship(ctx, person, person2=None):
             
         await ctx.send("\n".join([string, f"Compatibility score: {compat}"]))
 
-    @bot.command(aliases=["open-account"])
-    async def open_account(ctx):
-        """Open STONKS! account"""
-        logging.debug("call: open_account()")
-        person = ctx.message.author
-        
-        tempd = doughc.find_one(
-            {
-                "_id": ObjectId(moneyid)
-            }
-        )
-        try:
-            stupid = tempd[person.mention]
-            del stupid
-            await ctx.send("You already have a STONKS! account.")
-            return
-            
-        except KeyError:
-            tempd[person.mention] = [100, 0]
-            
-        doughc.delete_one(
-            {
-                "_id": ObjectId(moneyid)
-            }
-        )
-        doughc.insert_one(tempd)
-        await ctx.send(f"{person.mention} has been registered with STONKS!!")
+@bot.command(aliases=["open-account"])
+async def open_account(ctx):
+    """Open STONKS! account"""
+    logging.debug("call: open_account()")
+    person = ctx.message.author
+
+    tempd = await doughc.find_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    try:
+        stupid = tempd[person.mention]
+        del stupid
+        await ctx.send("You already have a STONKS! account.")
+        return
+
+    except KeyError:
+        tempd[person.mention] = [100, 0]
+
+    await doughc.delete_one(
+        {
+            "_id": ObjectId(moneyid)
+        }
+    )
+    await doughc.insert_one(tempd)
+    await ctx.send(f"{person.mention} has been registered with STONKS!!")
 
 @bot.command(aliases=["reset-stonks"])
 async def reset_stonks(ctx, silent=False):
     """Reset STONKS! Only Cuboid_Raptor#7340 can run this command"""
     logging.debug("call: reset_stonks()")
     if isCuboid(ctx):
-        tempd = stonksc.find_one(
+        tempd = await stonksc.find_one(
             {
                 "_id": ObjectId(stonksid)
             }
@@ -958,12 +965,12 @@ async def reset_stonks(ctx, silent=False):
         tempd["STANKS!"] = 1
         tempd["inc"] = 0
             
-        stonksc.delete_one(
+        await stonksc.delete_one(
             {
                 "_id": ObjectId(stonksid)
             }
         )
-        stonksc.insert_one(tempd)
+        await stonksc.insert_one(tempd)
         if silent == False:
             await ctx.send("STONKS! has been resetted!")
             print("STONKS! has been resetted!")
@@ -976,7 +983,7 @@ async def erase_stonks(ctx, silent=False):
     logging.debug("call: erase_stonks()")
     """Erase all global STONKS! from shareholders. Only Cuboid_Raptor#7340"""
     if isCuboid(ctx):
-        tempd = doughc.find_one(
+        tempd = await doughc.find_one(
             {
                 "_id": ObjectId(moneyid)
             }
@@ -985,12 +992,12 @@ async def erase_stonks(ctx, silent=False):
             if item != "_id":
                 tempd[item][1] = 0
                 
-        doughc.delete_one(
+        await doughc.delete_one(
             {
                 "_id": ObjectId(moneyid)
             }
         )
-        doughc.insert_one(tempd)
+        await doughc.insert_one(tempd)
         
         if silent == False:
             await ctx.send("All global STONKS! records have been erased.")
@@ -1006,7 +1013,7 @@ async def stonks_price(ctx, silent=False):
         await ctx.send(
             "The current STONKS! price is: " + str(
                 numform(
-                    stonksc.find_one(
+                    await stonksc.find_one(
                         {
                             "_id": ObjectId(stonksid)
                         }
@@ -1018,7 +1025,7 @@ async def stonks_price(ctx, silent=False):
         
     else:
         return float(
-            stonksc.find_one(
+            await stonksc.find_one(
                 {
                     "_id": ObjectId(stonksid)
                 }
@@ -1030,7 +1037,7 @@ async def erase_money(ctx, silent=False):
     """Erase all money, globally. Only Cuboid_Raptor#7340 can run this command."""
     logging.debug("call: erase_money()")
     if isCuboid(ctx):
-        tempd = doughc.find_one(
+        tempd = await doughc.find_one(
             {
                 "_id": ObjectId(moneyid)
             }
@@ -1039,12 +1046,12 @@ async def erase_money(ctx, silent=False):
             if item != "_id":
                 tempd[item][0] = 100
                 
-        doughc.delete_one(
+        await doughc.delete_one(
             {
                 "_id": ObjectId(moneyid)
             }
         )
-        doughc.insert_one(tempd)
+        await doughc.insert_one(tempd)
         
         if silent == False:
             await ctx.send("All global money records have been erased.")
@@ -1069,7 +1076,7 @@ async def reset_finance(ctx):
 async def wallet(ctx, silent=False):
     """Shows current amount of money if you have a registered account."""
     logging.debug("call: wallet()")
-    tempd = doughc.find_one(
+    tempd = await doughc.find_one(
         {
             "_id": ObjectId(moneyid)
         }
@@ -1106,7 +1113,7 @@ async def buy(ctx, amount):
         await ctx.send("You don't have enough money.")
         
     else:
-        tempd = doughc.find_one(
+        tempd = await doughc.find_one(
             {
                 "_id": ObjectId(moneyid)
             }
@@ -1116,14 +1123,14 @@ async def buy(ctx, amount):
                 tempd[item][0] -= sp
                 tempd[item][1] += amount
                 
-        doughc.delete_one(
+        await doughc.delete_one(
             {
                 "_id": ObjectId(moneyid)
             }
         )
-        doughc.insert_one(tempd)
+        await doughc.insert_one(tempd)
         
-        tempd = stonksc.find_one(
+        tempd = await stonksc.find_one(
             {
                 "_id": ObjectId(stonksid)
             }
@@ -1131,12 +1138,12 @@ async def buy(ctx, amount):
         
         tempd["trend"] += (random.random() / 10) * amount
             
-        stonksc.delete_one(
+        await stonksc.delete_one(
             {
                 "_id": ObjectId(stonksid)
             }
         )
-        stonksc.insert_one(tempd)
+        await stonksc.insert_one(tempd)
             
         await ctx.send(f"You have bought {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
@@ -1162,7 +1169,7 @@ async def sell(ctx, amount):
         await ctx.send("You don't have enough STONKS! to sell.")
         
     else:
-        tempd = doughc.find_one(
+        tempd = await doughc.find_one(
             {
                 "_id": ObjectId(moneyid)
             }
@@ -1176,14 +1183,14 @@ async def sell(ctx, amount):
                 tempd[item][0] += sp
                 tempd[item][1] -= amount
                 
-        doughc.delete_one(
+        await doughc.delete_one(
             {
                 "_id": ObjectId(moneyid)
             }
         )
-        doughc.insert_one(tempd)
+        await doughc.insert_one(tempd)
         
-        tempd = stonksc.find_one(
+        tempd = await stonksc.find_one(
             {
                 "_id": ObjectId(stonksid)
             }
@@ -1191,12 +1198,12 @@ async def sell(ctx, amount):
         
         tempd["trend"] -= (random.random() / 10) * amount
             
-        stonksc.delete_one(
+        await stonksc.delete_one(
             {
                 "_id": ObjectId(stonksid)
             }
         )
-        stonksc.insert_one(tempd)
+        await stonksc.insert_one(tempd)
         
         await ctx.send(f"You have sold {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
@@ -1220,7 +1227,7 @@ async def give(ctx, tgt, amount):
             await ctx.send("You don't have enough money to give.")
             
         else:
-            tempd = doughc.find_one(
+            tempd = await doughc.find_one(
                 {
                     "_id": ObjectId(moneyid)
                 }
@@ -1250,12 +1257,12 @@ async def give(ctx, tgt, amount):
                     
                     tempd[item][0] += amount
                     
-            doughc.delete_one(
+            await doughc.delete_one(
                 {
                     "_id": ObjectId(moneyid)
                 }
             )
-            doughc.insert_one(tempd)
+            await doughc.insert_one(tempd)
             
             await ctx.send(f"You have given ${numform(amount, 3)} to {tgt}")
             
@@ -1283,7 +1290,7 @@ async def points(ctx, user=None, silent=False):
         isSelf = False
         user = idFromMention(user)
 
-    tempd = pointsc.find_one(
+    tempd = await pointsc.find_one(
         {
             "_id": ObjectId(pointsid)
         }
@@ -1312,7 +1319,7 @@ async def leaderboard(ctx):
     """Leaderboard function for points."""
     logging.debug("call: leaderboard()")
     global output, thingy
-    tempd = pointsc.find_one(
+    tempd = await pointsc.find_one(
         {
             "_id": ObjectId(pointsid)
         }
@@ -1376,7 +1383,7 @@ async def givepoints(ctx, person, pointa):
 
     pointa = bround(pointa)
 
-    tempd = pointsc.find_one(
+    tempd = await pointsc.find_one(
         {
             "_id": ObjectId(pointsid)
         }
@@ -1405,13 +1412,13 @@ async def givepoints(ctx, person, pointa):
     except KeyError:
         tempd[str(idFromMention(person))] = int(pointa)
 
-    pointsc.delete_one(
+    await pointsc.delete_one(
         {
             "_id": ObjectId(pointsid)
         }
     )
 
-    pointsc.insert_one(tempd)
+    await pointsc.insert_one(tempd)
 
     await ctx.send(f"{pointa} cp have been sent to {person}!")
 
