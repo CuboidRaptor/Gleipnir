@@ -104,7 +104,26 @@ async def da_muns():
     tempd["inc"], tempd["STANKS!"], tempd["trend"] = float(tempd["inc"]), float(tempd["STANKS!"]), float(tempd["trend"])
     
     tempd["inc"] += random.random() * 12
-    tempd["STANKS!"] = bround(abs(((random.random() * 10) + 1) * math.sin(tempd["inc"] * ((random.random() * 4) + 1)) + 6), 3)
+    tempd[
+        "STANKS!"
+    ] = bround(
+        abs(
+            (
+                (
+                    random.random() * 10
+                ) + 1
+            ) * math.sin(
+                tempd[
+                    "inc"
+                ] * (
+                    (
+                        random.random() * 4
+                    ) + 1
+                )
+            ) + 6
+        ),
+        3
+    )
     tempd["STANKS!"] += int(tempd["trend"])
     
     #lol 69th line
@@ -139,50 +158,6 @@ async def allowance():
     )
     doughc.insert_one(tempd)
 
-# Gender Menu
-class Select(discord.ui.Select):
-    def __init__(self):
-        self.roptions = [
-            "He/Him",
-            "She/Her",
-            "They/Them"
-        ]
-        options = [
-            discord.SelectOption(
-                label="He/Him",
-                emoji="🔵"
-            ),
-            discord.SelectOption(
-                label="She/Her",
-                emoji="🟣"
-            ),
-            discord.SelectOption(
-                label="They/Them",
-                emoji="⚪"
-            )
-        ]
-        super().__init__(
-            placeholder="Select a set of gender pronouns",
-            max_values=1,
-            min_values=1,
-            options=options
-        )
-
-    async def callback(self, interaction: discord.Interaction):
-        member = interaction.user
-        role = get(member.guild.roles, name=self.values[0])
-        await member.add_roles(role)
-
-        for item in self.roptions:
-            if item != self.values[0]:
-                role = get(member.guild.roles, name=item)
-                await member.remove_roles(role)
-
-class SelectView(discord.ui.View):
-    def __init__(self, *, timeout=180):
-        super().__init__(timeout=timeout)
-        self.add_item(Select())
-
 #events
 
 @bot.event
@@ -208,16 +183,6 @@ async def on_ready():
         }
     )
     doughc.insert_one(tempd)
-
-    server = get(bot.guilds, name="☕Cuboid's Café☕")
-    channel = get(server.text_channels, name="✅verify✅")
-
-    msgs = await channel.history(limit=200).flatten()
-    for i in msgs:
-        if "Pick a set of pronouns for others to call you by." in i.content:
-            await i.delete()
-
-    await channel.send("Pick a set of pronouns for others to call you by.", view=SelectView())
 
 @bot.event
 async def on_member_join(member):
@@ -360,7 +325,7 @@ def g_role(ctx, rname):
 def isCuboid(ctx):
     #Is message author in ctx me (Cuboid)?
     logging.debug("call: isCuboid()")
-    if (ctx.message.author.id == 588132098875850752):
+    if ctx.message.author.id == 588132098875850752:
         return True
     
     else:
@@ -1449,6 +1414,14 @@ async def givepoints(ctx, person, pointa):
     pointsc.insert_one(tempd)
 
     await ctx.send(f"{pointa} cp have been sent to {person}!")
+
+@bot.command()
+async def coinflip(ctx):
+    if random.randint(0, 1):
+        await ctx.send("You flipped a coin and got heads!")
+
+    else:
+        await ctx.send("You flipped a coin and got tails!")
 
 #R U N .
 da_muns.start()
