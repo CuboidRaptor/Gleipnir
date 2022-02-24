@@ -1,7 +1,7 @@
 py-cord==2.0.0b4
-discord-ui
 python-dotenv
 asyncio
 motor
 certifi
 python-Levenshtein
+jokeapi
