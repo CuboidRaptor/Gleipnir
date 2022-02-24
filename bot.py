@@ -24,6 +24,7 @@ import time
 import requests
 import motor.motor_asyncio
 
+from jokeapi import Jokes
 from bson.objectid import ObjectId
 from random import randint, choice
 from discord.ext import commands, tasks
@@ -547,6 +548,7 @@ async def shoot(ctx, person):
     await ctx.send(embed=embed)
     
 @bot.command()
+@commands.has_guild_permissions(kick_members=True)
 async def warn(ctx, person, *args):
     """Warn people."""
     logging.debug("call: warn()")
@@ -554,38 +556,35 @@ async def warn(ctx, person, *args):
         await ctx.send("I HAVEN'T DONE ANYTHING!")
         
     else:
-        if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-            if not isMention(person):
-                await ctx.send(f"That person is not a mention.")
-                
-            else:
-                reason = reasonRet(args)
-                    
-                tempd = await warnsc.find_one(
-                    {
-                        "_id": ObjectId(warnid)
-                    }
-                )
-                try:
-                    tempd[str(person)] += 1
-                    
-                except KeyError:
-                    tempd[str(person)] = 1
+        if not isMention(person):
+            await ctx.send(f"That person is not a mention.")
 
-                await warnsc.replace_one(
-                    {
-                        "_id": ObjectId(warnid)
-                    },
-                    tempd,
-                    upsert=True
-                )
-                
-                await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
-            
         else:
-            await ctx.send(f"You do not have the sufficient permissions to run this command.")
-    
+            reason = reasonRet(args)
+
+            tempd = await warnsc.find_one(
+                {
+                    "_id": ObjectId(warnid)
+                }
+            )
+            try:
+                tempd[str(person)] += 1
+
+            except KeyError:
+                tempd[str(person)] = 1
+
+            await warnsc.replace_one(
+                {
+                    "_id": ObjectId(warnid)
+                },
+                tempd,
+                upsert=True
+            )
+
+            await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
+
 @bot.command()
+@commands.has_guild_permissions(kick_members=True)
 async def rmwarn(ctx, person, *args):
     """Remove warn from people."""
     logging.debug("call: rmwarn()")
@@ -593,43 +592,39 @@ async def rmwarn(ctx, person, *args):
         await ctx.send("I haven't been warned yet. I wouldn't warn myself.")
         
     else:
-        if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-            if not isMention(person):
-                await ctx.send(f"That person is not a mention.")
-                
-            else:
-                reason = reasonRet(args)
-                        
-                tempd = await warnsc.find_one(
-                    {
-                        "_id": ObjectId(warnid)
-                    }
-                )
-                try:
-                    tempd[str(person)] -= 1
-                    if tempd[str(person)] < 0:
-                        tempd[str(person)] = 0
-                        
-                        await ctx.send(f"{person} doesn't have any warns.")
-                        return
-                    
-                except KeyError:
+        if not isMention(person):
+            await ctx.send(f"That person is not a mention.")
+
+        else:
+            reason = reasonRet(args)
+
+            tempd = await warnsc.find_one(
+                {
+                    "_id": ObjectId(warnid)
+                }
+            )
+            try:
+                tempd[str(person)] -= 1
+                if tempd[str(person)] < 0:
+                    tempd[str(person)] = 0
+
                     await ctx.send(f"{person} doesn't have any warns.")
                     return
 
-                await warnsc.replace_one(
-                    {
-                        "_id": ObjectId(warnid)
-                    },
-                    tempd,
-                    upsert=True
-                )
-                
-                await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention} for {reason}!")
-            
-        else:
-            await ctx.send(f"You do not have the sufficient permissions to run this command.")
-        
+            except KeyError:
+                await ctx.send(f"{person} doesn't have any warns.")
+                return
+
+            await warnsc.replace_one(
+                {
+                    "_id": ObjectId(warnid)
+                },
+                tempd,
+                upsert=True
+            )
+
+            await ctx.send(f"A warn has been removed from {person} by {ctx.message.author.mention} for {reason}!")
+
 @bot.command()
 async def warns(ctx, person):
     """Shows warns of people"""
@@ -672,6 +667,7 @@ async def warnclear(ctx):
         await ctx.send("You don't have the proper permissions to run this command.")
 
 @bot.command()
+@commands.has_guild_permissions(kick_members=True)
 async def kick(ctx, person, *args):
     """kicky"""
     logging.debug("call: kick()")
@@ -680,21 +676,18 @@ async def kick(ctx, person, *args):
         
     else:
         if isMention(person):
-            if g_role(ctx, ["Admin", "Sr. Mod"]):
-                reason = reasonRet(args)
-                    
-                user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
-                user = user[0]
-                await user.kick(reason=reason)
-                await ctx.send(f"{person} was kicked by {ctx.message.author.mention} for {reason}!")
-            
-            else:
-                await ctx.send("You don't have the proper permissions to do that.")
-            
+            reason = reasonRet(args)
+
+            user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
+            user = user[0]
+            await user.kick(reason=reason)
+            await ctx.send(f"{person} was kicked by {ctx.message.author.mention} for {reason}!")
+
         else:
             await ctx.send("That person isn't a mention.")
 
 @bot.command()
+@commands.has_guild_permissions(ban_members=True)
 async def ban(ctx, person, *args):
     """make ppl get ban'd"""
     logging.debug("call: ban()")
@@ -709,28 +702,25 @@ async def ban(ctx, person, *args):
         
     else:
         if isMention(person):
-            if g_role(ctx, ["Admin", "Sr. Mod"]):
-                reason = reasonRet(args)
-                    
-                user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
-                try:
-                    user = user[0]
-                    
-                except IndexError:
-                    await ctx.send("hey bub that person doesn't exist, or some error has been thrown")
-                    await ctx.send("(if that person does exist, notify Cuboid_Raptor#7340)")
-                    return
-                
-                await user.ban(reason=reason)
-                await ctx.send(f"{person} was banned by {ctx.message.author.mention} for {reason}!")
-            
-            else:
-                await ctx.send("You don't have the proper permissions to do that.")
-            
+            reason = reasonRet(args)
+
+            user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
+            try:
+                user = user[0]
+
+            except IndexError:
+                await ctx.send("hey bub that person doesn't exist, or some error has been thrown")
+                await ctx.send("(if that person does exist, notify Cuboid_Raptor#7340)")
+                return
+
+            await user.ban(reason=reason)
+            await ctx.send(f"{person} was banned by {ctx.message.author.mention} for {reason}!")
+
         else:
             await ctx.send("That person isn't a mention.")
 
 @bot.command()
+@commands.has_guild_permissions(ban_members=True)
 async def unban(ctx, person, *args):
     """Unban people."""
     logging.debug("call: unban()")
@@ -739,28 +729,23 @@ async def unban(ctx, person, *args):
         
     else:
         if isUserAndTag(person):
-            if g_role(ctx, ["Admin", "Sr. Mod"]):
-                reason = reasonRet(args)
-                    
-                mname, mdisc = person.split("#")
-                
-                banned_users = await ctx.message.guild.bans()
-                for ban_entry in banned_users:
-                    user = ban_entry.user
-                    
-                    if (user.name, user.discriminator) == (mname, mdisc):
-                        await ctx.message.guild.unban(user)
-                        await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
-                        
-                    
-            
-            else:
-                await ctx.send("You don't have the proper permissions to do that.")
-            
+            reason = reasonRet(args)
+
+            mname, mdisc = person.split("#")
+
+            banned_users = await ctx.message.guild.bans()
+            for ban_entry in banned_users:
+                user = ban_entry.user
+
+                if (user.name, user.discriminator) == (mname, mdisc):
+                    await ctx.message.guild.unban(user)
+                    await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
+
         else:
             await ctx.send("That person isn't a Username and Tag seperated by \"#\".")
 
 @bot.command()
+@commands.has_guild_permissions(kick_members=True)
 async def mute(ctx, person, *args, **kwargs):
     """Mute people until unmuted."""
     logging.debug("call: mute()")
@@ -819,6 +804,7 @@ async def mute(ctx, person, *args, **kwargs):
             await ctx.send("That person isn't a mention.")
 
 @bot.command()
+@commands.has_guild_permissions(kick_members=True)
 async def unmute(ctx, person, *args, **kwargs):
     """Unmute people."""
     logging.debug("call: unmute()")
@@ -866,6 +852,7 @@ async def unmute(ctx, person, *args, **kwargs):
             await ctx.send("That person isn't a mention.")
 
 @bot.command()
+@commands.has_guild_permissions(kick_members=True)
 async def tempmute(ctx, person, time, *args):
     """Temporarily mute people."""
     logging.debug("call: tempmute()")
@@ -1479,6 +1466,27 @@ async def coinflip(ctx):
 
     else:
         await ctx.send("You flipped a coin and got tails!")
+
+@bot.command()
+async def joke(ctx):
+    """Prints a random corny joke."""
+    logging.debug("call: joke()")
+    j = await Jokes()
+    jk = await j.get_joke(
+        blacklist=[
+            "nsfw",
+            "racist",
+            "sexist"
+        ]
+    )
+
+    if jk["type"] == "single":
+        await ctx.send(jk["joke"])
+
+    else:
+        await ctx.send(jk["setup"])
+        await asyncio.sleep(1)
+        await ctx.send(jk["delivery"])
 
 #R U N .
 da_muns.start()
