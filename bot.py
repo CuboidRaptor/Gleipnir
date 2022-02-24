@@ -1054,15 +1054,18 @@ async def erase_stonks(ctx, silent=False):
 async def stonks_price(ctx, silent=False):
     """Print current STONKS! price"""
     logging.debug("call: stonks_price()")
+
+    temp = await stonksc.find_one(
+        {
+            "_id": ObjectId(stonksid)
+        }
+    )
+
     if silent == False:
         await ctx.send(
             "The current STONKS! price is: " + str(
                 numform(
-                    await stonksc.find_one(
-                        {
-                            "_id": ObjectId(stonksid)
-                        }
-                    )["STANKS!"],
+                    temp["STANKS!"],
                     3
                 )
             ) + " Cuboid Dollars!"
@@ -1070,11 +1073,7 @@ async def stonks_price(ctx, silent=False):
         
     else:
         return float(
-            await stonksc.find_one(
-                {
-                    "_id": ObjectId(stonksid)
-                }
-            )["STANKS!"]
+            temp["STANKS!"]
         )
 
 @bot.command(aliases=["erase-money"])
