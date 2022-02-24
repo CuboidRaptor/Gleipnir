@@ -572,19 +572,13 @@ async def warn(ctx, person, *args):
                 except KeyError:
                     tempd[str(person)] = 1
 
-                await clien
-
-                try:
-                    await warnsc.replace_one(
-                        {
-                            "_id": ObjectId(warnid)
-                        },
-                        tempd,
-                        upsert=True
-                    )
-
-                except pymongo.errors.DuplicateKeyError:
-                    logging.warning("Await not fast enough")
+                await warnsc.replace_one(
+                    {
+                        "_id": ObjectId(warnid)
+                    },
+                    tempd,
+                    upsert=True
+                )
                 
                 await ctx.send(f"{person} has been warned by {ctx.message.author.mention} for {reason}!")
             
