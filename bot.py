@@ -451,20 +451,32 @@ def rollParse(string):
     
 def numform(n, a=0):
     #Adds commas and round number.
+    logging.debug("call: numform()")
     return "{:,}".format(bround(float(n), a))
 
 def containsEveryone(message):
     #Check if message contains @everyone pings.
+    logging.debug("call: containsEveryone()")
     return ("@everyone" in message) or ("@here" in message)
 
 def kawaii(sub):
     #Gets GIF from kawaii.red
+    logging.debug("call: kawaii()")
     r = requests.get(f"https://kawaii.red/api/gif/{sub}/token={kawaiit}/")
     return str(r.json()['response'])
 
 def fullName(author):
     #Returns name + tag from user/Member object
+    logging.debug("call: fullName()")
     return author.name + "#" + author.discriminator
+
+async def err(ctx, msg):
+    embed = discord.Embed(
+        title="Error",
+        description=str(msg),
+        color=discord.Color.from_rgb(255, 7, 1)
+    )
+    await ctx.send(embed=embed)
 
 #Commands
 @bot.command()
@@ -557,7 +569,7 @@ async def warn(ctx, person, *args):
         
     else:
         if not isMention(person):
-            await ctx.send(f"That person is not a mention.")
+            await err(ctx, f"That person is not a mention.")
 
         else:
             reason = reasonRet(args)
@@ -593,7 +605,7 @@ async def rmwarn(ctx, person, *args):
         
     else:
         if not isMention(person):
-            await ctx.send(f"That person is not a mention.")
+            await err(ctx, f"That person is not a mention.")
 
         else:
             reason = reasonRet(args)
@@ -608,11 +620,11 @@ async def rmwarn(ctx, person, *args):
                 if tempd[str(person)] < 0:
                     tempd[str(person)] = 0
 
-                    await ctx.send(f"{person} doesn't have any warns.")
+                    await err(ctx, f"{person} doesn't have any warns.")
                     return
 
             except KeyError:
-                await ctx.send(f"{person} doesn't have any warns.")
+                await err(ctx, f"{person} doesn't have any warns.")
                 return
 
             await warnsc.replace_one(
@@ -630,7 +642,7 @@ async def warns(ctx, person):
     """Shows warns of people"""
     logging.debug("call: warns()")
     if not isMention(person):
-        await ctx.send(f"That person is not a mention.")
+        await err(ctx, f"That person is not a mention.")
         
     else:
         tempd = await warnsc.find_one(
@@ -664,7 +676,7 @@ async def warnclear(ctx):
         print("All global warns have been cleared.")
         
     else:
-        await ctx.send("You don't have the proper permissions to run this command.")
+        await err(ctx, "You don't have the proper permissions to run this command.")
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
@@ -684,7 +696,7 @@ async def kick(ctx, person, *args):
             await ctx.send(f"{person} was kicked by {ctx.message.author.mention} for {reason}!")
 
         else:
-            await ctx.send("That person isn't a mention.")
+            await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 @commands.has_guild_permissions(ban_members=True)
@@ -709,7 +721,7 @@ async def ban(ctx, person, *args):
                 user = user[0]
 
             except IndexError:
-                await ctx.send("hey bub that person doesn't exist, or some error has been thrown")
+                await err(ctx, "hey bub that person doesn't exist, or some error has been thrown")
                 await ctx.send("(if that person does exist, notify Cuboid_Raptor#7340)")
                 return
 
@@ -717,7 +729,7 @@ async def ban(ctx, person, *args):
             await ctx.send(f"{person} was banned by {ctx.message.author.mention} for {reason}!")
 
         else:
-            await ctx.send("That person isn't a mention.")
+            await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 @commands.has_guild_permissions(ban_members=True)
@@ -742,7 +754,7 @@ async def unban(ctx, person, *args):
                     await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.message.author.mention} for {reason}!")
 
         else:
-            await ctx.send("That person isn't a Username and Tag seperated by \"#\".")
+            await err(ctx, "That person isn't a Username and Tag seperated by \"#\".")
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
@@ -788,7 +800,7 @@ async def mute(ctx, person, *args, **kwargs):
                     )
                     
                 except discord.errors.Forbidden:
-                    await ctx.send("This bot's role/permissions need to be higher in the hierarchy, or some error has occured.")
+                    await err(ctx, "This bot's role/permissions need to be higher in the hierarchy, or some error has occured.")
                     return
                 
                 if not kwargs.get(
@@ -798,10 +810,10 @@ async def mute(ctx, person, *args, **kwargs):
                     await ctx.send(f"{person} has been muted by {ctx.message.author.mention} for {reason}!")
 
             else:
-                await ctx.send("You don't have the proper permissions to run this command.")
+                await err(ctx, "You don't have the proper permissions to run this command.")
 
         else:
-            await ctx.send("That person isn't a mention.")
+            err(ctx, "That person isn't a mention.")
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
@@ -846,10 +858,10 @@ async def unmute(ctx, person, *args, **kwargs):
                     await ctx.send(f"{person} has been unmuted by {ctx.message.author.mention} for {reason}!")
 
             else:
-                await ctx.send("You don't have the proper permissions to run this command.")
+                await err(ctx, "You don't have the proper permissions to run this command.")
 
         else:
-            await ctx.send("That person isn't a mention.")
+            await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
@@ -870,17 +882,17 @@ async def tempmute(ctx, person, time, *args):
                 await unmute(ctx, person, *args, silent=True)  
 
             else:
-                await ctx.send("You don't have the proper permissions to run this command.")
+                await err(ctx, "You don't have the proper permissions to run this command.")
 
         else:
-            await ctx.send("That person isn't a mention.")
+            await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 async def roll(ctx, roll):
     """Roll die."""
     logging.debug("call: roll()")
     if not rollParse(roll):
-        await ctx.send("That isn't a valid dice to roll.")
+        await err(ctx, "That isn't a valid dice to roll.")
         
     else:
         proll = rollParse(roll)
@@ -893,7 +905,7 @@ async def roll(ctx, roll):
             await ctx.send(f"{ctx.message.author.mention} rolled {roll} and got {s}")
             
         except ValueError:
-            await ctx.send("That isn't a valid roll.")
+            await err(ctx, "That isn't a valid roll.")
 
 @bot.command()
 async def ship(ctx, person, person2=None):
@@ -919,7 +931,7 @@ async def ship(ctx, person, person2=None):
                 person2n = person2n.name
                 
         except discord.errors.NotFound:
-            await ctx.send("Couldn't find names of one or more mentions.")
+            await err(ctx, "Couldn't find names of one or more mentions.")
             return
             
         perc = (lsr(personn, person2n) * 100)
@@ -967,7 +979,7 @@ async def open_account(ctx):
     try:
         stupid = tempd[person.mention]
         del stupid
-        await ctx.send("You already have a STONKS! account.")
+        await err(ctx, "You already have a STONKS! account.")
         return
 
     except KeyError:
@@ -1007,7 +1019,7 @@ async def reset_stonks(ctx, silent=False):
             print("STONKS! has been resetted!")
         
     else:
-        await ctx.send("You don't have the proper permissions to run that command.")
+        err(ctx, "You don't have the proper permissions to run that command.")
 
 @bot.command(aliases=["erase-stonks"])
 async def erase_stonks(ctx, silent=False):
@@ -1035,7 +1047,7 @@ async def erase_stonks(ctx, silent=False):
             await ctx.send("All global STONKS! records have been erased.")
     
     else:
-        await ctx.send("You don't have the proper permissions to run that command")
+        err(ctx, "You don't have the proper permissions to run that command")
 
 @bot.command(aliases=["stonks-price"])
 async def stonks_price(ctx, silent=False):
@@ -1089,7 +1101,7 @@ async def erase_money(ctx, silent=False):
             await ctx.send("All global money records have been erased.")
     
     else:
-        await ctx.send("You don't have the proper permissions to run that command.")
+        err(ctx, "You don't have the proper permissions to run that command.")
 
 @bot.command(aliases=["reset-finance"])
 async def reset_finance(ctx):
@@ -1102,7 +1114,7 @@ async def reset_finance(ctx):
         await ctx.send("All finances have been globally reset.")
         
     else:
-        await ctx.send("You don't have the proper permissions to run that command.")
+        await err(ctx, "You don't have the proper permissions to run that command.")
 
 @bot.command()
 async def wallet(ctx, silent=False):
@@ -1122,7 +1134,7 @@ async def wallet(ctx, silent=False):
             else:
                 return [tempd[item][0], tempd[item][1]]
             
-    await ctx.send("You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
+    await err(ctx, "You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
 
 @bot.command()
 async def buy(ctx, amount):
@@ -1131,18 +1143,18 @@ async def buy(ctx, amount):
     try:
         amount = int(bround(float(amount)))
         if amount < 1:
-            await ctx.send(f"bruh u can't buy {amount} STONKS!.")
+            await err(ctx, f"bruh u can't buy {amount} STONKS!.")
             return
         
     except ValueError:
-        await ctx.send(f"bruh u can't buy \"{amount}\" STONKS!.")
+        await err(ctx, f"bruh u can't buy \"{amount}\" STONKS!.")
         return
         
     sp = await stonks_price(ctx, silent=True)
     sp *= amount
     sp = bround(sp, 3)
     if (await wallet(ctx, silent=True))[0] < sp:
-        await ctx.send("You don't have enough money.")
+        await err(ctx, "You don't have enough money.")
         
     else:
         tempd = await doughc.find_one(
@@ -1188,11 +1200,11 @@ async def sell(ctx, amount):
     try:
         amount = int(bround(float(amount)))
         if amount < 1:
-            await ctx.send(f"bruh u can't sell {amount} STONKS!.")
+            await err(ctx, f"bruh u can't sell {amount} STONKS!.")
             return
         
     except ValueError:
-        await ctx.send(f"bruh u can't sell \"{amount}\" STONKS!.")
+        await err(ctx, f"bruh u can't sell \"{amount}\" STONKS!.")
         return
         
     sp = await stonks_price(ctx, silent=True)
@@ -1200,7 +1212,7 @@ async def sell(ctx, amount):
     sp = bround(sp, 3)
     
     if (await wallet(ctx, silent=True))[1] < amount:
-        await ctx.send("You don't have enough STONKS! to sell.")
+        await err(ctx, "You don't have enough STONKS! to sell.")
         
     else:
         tempd = await doughc.find_one(
@@ -1211,7 +1223,7 @@ async def sell(ctx, amount):
         for item in tempd:
             if item == ctx.message.author.mention:
                 if (tempd[item][0] + sp) > 2000000000:
-                    await ctx.send("You have hit the money limit. Try giving some away.")
+                    await err(ctx, "You have hit the money limit. Try giving some away.")
                     return
                 
                 tempd[item][0] += sp
@@ -1252,15 +1264,15 @@ async def give(ctx, tgt, amount):
         try:
             amount = bround(float(amount), 3)
             if amount < 1:
-                await ctx.send(f"bruh u can't sell {amount} STONKS!.")
+                await err(ctx, f"bruh u can't give \\<$1.")
                 return
             
         except ValueError:
-            await ctx.send(f"bruh u can't sell \"{amount}\" STONKS!.")
+            await err(ctx, f"bruh u can't give $\"{amount}\".")
             return
         
         if (await wallet(ctx, silent=True))[0] < amount:
-            await ctx.send("You don't have enough money to give.")
+            await err(ctx, "You don't have enough money to give.")
             
         else:
             tempd = await doughc.find_one(
@@ -1274,7 +1286,7 @@ async def give(ctx, tgt, amount):
                 del this_is_a_stupid_variable
                 
             except KeyError as error:
-                await ctx.send("That person hasn't signed up for STONKS! yet.")
+                await err(ctx, "That person hasn't signed up for STONKS! yet.")
                 return
             
             for item in tempd:
@@ -1304,7 +1316,7 @@ async def give(ctx, tgt, amount):
             await ctx.send(f"You have given ${numform(amount, 3)} to {tgt}")
             
     else:
-        await ctx.send("That person isn't a mention.")
+        await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 async def points(ctx, user=None, silent=False):
@@ -1316,7 +1328,7 @@ async def points(ctx, user=None, silent=False):
 
     elif not isMention(user):
         if not silent:
-            await ctx.send("That person isn't a mention.")
+            await err(ctx, "That person isn't a mention.")
 
         else:
             logging.info("That person isn't a mention (callback from points())")
@@ -1427,13 +1439,13 @@ async def givepoints(ctx, person, pointa):
     )
 
     if not isMention(person):
-        await ctx.send("That person isn't a mention.")
+        await err(ctx, "That person isn't a mention.")
         return
 
     hasp = await points(ctx, silent=True)
 
     if hasp < pointa:
-        await ctx.send("You cannot afford to send that many Cuboid Points.")
+        await err(ctx, "You cannot afford to send that many Cuboid Points.")
         return
 
     tempd[str(ctx.message.author.id)] -= int(pointa)
@@ -1497,8 +1509,16 @@ async def color(ctx, hexcode):
     hexcode = ohex.lstrip("\\").lstrip("#").lower()
 
     if len(hexcode) != 6:
-        await ctx.send("An error occured, and your hex code could not be processed.")
+        await err(ctx, "An error occured, and your hex code could not be processed.")
         logging.warning("Invalid hexcode.")
+        return
+
+    try:
+        temp = int(hexcode, 16)
+        del temp
+
+    except ValueError:
+        await err(ctx, "That isn't a valid hex code.")
         return
 
     if hexcode == "ffffff":
@@ -1507,11 +1527,13 @@ async def color(ctx, hexcode):
     elif hexcode == "000000":
         hexcode = "000001"
 
-    if not ohex.startswith("#"):
-        ohex = "#" + ohex
+    if ohex.startswith("\\"):
+        ohex = ohex[1:]
 
-    if not ohex.startswith("\\"):
-        ohex = "\\" + ohex
+    if ohex.startswith("#"):
+        ohex = ohex[1:]
+
+    ohex = "\\#" + ohex
 
     embed = discord.Embed(
         title=f"Colour: {ohex}",
