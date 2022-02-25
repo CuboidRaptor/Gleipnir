@@ -1461,6 +1461,7 @@ async def givepoints(ctx, person, pointa):
 
 @bot.command()
 async def coinflip(ctx):
+    logging.debug("call: coinflip()")
     if random.randint(0, 1):
         await ctx.send("You flipped a coin and got heads!")
 
@@ -1487,6 +1488,51 @@ async def joke(ctx):
         await ctx.send(jk["setup"])
         await asyncio.sleep(1)
         await ctx.send(jk["delivery"])
+
+@bot.command(aliases=["colour"])
+async def color(ctx, hexcode):
+    """Display a hex code colour."""
+    logging.debug("call: color()")
+    ohex = str(hexcode).upper()
+    hexcode = ohex.lstrip("\\").lstrip("#").lower()
+
+    if len(hexcode) != 6:
+        await ctx.send("An error occured, and your hex code could not be processed.")
+        logging.warning("Invalid hexcode.")
+        return
+
+    if hexcode == "ffffff":
+        hexcode = "fffeff"
+
+    elif hexcode == "000000":
+        hexcode = "000001"
+
+    if not ohex.startswith("#"):
+        ohex = "#" + ohex
+
+    if not ohex.startswith("\\"):
+        ohex = "\\" + ohex
+
+    embed = discord.Embed(
+        title=f"Colour: {ohex}",
+        color=discord.Color.from_rgb(
+            *tuple(
+                int(
+                    hexcode[i:i+2],
+                    16
+                ) for i in (
+                    0,
+                    2,
+                    4
+                )
+            )
+        )
+    )
+    embed.set_image(
+        url=f"https://singlecolorimage.com/get/{hexcode}/200x200.png"
+    )
+
+    await ctx.send(embed=embed)
 
 #R U N .
 da_muns.start()
