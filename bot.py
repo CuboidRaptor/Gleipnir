@@ -1661,6 +1661,78 @@ async def color(ctx, hexcode):
 
     await ctx.send(embed=embed)
 
+@bot.command(aliases=["new-ticket", "new_ticket"])
+async def newticket(ctx, *args):
+    """Opens new ticket."""
+    logging.debug("call: newticket()")
+    if len(args) < 1:
+        topic = "unknown topic"
+
+    else:
+        topic = " ".join(args)
+
+    ticket_channel = await ctx.guild.create_text_channel(
+        f"ticket-{ctx.message.author.name}-{topic}",
+        category=get(
+            bot.get_guild(
+                885685555084554294
+            ).categories,
+            id=946871757854363699
+        )
+    )
+    await ticket_channel.set_permissions(
+        ctx.guild.get_role(
+            ctx.guild.id
+        ),
+        send_messages=False,
+        read_messages=False
+    )
+
+    for role in ctx.guild.roles:
+        if role.permissions.manage_guild:
+            await ticket_channel.set_permissions(
+                role,
+                send_messages=True,
+                read_messages=True,
+                add_reactions=True,
+                embed_links=True,
+                attach_files=True,
+                read_message_history=True,
+                external_emojis=True
+            )
+
+    await ticket_channel.set_permissions(
+        ctx.author,
+        send_messages=True,
+        read_messages=True,
+        add_reactions=True,
+        embed_links=True,
+        attach_files=True,
+        read_message_history=True,
+        external_emojis=True
+    )
+    embed = discord.Embed(
+        title="Ticket Guy",
+        description=f"Your ticket has been created for {topic}.",
+        color=discord.Color.from_rgb(1, 254, 170)
+    )
+    await ctx.send(embed=embed)
+
+@bot.command(aliases=["close-ticket", "close_ticket"])
+async def closeticket(ctx):
+    """Closes ticket."""
+    logging.debug("call: closeticket()")
+    if "ticket-" in ctx.channel.name:
+        await ctx.channel.delete()
+
+    else:
+        embed = discord.Embed(
+            title="Ticket Guy",
+            description="Please run this in the ticket channel you want to close!",
+            color = discord.Color.from_rgb(112, 6, 2)
+        )
+        await ctx.send(embed=embed)
+
 #R U N .
 da_muns.start()
 allowance.start()
