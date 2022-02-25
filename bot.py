@@ -20,7 +20,7 @@ import re
 import asyncio
 import random
 import math
-import time
+import time as mtime
 import requests
 import motor.motor_asyncio
 
@@ -61,11 +61,13 @@ warnsc = db["warns"]
 doughc = db["money"]
 stonksc = db["STONKS!"]
 pointsc = db["points"]
+unmutec = db["unmutes"]
 
 pointsid = "620cfe72f63ae0339129c774"
 warnid = "000000000000000000010f2c"
 moneyid = "0000000000000000000aa289"
 stonksid = "61bf8fc2ad877a0d31f685ea"
+unmuteid = "621928f67c8347a08690da13"
 emojismade = False
 
 msgst = {}
@@ -163,6 +165,56 @@ async def allowance():
     await doughc.replace_one(
         {
             "_id": ObjectId(moneyid)
+        },
+        tempd,
+        upsert=True
+    )
+
+@tasks.loop(minutes=1)
+async def umloop():
+    tempd = await unmutec.find_one(
+        {
+            "_id": ObjectId(unmuteid)
+        }
+    )
+
+    out = []
+    for item in tempd:
+        if item != "_id":
+            if tempd[item] < (mtime.time() * 10):
+                geeld = await bot.fetch_guild(885685555084554294)
+
+                mutedRole = get(
+                    geeld.roles,
+                    name="Muted"
+                )
+
+                if not mutedRole:
+                    logging.error("No Muted role? Has been deleted.")
+                    return
+
+                cMember = await geeld.fetch_member(int(item))
+
+                try:
+                    await cMember.add_roles(get(geeld.roles, name="Verified Member"), reason="idk")
+                    await cMember.remove_roles(
+                        mutedRole,
+                        reason="idk"
+                    )
+
+                except discord.errors.Forbidden:
+                    logging.warning("That person is already unmuted.")
+
+                    return
+
+                out.append(item)
+
+    for item in out:
+        del tempd[item]
+
+    await unmutec.replace_one(
+        {
+            "_id": ObjectId(unmuteid)
         },
         tempd,
         upsert=True
@@ -269,7 +321,7 @@ async def on_message(message):
         await message.channel.send("Hello there, I heard my name?")
 
     try:
-        dif = time.time() - msgst[message.author.id]
+        dif = mtime.time() - msgst[message.author.id]
 
     except KeyError:
         dif = 7 #Could be any number >0.5
@@ -295,7 +347,7 @@ async def on_message(message):
             upsert=True
         )
 
-        msgst[message.author.id] = time.time()
+        msgst[message.author.id] = mtime.time()
 
     await bot.process_commands(message)
 
@@ -477,6 +529,14 @@ async def err(ctx, msg, clr=(255, 7, 1), title="Error"):
         color=discord.Color.from_rgb(*clr)
     )
     await ctx.send(embed=embed)
+    logging.error(msg)
+
+def prod(n):
+    p = 1
+    for i in n:
+        p *= i
+
+    return p
 
 #Commands
 @bot.command()
@@ -766,8 +826,15 @@ async def unban(ctx, person, *args):
 async def mute(ctx, person, *args, **kwargs):
     """Mute people until unmuted."""
     logging.debug("call: mute()")
+
+    silent = kwargs.get(
+        "silent",
+        False
+    )
+
     if isCB2(str(person)):
-        await ctx.send("dood you're a rude guy >:(")
+        if not silent:
+            await ctx.send("dood you're a rude guy >:(")
         
     else:
         if isMention(person):
@@ -805,28 +872,33 @@ async def mute(ctx, person, *args, **kwargs):
                     )
                     
                 except discord.errors.Forbidden:
-                    await err(ctx, "This bot's role/permissions need to be higher in the hierarchy, or some error has occured.")
-                    return
+                    if not silent:
+                        await err(ctx, "This bot's role/permissions need to be higher in the hierarchy, or some error has occured.")
+                        return
                 
-                if not kwargs.get(
-                    "silent",
-                    False
-                ):
+                if not silent:
                     await ctx.send(f"{person} has been muted by {ctx.message.author.mention} for {reason}!")
 
             else:
                 await err(ctx, "You don't have the proper permissions to run this command.")
 
         else:
-            err(ctx, "That person isn't a mention.")
+            if not silent:
+                await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
 async def unmute(ctx, person, *args, **kwargs):
     """Unmute people."""
     logging.debug("call: unmute()")
+
+    silent = kwargs.get(
+        "silent",
+        False
+    )
     if isCB2(str(person)):
-        await ctx.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
+        if not silent:
+            await ctx.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
         
     else:
         if isMention(person):
@@ -853,20 +925,21 @@ async def unmute(ctx, person, *args, **kwargs):
                     )
                     
                 except discord.errors.Forbidden:
-                    await ctx.send("That person is already unmuted.")
+                    if not silent:
+                        await ctx.send("That person is already unmuted.")
+
                     return
                 
-                if not kwargs.get(
-                    "silent",
-                    False
-                ):
+                if not silent:
                     await ctx.send(f"{person} has been unmuted by {ctx.message.author.mention} for {reason}!")
 
             else:
-                await err(ctx, "You don't have the proper permissions to run this command.")
+                if not silent:
+                    await err(ctx, "You don't have the proper permissions to run this command.")
 
         else:
-            await err(ctx, "That person isn't a mention.")
+            if not silent:
+                await err(ctx, "That person isn't a mention.")
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
@@ -883,8 +956,30 @@ async def tempmute(ctx, person, time, *args):
                     
                 await mute(ctx, person, *args, silent=True)
                 await ctx.send(f"{person} has been tempmuted by {ctx.message.author.mention} for {reason} for {time} minutes!")
-                await asyncio.sleep(bround(float(time) * 60))
-                await unmute(ctx, person, *args, silent=True)  
+                et = int(mtime.time() * 10 + bround(float(time) * 600))
+
+                tempd = await unmutec.find_one(
+                    {
+                        "_id": ObjectId(unmuteid)
+                    }
+                )
+
+                try:
+                    stupid = tempd[idFromMention(person)]
+                    del stupid
+
+                    tempd[idFromMention(person)] = max(tempd[idFromMention(person)], et)
+
+                except KeyError:
+                    tempd[idFromMention(person)] = et
+
+                await unmutec.replace_one(
+                    {
+                        "_id": ObjectId(unmuteid)
+                    },
+                    tempd,
+                    upsert=True
+                )
 
             else:
                 await err(ctx, "You don't have the proper permissions to run this command.")
@@ -925,26 +1020,31 @@ async def ship(ctx, person, person2=None):
     else:
         
         personn, person2n = person, person2
-        try:
-            if isMention(person):
-                personn = await bot.fetch_user(int(idFromMention(personn)))
-                
-                personn = personn.name
-                
-            if isMention(person2):
-                person2n = await bot.fetch_user(int(idFromMention(person2n)))
-                person2n = person2n.name
-                
-        except discord.errors.NotFound:
-            await err(ctx, "Couldn't find names of one or more mentions.")
-            return
+        if isMention(person):
+            personn = int(idFromMention(personn))
+
+        else:
+            try:
+                personn = int(personn)
+
+            except ValueError:
+                personn = prod([ord(i) for i in personn])
+
+            personn = personn % 999999999999999999
+
+        if isMention(person2):
+            person2n = int(idFromMention(person2n))
+
+        else:
+            try:
+                person2n = int(person2n)
+
+            except ValueError:
+                person2n = prod([ord(i) for i in person2n])
             
-        perc = (lsr(personn, person2n) * 100)
-        perc += ((-perc) ** (3 / 4)) + 32
-        perc = bround(perc.real)
-        
-        if perc > 100:
-            perc = 100
+            person2n = person2n % 999999999999999999
+
+        perc = (abs(personn - person2n) + 99) % 100
             
         string = f"{person} x {person2} ship compatibility percentage: {perc}%"
         if perc < 10:
@@ -1564,4 +1664,5 @@ async def color(ctx, hexcode):
 #R U N .
 da_muns.start()
 allowance.start()
+umloop.start()
 bot.run(str(os.getenv("DISCORD_TOKEN")))
