@@ -470,11 +470,11 @@ def fullName(author):
     logging.debug("call: fullName()")
     return author.name + "#" + author.discriminator
 
-async def err(ctx, msg):
+async def err(ctx, msg, clr=(255, 7, 1), title="Error"):
     embed = discord.Embed(
-        title="Error",
+        title=title,
         description=str(msg),
-        color=discord.Color.from_rgb(255, 7, 1)
+        color=discord.Color.from_rgb(*clr)
     )
     await ctx.send(embed=embed)
 
@@ -496,7 +496,12 @@ async def killcr2(ctx):
         sys.exit()
         
     else:
-        await ctx.send("Why are you trying to kill me? :(")
+        await err(
+            ctx,
+            "Why are you trying to kill me? :(",
+            clr=(89, 10, 1),
+            title="Rude."
+        )
     
 @bot.command(aliases=["no-u"])
 async def no_u(ctx, person):
