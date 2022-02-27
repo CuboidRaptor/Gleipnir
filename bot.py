@@ -23,6 +23,7 @@ import math
 import time as mtime
 import requests
 import motor.motor_asyncio
+import colorsys
 
 from jokeapi import Jokes
 from bson.objectid import ObjectId
@@ -72,6 +73,7 @@ emojismade = False
 
 msgst = {}
 # Endpoints: https://kawaii.red/api/gif/endpoints/token=token/
+
 kawaiit = str(os.getenv("KAWAII"))
 
 #Regexes
@@ -545,7 +547,7 @@ async def ping(ctx):
     logging.debug("call: ping()")
     await ctx.send("pong")
     
-@bot.command()
+@bot.command(aliases=["killswitch"])
 async def killcr2(ctx):
     """Kills CRBOT2. Only Cuboid_Raptor#7340 can run this command."""
     logging.debug("call: killcr2()")
@@ -609,12 +611,13 @@ async def shoot(ctx, person):
         await ctx.send("Mass genocide isn't allowed yet. Try again later.")
         return
 
+    if isCB2(person):
+        await ctx.send("I pull out a handheld CIWS and shoot you. Who's the shooter now?")
+        return
+
     if isMention(person):
         person = await bot.fetch_user(int(idFromMention(person)))
         person = person.name
-
-    else:
-        pass
 
     embed = discord.Embed(
         title=f"{ctx.message.author.name} has shot {person}!",
@@ -626,7 +629,7 @@ async def shoot(ctx, person):
     
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
-async def warn(ctx, person, *args):
+async def warn(ctx, person, *reason):
     """Warn people."""
     logging.debug("call: warn()")
     if isCB2(person):
@@ -637,7 +640,7 @@ async def warn(ctx, person, *args):
             await err(ctx, f"That person is not a mention.")
 
         else:
-            reason = reasonRet(args)
+            reason = reasonRet(reason)
 
             tempd = await warnsc.find_one(
                 {
@@ -662,7 +665,7 @@ async def warn(ctx, person, *args):
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
-async def rmwarn(ctx, person, *args):
+async def rmwarn(ctx, person, *reason):
     """Remove warn from people."""
     logging.debug("call: rmwarn()")
     if isCB2(person):
@@ -673,7 +676,7 @@ async def rmwarn(ctx, person, *args):
             await err(ctx, f"That person is not a mention.")
 
         else:
-            reason = reasonRet(args)
+            reason = reasonRet(reason)
 
             tempd = await warnsc.find_one(
                 {
@@ -745,7 +748,7 @@ async def warnclear(ctx):
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
-async def kick(ctx, person, *args):
+async def kick(ctx, person, *reason):
     """kicky"""
     logging.debug("call: kick()")
     if isCB2(str(person)):
@@ -753,7 +756,7 @@ async def kick(ctx, person, *args):
         
     else:
         if isMention(person):
-            reason = reasonRet(args)
+            reason = reasonRet(reason)
 
             user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
             user = user[0]
@@ -765,7 +768,7 @@ async def kick(ctx, person, *args):
 
 @bot.command()
 @commands.has_guild_permissions(ban_members=True)
-async def ban(ctx, person, *args):
+async def ban(ctx, person, *reason):
     """make ppl get ban'd"""
     logging.debug("call: ban()")
     if isCB2(str(person)):
@@ -779,7 +782,7 @@ async def ban(ctx, person, *args):
         
     else:
         if isMention(person):
-            reason = reasonRet(args)
+            reason = reasonRet(reason)
 
             user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
             try:
@@ -798,7 +801,7 @@ async def ban(ctx, person, *args):
 
 @bot.command()
 @commands.has_guild_permissions(ban_members=True)
-async def unban(ctx, person, *args):
+async def unban(ctx, person, *reason):
     """Unban people."""
     logging.debug("call: unban()")
     if isCB2(str(person)):
@@ -806,7 +809,7 @@ async def unban(ctx, person, *args):
         
     else:
         if isUserAndTag(person):
-            reason = reasonRet(args)
+            reason = reasonRet(reason)
 
             mname, mdisc = person.split("#")
 
@@ -823,14 +826,9 @@ async def unban(ctx, person, *args):
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
-async def mute(ctx, person, *args, **kwargs):
+async def mute(ctx, person, silent=False, *reason):
     """Mute people until unmuted."""
     logging.debug("call: mute()")
-
-    silent = kwargs.get(
-        "silent",
-        False
-    )
 
     if isCB2(str(person)):
         if not silent:
@@ -839,7 +837,7 @@ async def mute(ctx, person, *args, **kwargs):
     else:
         if isMention(person):
             if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-                reason = reasonRet(args)
+                reason = reasonRet(reason)
                         
                 geeld = ctx.message.guild
                 mutedRole = get(
@@ -888,14 +886,9 @@ async def mute(ctx, person, *args, **kwargs):
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
-async def unmute(ctx, person, *args, **kwargs):
+async def unmute(ctx, person, silent=False, *reason):
     """Unmute people."""
     logging.debug("call: unmute()")
-
-    silent = kwargs.get(
-        "silent",
-        False
-    )
     if isCB2(str(person)):
         if not silent:
             await ctx.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
@@ -903,7 +896,7 @@ async def unmute(ctx, person, *args, **kwargs):
     else:
         if isMention(person):
             if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-                reason = reasonRet(args)
+                reason = reasonRet(reason)
                         
                 geeld = ctx.message.guild
                 mutedRole = get(
@@ -943,7 +936,7 @@ async def unmute(ctx, person, *args, **kwargs):
 
 @bot.command()
 @commands.has_guild_permissions(kick_members=True)
-async def tempmute(ctx, person, time, *args):
+async def tempmute(ctx, person, time, *reason):
     """Temporarily mute people."""
     logging.debug("call: tempmute()")
     if isCB2(str(person)):
@@ -952,7 +945,7 @@ async def tempmute(ctx, person, time, *args):
     else:
         if isMention(person):
             if g_role(ctx, ["Admin", "Sr. Mod", "Mod"]):
-                reason = reasonRet(args)
+                reason = reasonRet(reason)
                     
                 await mute(ctx, person, *args, silent=True)
                 await ctx.send(f"{person} has been tempmuted by {ctx.message.author.mention} for {reason} for {time} minutes!")
@@ -1361,11 +1354,11 @@ async def sell(ctx, amount):
         await ctx.send(f"You have sold {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
 @bot.command()
-async def give(ctx, tgt, amount):
+async def give(ctx, person, amount):
     """give da STONKS! muns to someone else"""
     logging.debug("call: give()")
-    if isMention(tgt):
-        tgt = f"<@{idFromMention(tgt)}>"
+    if isMention(person):
+        person = f"<@{idFromMention(person)}>"
         try:
             amount = bround(float(amount), 3)
             if amount < 1:
@@ -1387,7 +1380,7 @@ async def give(ctx, tgt, amount):
             )
             
             try:
-                this_is_a_stupid_variable = tempd["<@" + idFromMention(tgt) + ">"]
+                this_is_a_stupid_variable = tempd[person]
                 del this_is_a_stupid_variable
                 
             except KeyError as error:
@@ -1398,7 +1391,7 @@ async def give(ctx, tgt, amount):
                 if item == ctx.message.author.mention:
                     tempd[item][0] -= amount
                     
-                elif item == tgt:
+                elif item == person:
                     if (tempd[item][0] + amount) > 2000000000:
                         await ctx.send("Your target hit the money limit. Try giving some to someone else.")
                         
@@ -1418,7 +1411,7 @@ async def give(ctx, tgt, amount):
                 upsert=True
             )
             
-            await ctx.send(f"You have given ${numform(amount, 3)} to {tgt}")
+            await ctx.send(f"You have given ${numform(amount, 3)} to {person}")
             
     else:
         await err(ctx, "That person isn't a mention.")
@@ -1531,11 +1524,11 @@ async def leaderboard(ctx):
     await ctx.send(output)
 
 @bot.command()
-async def givepoints(ctx, person, pointa):
+async def givepoints(ctx, person, point):
     """Give points to others."""
     logging.debug("call: give()")
 
-    pointa = bround(pointa)
+    point = bround(point)
 
     tempd = await pointsc.find_one(
         {
@@ -1549,11 +1542,11 @@ async def givepoints(ctx, person, pointa):
 
     hasp = await points(ctx, silent=True)
 
-    if hasp < pointa:
+    if hasp < point:
         await err(ctx, "You cannot afford to send that many Cuboid Points.")
         return
 
-    tempd[str(ctx.message.author.id)] -= int(pointa)
+    tempd[str(ctx.message.author.id)] -= int(point)
 
     if tempd[str(ctx.message.author.id)] < 0:
         logging.error("PANIC!!!!! CALCULATIONS DON'T MAKE SENSE")
@@ -1561,10 +1554,10 @@ async def givepoints(ctx, person, pointa):
         return
 
     try:
-        tempd[str(idFromMention(person))] += int(pointa)
+        tempd[str(idFromMention(person))] += int(point)
 
     except KeyError:
-        tempd[str(idFromMention(person))] = int(pointa)
+        tempd[str(idFromMention(person))] = int(point)
 
     await pointsc.replace_one(
         {
@@ -1574,7 +1567,7 @@ async def givepoints(ctx, person, pointa):
         upsert=True
     )
 
-    await ctx.send(f"{pointa} cp have been sent to {person}!")
+    await ctx.send(f"{point} cp have been sent to {person}!")
 
 @bot.command()
 async def coinflip(ctx):
@@ -1640,19 +1633,171 @@ async def color(ctx, hexcode):
 
     ohex = "\\#" + ohex
 
-    embed = discord.Embed(
-        title=f"Colour: {ohex}",
-        color=discord.Color.from_rgb(
-            *tuple(
-                int(
-                    hexcode[i:i+2],
-                    16
-                ) for i in (
-                    0,
-                    2,
-                    4
+    #RGB
+    yee = tuple(
+        int(
+            hexcode[i:i+2],
+            16
+        ) for i in (
+            0,
+            2,
+            4
+        )
+    )
+    rgb2 = tuple(
+        int(
+            ohex[2:][i:i+2],
+            16
+        ) for i in (
+            0,
+            2,
+            4
+        )
+    )
+
+    #CMYK
+    cmyk = (0, 0, 0, 100)
+    if rgb2 == (0, 0, 0):
+        pass
+
+    else:
+        c = 1 - rgb2[0] / 255
+        m = 1 - rgb2[1] / 255
+        y = 1 - rgb2[2] / 255
+
+        min_cmy = min(c, m, y)
+        c = (c - min_cmy) / (1 - min_cmy)
+        m = (m - min_cmy) / (1 - min_cmy)
+        y = (y - min_cmy) / (1 - min_cmy)
+        k = min_cmy
+
+        cmyk = tuple(
+            map(
+                lambda a: bround(
+                    a * 100
+                ),
+                (
+                    c,
+                    m,
+                    y,
+                    k
                 )
             )
+        )
+
+    #HSL
+    hsl = tuple(
+        map(
+            lambda a: bround(
+                a * 100
+            ),
+            colorsys.rgb_to_hls(
+                *map(
+                    lambda a: float(
+                        bround(
+                            a / 255,
+                            2
+                        )
+                    ),
+                    rgb2
+                )
+            )
+        )
+    )
+    hsl = (
+        bround((hsl[0] / 100) * 360),
+        hsl[2],
+        hsl[1]
+    )
+
+    hsv = tuple(
+        map(
+            lambda a: bround(
+                a * 100
+            ),
+            colorsys.rgb_to_hsv(
+                *map(
+                    lambda a: float(
+                        bround(
+                            a / 255,
+                            2
+                        )
+                    ),
+                    rgb2
+                )
+            )
+        )
+    )
+    hsv = (
+        bround(
+            (
+                hsv[0] / 100
+            ) * 360
+        ),
+        hsv[2],
+        hsv[1]
+    )
+
+    yiq = tuple(
+        map(
+            lambda a: bround(
+                a * 100
+            ),
+            colorsys.rgb_to_hsv(
+                *map(
+                    lambda a: float(
+                        bround(
+                            a / 255,
+                            2
+                        )
+                    ),
+                    rgb2
+                )
+            )
+        )
+    )
+    hsv = (
+        bround(
+            (
+                hsv[0] / 100
+            ) * 360
+        ),
+        hsv[1],
+        hsv[2]
+    )
+
+    yiq = tuple(
+        map(
+            lambda a: bround(
+                a * 100
+            ),
+            colorsys.rgb_to_hsv(
+                *map(
+                    lambda a: float(
+                        bround(
+                            a / 255,
+                            2
+                        )
+                    ),
+                    rgb2
+                )
+            )
+        )
+    )
+    hsv = (
+        bround((hsv[0] / 100) * 360),
+        hsv[2],
+        hsv[1]
+    )
+
+    embed = discord.Embed(
+        title=f"Colour hex code: {ohex}",
+        description=f"""rgb{rgb2}
+cmyk{cmyk}
+hsl{hsl}
+hsv{hsv}""",
+        color=discord.Color.from_rgb(
+            *yee
         )
     )
     embed.set_image(
@@ -1662,9 +1807,11 @@ async def color(ctx, hexcode):
     await ctx.send(embed=embed)
 
 @bot.command(aliases=["new-ticket", "new_ticket"])
-async def newticket(ctx, *args):
+async def newticket(ctx, *topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
+    args = topic
+    del topic
     if len(args) < 1:
         topic = "unknown topic"
 
@@ -1732,6 +1879,82 @@ async def closeticket(ctx):
             color = discord.Color.from_rgb(112, 6, 2)
         )
         await ctx.send(embed=embed)
+
+@bot.command()
+async def kill(ctx, person):
+    """Kill people to death. Why do I add these features?"""
+    logging.debug("call: kill()")
+
+    if isMention(person):
+        if int(ctx.message.author.id) == int(idFromMention(person)):
+            await ctx.send("Suicide has yet to be enabled.")
+            return
+
+    else:
+        if person.strip() == ctx.message.author.name:
+            await ctx.send("Suicide has yet to be enabled.")
+            return
+
+    if ("@everyone" in person) or ("@here" in person):
+        await ctx.send("You should see a psychologist about the fact that you want to kill everyone.")
+        return
+
+    if isCB2(person):
+        await ctx.send("I am deeply saddened by this.")
+        return
+
+    if isMention(person):
+        person = await bot.fetch_user(int(idFromMention(person)))
+        person = person.name
+
+    else:
+        pass
+
+    embed = discord.Embed(
+        title=f"{ctx.message.author.name} has murdered {person}!",
+        description="that sucks",
+    )
+    embed.set_image(url=kawaii("kill"))
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def slap(ctx, person):
+    """Slap person. I'm just using Kawaii, ok? I'M BORED."""
+    logging.debug("call: slap()")
+
+    if isMention(person):
+        if int(ctx.message.author.id) == int(idFromMention(person)):
+            await ctx.send("why self-harm tho")
+            return
+
+    else:
+        if person.strip() == ctx.message.author.name:
+            await ctx.send("why self-harm tho")
+            return
+
+    if ("@everyone" in person) or ("@here" in person):
+        await ctx.send("There's too many people to slap.")
+        return
+
+    if isCB2(person):
+        await ctx.send("I have not wronged you yet (I hope).")
+        return
+
+    if isMention(person):
+        person = await bot.fetch_user(int(idFromMention(person)))
+        person = person.name
+
+    else:
+        pass
+
+    embed = discord.Embed(
+        title=f"{ctx.message.author.name} has slapped {person} really hard!",
+        description="ouch bro",
+    )
+    embed.set_image(url=kawaii("slap"))
+
+    await ctx.send(embed=embed)
 
 #R U N .
 da_muns.start()
