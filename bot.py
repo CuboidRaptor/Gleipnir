@@ -1023,7 +1023,7 @@ async def ship(ctx, person, person2=None):
             except ValueError:
                 personn = prod([ord(i) for i in personn])
 
-            personn = personn % 999999999999999999
+            personn = personn % 1000000000000000000
 
         if isMention(person2):
             person2n = int(idFromMention(person2n))
@@ -1035,7 +1035,7 @@ async def ship(ctx, person, person2=None):
             except ValueError:
                 person2n = prod([ord(i) for i in person2n])
             
-            person2n = person2n % 999999999999999999
+            person2n = person2n % 1000000000000000000
 
         perc = (abs(personn - person2n) + 100) % 101
             
@@ -1067,9 +1067,9 @@ async def ship(ctx, person, person2=None):
             "\n".join(
                 [
                     string,
-                    f"`|" + "".join(
+                    f"\\|" + "".join(
                         [
-                            "#" for i in range(
+                            "▓" for i in range(
                                 0,
                                 n1
                             )
@@ -1078,10 +1078,10 @@ async def ship(ctx, person, person2=None):
                         [
                             " " for i in range(
                                 0,
-                                n2
+                                n2 * 3
                             )
                         ]
-                    ) + "|`",
+                    ) + "\\|",
                     f"Compatibility score: {compat}"
                 ]
             )
@@ -1623,7 +1623,7 @@ async def joke(ctx):
         await asyncio.sleep(1)
         await ctx.send(jk["delivery"])
 
-@bot.command(aliases=["colour"])
+@bot.command(aliases=["colour", "clr"])
 async def color(ctx, hexcode):
     """Display a hex code colour."""
     logging.debug("call: color()")
