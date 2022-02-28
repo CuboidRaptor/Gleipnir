@@ -1060,8 +1060,32 @@ async def ship(ctx, person, person2=None):
             
         else:
             compat = "Amazing!"
-            
-        await ctx.send("\n".join([string, f"Compatibility score: {compat}"]))
+
+        n1 = bround(perc / 10)
+        n2 = bround(10 - n1)
+        await ctx.send(
+            "\n".join(
+                [
+                    string,
+                    f"`|" + "".join(
+                        [
+                            "#" for i in range(
+                                0,
+                                n1
+                            )
+                        ]
+                    ) + "".join(
+                        [
+                            " " for i in range(
+                                0,
+                                n2
+                            )
+                        ]
+                    ) + "|`",
+                    f"Compatibility score: {compat}"
+                ]
+            )
+        )
 
 @bot.command(aliases=["open-account"])
 async def open_account(ctx):
