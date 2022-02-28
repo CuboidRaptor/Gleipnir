@@ -1768,7 +1768,7 @@ async def color(ctx, hexcode):
     yiq = tuple(
         map(
             lambda a: bround(
-                a * 10,
+                a * 100,
                 3
             ),
             colorsys.rgb_to_yiq(
