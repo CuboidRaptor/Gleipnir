@@ -1037,7 +1037,7 @@ async def ship(ctx, person, person2=None):
             
             person2n = person2n % 999999999999999999
 
-        perc = (abs(personn - person2n) + 99) % 100
+        perc = (abs(personn - person2n) + 100) % 101
             
         string = f"{person} x {person2} ship compatibility percentage: {perc}%"
         if perc < 10:
@@ -1603,6 +1603,7 @@ async def joke(ctx):
 async def color(ctx, hexcode):
     """Display a hex code colour."""
     logging.debug("call: color()")
+
     ohex = str(hexcode).upper()
     hexcode = ohex.lstrip("\\").lstrip("#").lower()
 
@@ -1625,11 +1626,7 @@ async def color(ctx, hexcode):
     elif hexcode == "000000":
         hexcode = "000001"
 
-    if ohex.startswith("\\"):
-        ohex = ohex[1:]
-
-    if ohex.startswith("#"):
-        ohex = ohex[1:]
+    ohex = ohex.lstrip("\\").lstrip("#")
 
     ohex = "\\#" + ohex
 
@@ -1705,11 +1702,16 @@ async def color(ctx, hexcode):
         )
     )
     hsl = (
-        bround((hsl[0] / 100) * 360),
+        bround(
+            (
+                hsl[0] / 100
+            ) * 360
+        ),
         hsl[2],
         hsl[1]
     )
 
+    #HSV
     hsv = tuple(
         map(
             lambda a: bround(
@@ -1738,12 +1740,14 @@ async def color(ctx, hexcode):
         hsv[1]
     )
 
+    #YIQ
     yiq = tuple(
         map(
             lambda a: bround(
-                a * 100
+                a * 10,
+                3
             ),
-            colorsys.rgb_to_hsv(
+            colorsys.rgb_to_yiq(
                 *map(
                     lambda a: float(
                         bround(
@@ -1755,39 +1759,6 @@ async def color(ctx, hexcode):
                 )
             )
         )
-    )
-    hsv = (
-        bround(
-            (
-                hsv[0] / 100
-            ) * 360
-        ),
-        hsv[1],
-        hsv[2]
-    )
-
-    yiq = tuple(
-        map(
-            lambda a: bround(
-                a * 100
-            ),
-            colorsys.rgb_to_hsv(
-                *map(
-                    lambda a: float(
-                        bround(
-                            a / 255,
-                            2
-                        )
-                    ),
-                    rgb2
-                )
-            )
-        )
-    )
-    hsv = (
-        bround((hsv[0] / 100) * 360),
-        hsv[2],
-        hsv[1]
     )
 
     embed = discord.Embed(
@@ -1795,7 +1766,8 @@ async def color(ctx, hexcode):
         description=f"""rgb{rgb2}
 cmyk{cmyk}
 hsl{hsl}
-hsv{hsv}""",
+hsv{hsv}
+yiq{yiq}""",
         color=discord.Color.from_rgb(
             *yee
         )
