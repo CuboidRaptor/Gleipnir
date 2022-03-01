@@ -314,7 +314,6 @@ async def on_message(message):
         if word in tingy:
             #you swore, idot.
             print("somebody swore uh oh")
-            await message.delete()
             await message.channel.send(f"Don't swear, {message.author.mention}")
             return
 
@@ -1725,15 +1724,19 @@ async def color(ctx, hexcode):
             )
         )
     )
-    hsl = (
-        bround(
-            (
-                hsl[0] / 100
-            ) * 360
-        ),
-        hsl[2],
-        hsl[1]
-    )
+    hsl = str(
+        (
+            str(
+                bround(
+                    (
+                        hsl[0] / 100
+                    ) * 360
+                )
+            ) + "°",
+            hsl[2],
+            hsl[1]
+        )
+    ).replace("'", "")
 
     #HSV
     hsv = tuple(
@@ -1754,15 +1757,19 @@ async def color(ctx, hexcode):
             )
         )
     )
-    hsv = (
-        bround(
-            (
-                hsv[0] / 100
-            ) * 360
-        ),
-        hsv[2],
-        hsv[1]
-    )
+    hsv = str(
+        (
+            str(
+                bround(
+                    (
+                        hsv[0] / 100
+                    ) * 360
+                )
+            ) + "°",
+            hsv[2],
+            hsv[1]
+        )
+    ).replace("'" ,"")
 
     #YIQ
     yiq = tuple(

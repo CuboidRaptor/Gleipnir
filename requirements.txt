@@ -5,3 +5,4 @@ motor
 certifi
 python-Levenshtein
 jokeapi
+simplejson
