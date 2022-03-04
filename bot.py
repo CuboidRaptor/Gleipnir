@@ -511,7 +511,16 @@ def fullName(author):
     logging.debug("call: fullName()")
     return author.name + "#" + author.discriminator
 
-async def err(ctx, msg, clr=(255, 7, 1), title="Error"):
+async def err(
+    ctx,
+    msg,
+    clr=(
+        255,
+        7,
+        1
+    ),
+    title="Error"
+):
     embed = discord.Embed(
         title=title,
         description=str(msg),
