@@ -314,7 +314,7 @@ async def on_message_listener(message):
             await message.channel.send(f"Don't swear, {message.author.mention}")
             return
 
-    if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str(pf)) and ("announcements" not in message.channel.name.lower()):
+    if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str("/")) and ("announcements" not in message.channel.name.lower()):
         #Did you say bot name?
         await message.channel.send("Hello there, I heard my name?")
 
