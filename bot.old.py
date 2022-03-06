@@ -270,7 +270,7 @@ You can also interact with me in the server, do be sure to use *[.]* as a comman
     except discord.errors.HTTPException:
         logging.warning("HTTPException when DMing new user")
 
-    channel = get(member.guild.text_channels, name="📢events-announcements📢")
+    channel = get(member.guild.text_channels, name="📢server-join-leave📢")
 
     embed = discord.Embed(
         title=f"{member.mention} has joined!",

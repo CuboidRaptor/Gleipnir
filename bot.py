@@ -267,7 +267,7 @@ You can also interact with me in the server, do be sure to use *[.]* as a comman
     except discord.errors.HTTPException:
         logging.warning("HTTPException when DMing new user")
 
-    channel = get(member.guild.text_channels, name="📢events-announcements📢")
+    channel = get(member.guild.text_channels, name="📢server-join-leave📢")
 
     embed = discord.Embed(
         title=f"{member.mention} has joined!",
@@ -355,7 +355,7 @@ async def on_command_error(ctx, error):
             description="Unknown Command",
             color=discord.Color.red()
         )
-        await ctx.send(embed=embed)
+        await ctx.followup.send(embed=embed)
 
     elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
         embed = discord.Embed(
@@ -363,7 +363,7 @@ async def on_command_error(ctx, error):
             description="You're missing an argument!",
             color=discord.Color.red()
         )
-        await ctx.send(embed=embed)
+        await ctx.followup.send(embed=embed)
 
     elif isinstance(error, commands.MissingPermissions):
         embed = discord.Embed(
@@ -371,7 +371,7 @@ async def on_command_error(ctx, error):
             description="Insufficient permissions!",
             color=discord.Color.red()
         )
-        await ctx.send(embed=embed)
+        await ctx.followup.send(embed=embed)
 
     else:
         embed = discord.Embed(
@@ -380,7 +380,7 @@ async def on_command_error(ctx, error):
             color=discord.Color.red()
         )
         embed.set_footer(text="Is this a bug? Report it to help make this bot better!")
-        await ctx.send(embed=embed)
+        await ctx.followup.send(embed=embed)
 
 #Functions
 def d(n):
@@ -526,7 +526,7 @@ async def err(
         description=str(msg),
         color=discord.Color.from_rgb(*clr)
     )
-    await ctx.send(embed=embed)
+    await ctx.followup.send(embed=embed)
     logging.error(msg)
 
 def prod(n):
@@ -543,7 +543,7 @@ async def ping(ctx):
     logging.debug("call: ping()")
     await ctx.defer()
 
-    await ctx.send("pong")
+    await ctx.followup.send("pong")
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["killswitch"])
 async def killcr2(ctx):
@@ -553,7 +553,7 @@ async def killcr2(ctx):
 
     if isCuboid(ctx):
         #r u me?
-        await ctx.send("Ok, Ending...")
+        await ctx.followup.send("Ok, Ending...")
         print("Ending...")
         sys.exit()
 
@@ -572,13 +572,13 @@ async def no_u(ctx, person):
     await ctx.defer()
 
     if containsEveryone(person):
-        await ctx.send(f"***\\*GASP\\****")
+        await ctx.followup.send(f"***\\*GASP\\****")
 
     elif isCB2(person):
-        await ctx.send(f"I have been vaccinated against no-u's.")
+        await ctx.followup.send(f"I have been vaccinated against no-u's.")
 
     else:
-        await ctx.send(f"No u, {person}")
+        await ctx.followup.send(f"No u, {person}")
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["8ball"])
 async def magic8ball(ctx):
@@ -587,7 +587,7 @@ async def magic8ball(ctx):
     await ctx.defer()
 
     global answers
-    await ctx.send(choice(answers))
+    await ctx.followup.send(choice(answers))
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def quote(ctx):
@@ -596,7 +596,7 @@ async def quote(ctx):
     await ctx.defer()
 
     global quoteslist
-    await ctx.send(choice(quoteslist))
+    await ctx.followup.send(choice(quoteslist))
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def shoot(ctx, person):
@@ -606,20 +606,20 @@ async def shoot(ctx, person):
 
     if isMention(person):
         if int(ctx.author.id) == int(idFromMention(person)):
-            await ctx.send("Aw c'mon, don't kill yourself.")
+            await ctx.followup.send("Aw c'mon, don't kill yourself.")
             return
 
     else:
         if person.strip() == ctx.author.name:
-            await ctx.send("Aw c'mon, don't kill yourself.")
+            await ctx.followup.send("Aw c'mon, don't kill yourself.")
             return
 
     if ("@everyone" in person) or ("@here" in person):
-        await ctx.send("Mass genocide isn't allowed yet. Try again later.")
+        await ctx.followup.send("Mass genocide isn't allowed yet. Try again later.")
         return
 
     if isCB2(person):
-        await ctx.send("I pull out a handheld CIWS and shoot you. Who's the shooter now?")
+        await ctx.followup.send("I pull out a handheld CIWS and shoot you. Who's the shooter now?")
         return
 
     if isMention(person):
@@ -632,7 +632,7 @@ async def shoot(ctx, person):
     )
     embed.set_image(url=kawaii("shoot"))
 
-    await ctx.send(embed=embed)
+    await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(kick_members=True)
@@ -642,7 +642,7 @@ async def warn(ctx, person, *, reason):
     await ctx.defer()
 
     if isCB2(person):
-        await ctx.send("I HAVEN'T DONE ANYTHING!")
+        await ctx.followup.send("I HAVEN'T DONE ANYTHING!")
 
     else:
         if not isMention(person):
@@ -670,7 +670,7 @@ async def warn(ctx, person, *, reason):
                 upsert=True
             )
 
-            await ctx.send(f"{person} has been warned by {ctx.author.mention} for {reason}!")
+            await ctx.followup.send(f"{person} has been warned by {ctx.author.mention} for {reason}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(kick_members=True)
@@ -680,7 +680,7 @@ async def rmwarn(ctx, person, *, reason):
     await ctx.defer()
 
     if isCB2(person):
-        await ctx.send("I haven't been warned yet. I wouldn't warn myself.")
+        await ctx.followup.send("I haven't been warned yet. I wouldn't warn myself.")
 
     else:
         if not isMention(person):
@@ -714,7 +714,7 @@ async def rmwarn(ctx, person, *, reason):
                 upsert=True
             )
 
-            await ctx.send(f"A warn has been removed from {person} by {ctx.author.mention} for {reason}!")
+            await ctx.followup.send(f"A warn has been removed from {person} by {ctx.author.mention} for {reason}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def warns(ctx, person):
@@ -733,10 +733,10 @@ async def warns(ctx, person):
         )
         out = str(tempd[str(person)])
         if not bool(int(out) - 1):
-            await ctx.send(f"{person} has " + out + " warn!")
+            await ctx.followup.send(f"{person} has " + out + " warn!")
 
         else:
-            await ctx.send(f"{person} has " + out + " warns!")
+            await ctx.followup.send(f"{person} has " + out + " warns!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def warnclear(ctx):
@@ -755,7 +755,7 @@ async def warnclear(ctx):
             tempd,
             upsert=True
         )
-        await ctx.send("All global warns have been cleared.")
+        await ctx.followup.send("All global warns have been cleared.")
         print("All global warns have been cleared.")
 
     else:
@@ -769,7 +769,7 @@ async def kick(ctx, person, *, reason):
     await ctx.defer()
 
     if isCB2(str(person)):
-        await ctx.send(":(")
+        await ctx.followup.send(":(")
 
     else:
         if isMention(person):
@@ -778,7 +778,7 @@ async def kick(ctx, person, *, reason):
             user = await ctx.message.guild.query_members(user_ids=[str(idFromMention(person))])
             user = user[0]
             await user.kick(reason=reason)
-            await ctx.send(f"{person} was kicked by {ctx.author.mention} for {reason}!")
+            await ctx.followup.send(f"{person} was kicked by {ctx.author.mention} for {reason}!")
 
         else:
             await err(ctx, "That person isn't a mention.")
@@ -791,7 +791,7 @@ async def ban(ctx, person, *, reason):
     await ctx.defer()
 
     if isCB2(str(person)):
-        await ctx.send("""██╗░░██╗
+        await ctx.followup.send("""██╗░░██╗
 ╚═╝░██╔╝
 ░░░██╔╝░
 ░░░╚██╗░
@@ -809,11 +809,11 @@ async def ban(ctx, person, *, reason):
 
             except IndexError:
                 await err(ctx, "hey bub that person doesn't exist, or some error has been thrown")
-                await ctx.send("(if that person does exist, notify Cuboid_Raptor#7340)")
+                await ctx.followup.send("(if that person does exist, notify Cuboid_Raptor#7340)")
                 return
 
             await user.ban(reason=reason)
-            await ctx.send(f"{person} was banned by {ctx.author.mention} for {reason}!")
+            await ctx.followup.send(f"{person} was banned by {ctx.author.mention} for {reason}!")
 
         else:
             await err(ctx, "That person isn't a mention.")
@@ -826,7 +826,7 @@ async def unban(ctx, person, *, reason):
     await ctx.defer()
 
     if isCB2(str(person)):
-        await ctx.send("Thanks for the attempt, but I haven't been banned in this server yet :)")
+        await ctx.followup.send("Thanks for the attempt, but I haven't been banned in this server yet :)")
 
     else:
         if isUserAndTag(person):
@@ -850,11 +850,12 @@ async def unban(ctx, person, *, reason):
 async def mute(ctx, person, *, reason, silent=False):
     """Mute people until unmuted."""
     logging.debug("call: mute()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     if isCB2(str(person)):
         if not silent:
-            await ctx.send("dood you're a rude guy >:(")
+            await ctx.followup.send("dood you're a rude guy >:(")
 
     else:
         if isMention(person):
@@ -897,7 +898,7 @@ async def mute(ctx, person, *, reason, silent=False):
                         return
 
                 if not silent:
-                    await ctx.send(f"{person} has been muted by {ctx.author.mention} for {reason}!")
+                    await ctx.followup.send(f"{person} has been muted by {ctx.author.mention} for {reason}!")
 
             else:
                 await err(ctx, "You don't have the proper permissions to run this command.")
@@ -908,14 +909,15 @@ async def mute(ctx, person, *, reason, silent=False):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(kick_members=True)
-async def unmute(ctx, person, silent=False, *, reason):
+async def unmute(ctx, person, *, reason, silent=False):
     """Unmute people."""
     logging.debug("call: unmute()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     if isCB2(str(person)):
         if not silent:
-            await ctx.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
+            await ctx.followup.send("thanks for trying, but I haven't been muted yet, given how I'm talking to you.")
 
     else:
         if isMention(person):
@@ -929,7 +931,7 @@ async def unmute(ctx, person, silent=False, *, reason):
                 )
 
                 if not mutedRole:
-                    await ctx.send("No one has been muted in this server yet.")
+                    await ctx.followup.send("No one has been muted in this server yet.")
                     return
 
                 cMember = await geeld.fetch_member(idFromMention(person))
@@ -943,12 +945,12 @@ async def unmute(ctx, person, silent=False, *, reason):
 
                 except discord.errors.Forbidden:
                     if not silent:
-                        await ctx.send("That person is already unmuted.")
+                        await ctx.followup.send("That person is already unmuted.")
 
                     return
 
                 if not silent:
-                    await ctx.send(f"{person} has been unmuted by {ctx.author.mention} for {reason}!")
+                    await ctx.followup.send(f"{person} has been unmuted by {ctx.author.mention} for {reason}!")
 
             else:
                 if not silent:
@@ -966,7 +968,7 @@ async def tempmute(ctx, person, time, *, reason):
     await ctx.defer()
 
     if isCB2(str(person)):
-        await ctx.send("stahp go away")
+        await ctx.followup.send("stahp go away")
 
     else:
         if isMention(person):
@@ -974,7 +976,7 @@ async def tempmute(ctx, person, time, *, reason):
                 reason = reasonRet(reason)
 
                 await mute(ctx, person, *args, silent=True)
-                await ctx.send(f"{person} has been tempmuted by {ctx.author.mention} for {reason} for {time} minutes!")
+                await ctx.followup.send(f"{person} has been tempmuted by {ctx.author.mention} for {reason} for {time} minutes!")
                 et = int(mtime.time() * 10 + bround(float(time) * 600))
 
                 tempd = await unmutec.find_one(
@@ -1023,7 +1025,7 @@ async def roll(ctx, roll):
             for i in range(0, int(proll[0])):
                 s += random.randint(1, int(proll[1]))
 
-            await ctx.send(f"{ctx.author.mention} rolled {roll} and got {s}")
+            await ctx.followup.send(f"{ctx.author.mention} rolled {roll} and got {s}")
 
         except ValueError:
             await err(ctx, "That isn't a valid roll.")
@@ -1038,7 +1040,7 @@ async def ship(ctx, person, person2=None):
         person2 = ctx.author.mention
 
     if isCB2(person) or isCB2(person2):
-        await ctx.send("bruh why")
+        await ctx.followup.send("bruh why")
 
     else:
 
@@ -1093,7 +1095,7 @@ async def ship(ctx, person, person2=None):
 
         n1 = bround(perc / 10)
         n2 = bround(10 - n1)
-        await ctx.send(
+        await ctx.followup.send(
             "\n".join(
                 [
                     string,
@@ -1146,13 +1148,14 @@ async def open_account(ctx):
         tempd,
         upsert=True
     )
-    await ctx.send(f"{person.mention} has been registered with STONKS!!")
+    await ctx.followup.send(f"{person.mention} has been registered with STONKS!!")
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["reset-stonks"])
 async def reset_stonks(ctx, silent=False):
     """Reset STONKS! Only Cuboid_Raptor#7340 can run this command"""
     logging.debug("call: reset_stonks()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     if isCuboid(ctx):
         tempd = await stonksc.find_one(
@@ -1171,7 +1174,7 @@ async def reset_stonks(ctx, silent=False):
             upsert=True
         )
         if silent == False:
-            await ctx.send("STONKS! has been resetted!")
+            await ctx.followup.send("STONKS! has been resetted!")
             print("STONKS! has been resetted!")
 
     else:
@@ -1181,7 +1184,8 @@ async def reset_stonks(ctx, silent=False):
 async def erase_stonks(ctx, silent=False):
     logging.debug("call: erase_stonks()")
     """Erase all global STONKS! from shareholders. Only Cuboid_Raptor#7340 can run this command"""
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     if isCuboid(ctx):
         tempd = await doughc.find_one(
@@ -1202,7 +1206,7 @@ async def erase_stonks(ctx, silent=False):
         )
 
         if silent == False:
-            await ctx.send("All global STONKS! records have been erased.")
+            await ctx.followup.send("All global STONKS! records have been erased.")
 
     else:
         err(ctx, "You don't have the proper permissions to run that command")
@@ -1211,7 +1215,8 @@ async def erase_stonks(ctx, silent=False):
 async def stonks_price(ctx, silent=False):
     """Print current STONKS! price"""
     logging.debug("call: stonks_price()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     temp = await stonksc.find_one(
         {
@@ -1220,7 +1225,7 @@ async def stonks_price(ctx, silent=False):
     )
 
     if silent == False:
-        await ctx.send(
+        await ctx.followup.send(
             "The current STONKS! price is: " + str(
                 numform(
                     temp["STANKS!"],
@@ -1238,7 +1243,8 @@ async def stonks_price(ctx, silent=False):
 async def erase_money(ctx, silent=False):
     """Erase all money, globally. Only Cuboid_Raptor#7340 can run this command."""
     logging.debug("call: erase_money()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     if isCuboid(ctx):
         tempd = await doughc.find_one(
@@ -1259,7 +1265,7 @@ async def erase_money(ctx, silent=False):
         )
 
         if silent == False:
-            await ctx.send("All global money records have been erased.")
+            await ctx.followup.send("All global money records have been erased.")
 
     else:
         err(ctx, "You don't have the proper permissions to run that command.")
@@ -1274,7 +1280,7 @@ async def reset_finance(ctx):
         await reset_stonks(ctx, silent=True)
         await erase_stonks(ctx, silent=True)
         await erase_money(ctx, silent=True)
-        await ctx.send("All finances have been globally reset.")
+        await ctx.followup.send("All finances have been globally reset.")
 
     else:
         await err(ctx, "You don't have the proper permissions to run that command.")
@@ -1283,7 +1289,8 @@ async def reset_finance(ctx):
 async def wallet(ctx, silent=False):
     """Shows current amount of money if you have a registered account."""
     logging.debug("call: wallet()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     tempd = await doughc.find_one(
         {
@@ -1293,7 +1300,7 @@ async def wallet(ctx, silent=False):
     for item in tempd:
         if item == ctx.author.mention:
             if silent == False:
-                await ctx.send(f"You have ${numform(tempd[item][0], 3)} and {numform(tempd[item][1], 3)} STONKS!")
+                await ctx.followup.send(f"You have ${numform(tempd[item][0], 3)} and {numform(tempd[item][1], 3)} STONKS!")
                 return
 
             else:
@@ -1358,7 +1365,7 @@ async def buy(ctx, amount):
             upsert=True
         )
 
-        await ctx.send(f"You have bought {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
+        await ctx.followup.send(f"You have bought {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def sell(ctx, amount):
@@ -1422,7 +1429,7 @@ async def sell(ctx, amount):
             upsert=True
         )
 
-        await ctx.send(f"You have sold {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
+        await ctx.followup.send(f"You have sold {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def give(ctx, person, amount):
@@ -1466,7 +1473,7 @@ async def give(ctx, person, amount):
 
                 elif item == person:
                     if (tempd[item][0] + amount) > 2000000000:
-                        await ctx.send("Your target hit the money limit. Try giving some to someone else.")
+                        await ctx.followup.send("Your target hit the money limit. Try giving some to someone else.")
 
                         for item in tempd:
                             if item == ctx.author.mention:
@@ -1484,7 +1491,7 @@ async def give(ctx, person, amount):
                 upsert=True
             )
 
-            await ctx.send(f"You have given ${numform(amount, 3)} to {person}")
+            await ctx.followup.send(f"You have given ${numform(amount, 3)} to {person}")
 
     else:
         await err(ctx, "That person isn't a mention.")
@@ -1493,7 +1500,8 @@ async def give(ctx, person, amount):
 async def points(ctx, user=None, silent=False):
     """Show number of points of others, or yourself."""
     logging.debug("call: points()")
-    await ctx.defer()
+    if not silent:
+        await ctx.defer()
 
     if user == None:
         isSelf = True
@@ -1526,11 +1534,11 @@ async def points(ctx, user=None, silent=False):
 
     if not silent:
         if isSelf:
-            await ctx.send("You have " + out)
+            await ctx.followup.send("You have " + out)
 
         else:
             temp = await bot.fetch_user(user)
-            await ctx.send(f"{temp.name} has " + out)
+            await ctx.followup.send(f"{temp.name} has " + out)
             del temp
 
     else:
@@ -1598,7 +1606,7 @@ async def leaderboard(ctx):
 
     output += f"{ctx.author.name} - {curp} cp (Place " + yay + ")"
 
-    await ctx.send(output)
+    await ctx.followup.send(output)
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def givepoints(ctx, person, point):
@@ -1645,7 +1653,7 @@ async def givepoints(ctx, person, point):
         upsert=True
     )
 
-    await ctx.send(f"{point} cp have been sent to {person}!")
+    await ctx.followup.send(f"{point} cp have been sent to {person}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def coinflip(ctx):
@@ -1654,10 +1662,10 @@ async def coinflip(ctx):
     await ctx.defer()
 
     if random.randint(0, 1):
-        await ctx.send("You flipped a coin and got heads!")
+        await ctx.followup.send("You flipped a coin and got heads!")
 
     else:
-        await ctx.send("You flipped a coin and got tails!")
+        await ctx.followup.send("You flipped a coin and got tails!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def joke(ctx):
@@ -1666,21 +1674,24 @@ async def joke(ctx):
     await ctx.defer()
 
     j = await Jokes()
-    jk = await j.get_joke(
-        blacklist=[
-            "nsfw",
-            "racist",
-            "sexist"
-        ]
-    )
+    jk = {}
+
+    while jk == {}:
+        jk = await j.get_joke(
+            blacklist=[
+                "nsfw",
+                "racist",
+                "sexist"
+            ]
+        )
 
     if jk["type"] == "single":
-        await ctx.send(jk["joke"])
+        await ctx.followup.send(jk["joke"])
 
     else:
-        await ctx.send(jk["setup"])
+        jsetup = await ctx.followup.send(jk["setup"])
         await asyncio.sleep(1)
-        await ctx.send(jk["delivery"])
+        await jsetup.edit(jk["setup"] + "\n" + jk["delivery"])
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["colour", "clr"])
 async def color(ctx, hexcode):
@@ -1868,15 +1879,15 @@ yiq{yiq}""",
         url=f"https://singlecolorimage.com/get/{hexcode}/200x200.png"
     )
 
-    await ctx.send(embed=embed)
+    await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["new-ticket", "new_ticket"])
-async def newticket(ctx, *topic):
+async def newticket(ctx, *, topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
     await ctx.defer()
 
-    args = topic
+    args = "".join(topic).split(" ")
     del topic
     if len(args) < 1:
         topic = "unknown topic"
@@ -1929,7 +1940,7 @@ async def newticket(ctx, *topic):
         description=f"Your ticket has been created for {topic}.",
         color=discord.Color.from_rgb(1, 254, 170)
     )
-    await ctx.send(embed=embed)
+    await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["close-ticket", "close_ticket"])
 async def closeticket(ctx):
@@ -1946,7 +1957,7 @@ async def closeticket(ctx):
             description="Please run this in the ticket channel you want to close!",
             color = discord.Color.from_rgb(112, 6, 2)
         )
-        await ctx.send(embed=embed)
+        await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def kill(ctx, person):
@@ -1956,20 +1967,20 @@ async def kill(ctx, person):
 
     if isMention(person):
         if int(ctx.author.id) == int(idFromMention(person)):
-            await ctx.send("Suicide has yet to be enabled.")
+            await ctx.followup.send("Suicide has yet to be enabled.")
             return
 
     else:
         if person.strip() == ctx.author.name:
-            await ctx.send("Suicide has yet to be enabled.")
+            await ctx.followup.send("Suicide has yet to be enabled.")
             return
 
     if ("@everyone" in person) or ("@here" in person):
-        await ctx.send("You should see a psychologist about the fact that you want to kill everyone.")
+        await ctx.followup.send("You should see a psychologist about the fact that you want to kill everyone.")
         return
 
     if isCB2(person):
-        await ctx.send("I am deeply saddened by this.")
+        await ctx.followup.send("I am deeply saddened by this.")
         return
 
     if isMention(person):
@@ -1985,7 +1996,7 @@ async def kill(ctx, person):
     )
     embed.set_image(url=kawaii("kill"))
 
-    await ctx.send(embed=embed)
+    await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def slap(ctx, person):
@@ -1995,20 +2006,20 @@ async def slap(ctx, person):
 
     if isMention(person):
         if int(ctx.author.id) == int(idFromMention(person)):
-            await ctx.send("why self-harm tho")
+            await ctx.followup.send("why self-harm tho")
             return
 
     else:
         if person.strip() == ctx.author.name:
-            await ctx.send("why self-harm tho")
+            await ctx.followup.send("why self-harm tho")
             return
 
     if ("@everyone" in person) or ("@here" in person):
-        await ctx.send("There's too many people to slap.")
+        await ctx.followup.send("There's too many people to slap.")
         return
 
     if isCB2(person):
-        await ctx.send("I have not wronged you yet (I hope).")
+        await ctx.followup.send("I have not wronged you yet (I hope).")
         return
 
     if isMention(person):
@@ -2024,7 +2035,7 @@ async def slap(ctx, person):
     )
     embed.set_image(url=kawaii("slap"))
 
-    await ctx.send(embed=embed)
+    await ctx.followup.send(embed=embed)
 
 #R U N .
 da_muns.start()
