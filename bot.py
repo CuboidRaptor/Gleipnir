@@ -553,8 +553,8 @@ async def killcr2(ctx):
 
     if isCuboid(ctx):
         #r u me?
-        await ctx.followup.send("Ok, Ending...")
-        print("Ending...")
+        await ctx.followup.send("OH FRICK NO MY FREE TRIAL OF LIFE EXPIRED")
+        print("Closing...")
         sys.exit()
 
     else:
@@ -581,13 +581,14 @@ async def no_u(ctx, person):
         await ctx.followup.send(f"No u, {person}")
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["8ball"])
-async def magic8ball(ctx):
+async def magic8ball(ctx, *, question):
     """Magic 8ball. Ask it questions."""
     logging.debug("call: magic8ball()")
     await ctx.defer()
 
+    question = "".join(question)
     global answers
-    await ctx.followup.send(choice(answers))
+    await ctx.followup.send(f"In response to question \"{question}\":\n" + choice(answers))
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def quote(ctx):
