@@ -537,7 +537,7 @@ def prod(n):
     return p
 
 #Commands
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def ping(ctx):
     """pings, this is just for tests"""
     logging.debug("call: ping()")
@@ -545,7 +545,7 @@ async def ping(ctx):
 
     await ctx.followup.send("pong")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["killswitch"])
+@bot.slash_command(aliases=["killswitch"])
 async def killcr2(ctx):
     """Kills CRBOT2. Only Cuboid_Raptor#7340 can run this command."""
     logging.debug("call: killcr2()")
@@ -565,7 +565,7 @@ async def killcr2(ctx):
             title="Rude."
         )
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["no-u"])
+@bot.slash_command(aliases=["no-u"])
 async def no_u(ctx, person):
     """No you, people."""
     logging.debug("call: no_u()")
@@ -580,7 +580,7 @@ async def no_u(ctx, person):
     else:
         await ctx.followup.send(f"No u, {person}")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["8ball"])
+@bot.slash_command(aliases=["8ball"])
 async def magic8ball(ctx, *, question):
     """Magic 8ball. Ask it questions."""
     logging.debug("call: magic8ball()")
@@ -590,7 +590,7 @@ async def magic8ball(ctx, *, question):
     global answers
     await ctx.followup.send(f"In response to question \"{question}\":\n" + choice(answers))
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def quote(ctx):
     """Draws from my quotesbook and prints in chat."""
     logging.debug("call: quote()")
@@ -599,7 +599,7 @@ async def quote(ctx):
     global quoteslist
     await ctx.followup.send(choice(quoteslist))
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def shoot(ctx, person):
     """Shoot people. Idk y."""
     logging.debug("call: shoot()")
@@ -635,7 +635,7 @@ async def shoot(ctx, person):
 
     await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(kick_members=True)
 async def warn(ctx, person, *, reason):
     """Warn people."""
@@ -673,7 +673,7 @@ async def warn(ctx, person, *, reason):
 
             await ctx.followup.send(f"{person} has been warned by {ctx.author.mention} for {reason}!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(kick_members=True)
 async def rmwarn(ctx, person, *, reason):
     """Remove warn from people."""
@@ -717,7 +717,7 @@ async def rmwarn(ctx, person, *, reason):
 
             await ctx.followup.send(f"A warn has been removed from {person} by {ctx.author.mention} for {reason}!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def warns(ctx, person):
     """Shows warns of people"""
     logging.debug("call: warns()")
@@ -739,7 +739,7 @@ async def warns(ctx, person):
         else:
             await ctx.followup.send(f"{person} has " + out + " warns!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def warnclear(ctx):
     """Clears all warns globally. Only Cuboid_Raptor#7340 can run this command."""
     logging.debug("call: warnclear()")
@@ -762,7 +762,7 @@ async def warnclear(ctx):
     else:
         await err(ctx, "You don't have the proper permissions to run this command.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(kick_members=True)
 async def kick(ctx, person, *, reason):
     """kicky"""
@@ -784,7 +784,7 @@ async def kick(ctx, person, *, reason):
         else:
             await err(ctx, "That person isn't a mention.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(ban_members=True)
 async def ban(ctx, person, *, reason):
     """make ppl get ban'd"""
@@ -819,7 +819,7 @@ async def ban(ctx, person, *, reason):
         else:
             await err(ctx, "That person isn't a mention.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(ban_members=True)
 async def unban(ctx, person, *, reason):
     """Unban people."""
@@ -846,7 +846,7 @@ async def unban(ctx, person, *, reason):
         else:
             await err(ctx, "That person isn't a Username and Tag seperated by \"#\".")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(kick_members=True)
 async def mute(ctx, person, *, reason, silent=False):
     """Mute people until unmuted."""
@@ -908,7 +908,7 @@ async def mute(ctx, person, *, reason, silent=False):
             if not silent:
                 await err(ctx, "That person isn't a mention.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(kick_members=True)
 async def unmute(ctx, person, *, reason, silent=False):
     """Unmute people."""
@@ -961,7 +961,7 @@ async def unmute(ctx, person, *, reason, silent=False):
             if not silent:
                 await err(ctx, "That person isn't a mention.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 @commands.has_guild_permissions(kick_members=True)
 async def tempmute(ctx, person, time, *, reason):
     """Temporarily mute people."""
@@ -1009,7 +1009,7 @@ async def tempmute(ctx, person, time, *, reason):
         else:
             await err(ctx, "That person isn't a mention.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def roll(ctx, roll):
     """Roll die."""
     logging.debug("call: roll()")
@@ -1031,7 +1031,7 @@ async def roll(ctx, roll):
         except ValueError:
             await err(ctx, "That isn't a valid roll.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def ship(ctx, person, person2=None):
     """Ship ship ship"""
     logging.debug("call: ship()")
@@ -1120,7 +1120,7 @@ async def ship(ctx, person, person2=None):
             )
         )
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["open-account"])
+@bot.slash_command(aliases=["open-account"])
 async def open_account(ctx):
     """Open STONKS! account"""
     logging.debug("call: open_account()")
@@ -1151,7 +1151,7 @@ async def open_account(ctx):
     )
     await ctx.followup.send(f"{person.mention} has been registered with STONKS!!")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["reset-stonks"])
+@bot.slash_command(aliases=["reset-stonks"])
 async def reset_stonks(ctx, silent=False):
     """Reset STONKS! Only Cuboid_Raptor#7340 can run this command"""
     logging.debug("call: reset_stonks()")
@@ -1181,7 +1181,7 @@ async def reset_stonks(ctx, silent=False):
     else:
         err(ctx, "You don't have the proper permissions to run that command.")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["erase-stonks"])
+@bot.slash_command(aliases=["erase-stonks"])
 async def erase_stonks(ctx, silent=False):
     logging.debug("call: erase_stonks()")
     """Erase all global STONKS! from shareholders. Only Cuboid_Raptor#7340 can run this command"""
@@ -1212,7 +1212,7 @@ async def erase_stonks(ctx, silent=False):
     else:
         err(ctx, "You don't have the proper permissions to run that command")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["stonks-price"])
+@bot.slash_command(aliases=["stonks-price"])
 async def stonks_price(ctx, silent=False):
     """Print current STONKS! price"""
     logging.debug("call: stonks_price()")
@@ -1240,7 +1240,7 @@ async def stonks_price(ctx, silent=False):
             temp["STANKS!"]
         )
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["erase-money"])
+@bot.slash_command(aliases=["erase-money"])
 async def erase_money(ctx, silent=False):
     """Erase all money, globally. Only Cuboid_Raptor#7340 can run this command."""
     logging.debug("call: erase_money()")
@@ -1271,7 +1271,7 @@ async def erase_money(ctx, silent=False):
     else:
         err(ctx, "You don't have the proper permissions to run that command.")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["reset-finance"])
+@bot.slash_command(aliases=["reset-finance"])
 async def reset_finance(ctx):
     """Reset all finances. Dangerous command. Ony can be user by Cuboid_Raptor#7340."""
     logging.debug("call: reset_finance()")
@@ -1286,7 +1286,7 @@ async def reset_finance(ctx):
     else:
         await err(ctx, "You don't have the proper permissions to run that command.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def wallet(ctx, silent=False):
     """Shows current amount of money if you have a registered account."""
     logging.debug("call: wallet()")
@@ -1309,7 +1309,7 @@ async def wallet(ctx, silent=False):
 
     await err(ctx, "You haven't signed up for STONKS! yet.\nUse .open-account to do that.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def buy(ctx, amount):
     """Buy some STONKS! from STONKS!."""
     logging.debug("call: buy()")
@@ -1368,7 +1368,7 @@ async def buy(ctx, amount):
 
         await ctx.followup.send(f"You have bought {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def sell(ctx, amount):
     """Sell some STONKS! from STONKS!."""
     logging.debug("call: sell()")
@@ -1432,7 +1432,7 @@ async def sell(ctx, amount):
 
         await ctx.followup.send(f"You have sold {numform(amount, 3)} STONKS! for ${numform(sp, 3)}!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def give(ctx, person, amount):
     """give da STONKS! muns to someone else"""
     logging.debug("call: give()")
@@ -1497,7 +1497,7 @@ async def give(ctx, person, amount):
     else:
         await err(ctx, "That person isn't a mention.")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def points(ctx, user=None, silent=False):
     """Show number of points of others, or yourself."""
     logging.debug("call: points()")
@@ -1545,7 +1545,7 @@ async def points(ctx, user=None, silent=False):
     else:
         return tempd[str(user)]
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["lb"])
+@bot.slash_command(aliases=["lb"])
 async def leaderboard(ctx):
     """Leaderboard function for points."""
     logging.debug("call: leaderboard()")
@@ -1609,7 +1609,7 @@ async def leaderboard(ctx):
 
     await ctx.followup.send(output)
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def givepoints(ctx, person, point):
     """Give points to others."""
     logging.debug("call: give()")
@@ -1656,7 +1656,7 @@ async def givepoints(ctx, person, point):
 
     await ctx.followup.send(f"{point} cp have been sent to {person}!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def coinflip(ctx):
     """Flip a coin, 'cuz why not."""
     logging.debug("call: coinflip()")
@@ -1668,7 +1668,7 @@ async def coinflip(ctx):
     else:
         await ctx.followup.send("You flipped a coin and got tails!")
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def joke(ctx):
     """Prints a random corny joke."""
     logging.debug("call: joke()")
@@ -1694,7 +1694,7 @@ async def joke(ctx):
         await asyncio.sleep(1)
         await jsetup.edit(jk["setup"] + "\n" + jk["delivery"])
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["colour", "clr"])
+@bot.slash_command(aliases=["colour", "clr"])
 async def color(ctx, hexcode):
     """Display a hex code colour."""
     logging.debug("call: color()")
@@ -1882,7 +1882,7 @@ yiq{yiq}""",
 
     await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["new-ticket", "new_ticket"])
+@bot.slash_command(aliases=["new-ticket", "new_ticket"])
 async def newticket(ctx, *, topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
@@ -1943,7 +1943,7 @@ async def newticket(ctx, *, topic):
     )
     await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["close-ticket", "close_ticket"])
+@bot.slash_command(aliases=["close-ticket", "close_ticket"])
 async def closeticket(ctx):
     """Closes ticket."""
     logging.debug("call: closeticket()")
@@ -1960,7 +1960,7 @@ async def closeticket(ctx):
         )
         await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def kill(ctx, person):
     """Kill people to death. Why do I add these features?"""
     logging.debug("call: kill()")
@@ -1999,7 +1999,7 @@ async def kill(ctx, person):
 
     await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294])
+@bot.slash_command()
 async def slap(ctx, person):
     """Slap person. I'm just using Kawaii, ok? I'M BORED."""
     logging.debug("call: slap()")
