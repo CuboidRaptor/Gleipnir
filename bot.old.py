@@ -270,7 +270,7 @@ You can also interact with me in the server, do be sure to use *[.]* as a comman
     except discord.errors.HTTPException:
         logging.warning("HTTPException when DMing new user")
 
-    channel = get(member.guild.text_channels, name="📢server-join-leave📢")
+    channel = get(member.guild.text_channels, name="📢┊server-join-leave")
 
     embed = discord.Embed(
         title=f"{member.mention} has joined!",
@@ -291,7 +291,7 @@ async def on_member_remove(member):
     )
     embed.set_image(url=kawaii("cry"))
 
-    channel = get(member.guild.text_channels, name="📢events-announcements📢")
+    channel = get(member.guild.text_channels, name="📢┊server-join-leave")
     await channel.send(
         f"*{member.mention} has left. Goodbye, {member.mention}*",
         embed=embed
