@@ -92,7 +92,7 @@ with open("dat.json", "r") as f:
     answers = yeetus["8ball"]
     quoteslist = yeetus["quotes"]
 
-isSwear = r"\|\|" + ("((" + ")|(".join(curselist) + "))") + r"\|\|"
+isSwear = r"\|\|" + ("((" + ")|(".join(curselist) + "))+") + r"\|\|"
 #print(isSwear)
 isSwear = re.compile(isSwear)
 
