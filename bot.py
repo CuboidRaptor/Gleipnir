@@ -1,4 +1,5 @@
-#Logging
+# Logging
+# import os; os.chdir(os.path.dirname(__file__))
 import logging
 
 with open("latest.log", "w") as f: pass
@@ -10,7 +11,7 @@ logging.basicConfig(
 )
 logging.debug("1.3.0.0")
 
-#Imports
+# Imports
 logging.debug("Importing...")
 import discord
 import os
@@ -47,7 +48,7 @@ except (ModuleNotFoundError, ImportError):
 logging.debug("Loading environment...")
 load_dotenv()
 
-#MongoDB twash
+# MongoDB twash
 logging.debug("Defining MongoDB Constants...")
 client = motor.motor_asyncio.AsyncIOMotorClient(
     str(
@@ -72,20 +73,20 @@ msgst = {}
 
 kawaiit = str(os.getenv("KAWAII"))
 
-#Regexes
+# Regexes
 logging.debug("Defining regexes...")
 mentionre = re.compile(r"(.*<@[0-9]+>.*)|(.*<@![0-9]+>.*)")
-iUAT = re.compile(r".*#[0-9]{4}")
+iUAT = re.compile(r".*# [0-9]{4}")
 iRPr = re.compile(r"[0-9]+d[0-9]+")
 
-#stuff
+# stuff
 logging.debug("Defining bot constants...")
 intents = discord.Intents.all()
 bot = commands.Bot(
     intents=intents
 )
 with open("dat.json", "r") as f:
-    #Load crap from data file
+    # Load crap from data file
     logging.debug("Loading from JSON datafile...")
     yeetus = json.loads(f.read())
     curselist = yeetus["curses"]
@@ -93,7 +94,7 @@ with open("dat.json", "r") as f:
     quoteslist = yeetus["quotes"]
 
 isSwear = r"\|\|" + ("((" + ")|(".join(curselist) + "))+") + r"\|\|"
-#print(isSwear)
+# print(isSwear)
 isSwear = re.compile(isSwear)
 
 @tasks.loop(minutes=1)
@@ -146,16 +147,17 @@ async def umloop():
         upsert=True
     )
 
-#events
+# events
 
 @bot.event
 async def on_ready():
-    #logged in?
+    # logged in?
     logging.debug("call: on_ready()")
     print(f"CRBOT2 has logged on in to Discord as {bot.user}")
 
 @bot.event
 async def on_member_join(member):
+    # Ooh someone joined
     logging.debug("call: on_member_join()")
     try:
         embed = discord.Embed(
@@ -165,9 +167,9 @@ async def on_member_join(member):
         embed.set_image(url=kawaii("happy"))
 
         await member.send("""Hello there!
-This is an automated message.:robot: 
-I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
-I have DM'd you to say, welcome to Cuboid's Café!:coffee: 
+This is an automated message.:robot:
+I am **CRBOT2**, the bot made by **Cuboid_Raptor# 7340**.
+I have DM'd you to say, welcome to Cuboid's Café!:coffee:
 I sincerely hope you have a great time in the server!:laughing:
 You can also interact with me in the server, do be sure to use *[.]* as a command prefix.""",
             embed=embed
@@ -188,6 +190,7 @@ You can also interact with me in the server, do be sure to use *[.]* as a comman
 
 @bot.event
 async def on_member_remove(member):
+    # oof someone left :'(
     logging.debug("call: on_member_remove()")
 
     embed = discord.Embed(
@@ -204,33 +207,33 @@ async def on_member_remove(member):
 
 @bot.listen("on_message")
 async def on_message_listener(message):
-    #When someone messages
+    # When someone messages
     logging.debug("call: on_message()")
     if message.author == bot.user:
-        #Is the bot messaging.
+        # Is the bot messaging.
         return
 
     if message.author.bot:
-        return #Prevent bots from running commands.
+        return # Prevent bots from running commands.
 
     tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
 
     for word in curselist:
         if word in tingy:
-            #you swore, idot.
+            # you swore, idot.
             print("somebody swore uh oh")
             await message.channel.send(f"Don't swear, {message.author.mention}")
             return
 
     if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str("/")) and ("announcements" not in message.channel.name.lower()):
-        #Did you say bot name?
+        # Did you say bot name?
         await message.channel.send("Hello there, I heard my name?")
 
     try:
         dif = mtime.time() - msgst[message.author.id]
 
     except KeyError:
-        dif = 7 #Could be any number >0.5
+        dif = 7 # Could be any number >0.5
 
     if dif > 1:
         tempd = await pointsc.find_one(
@@ -257,6 +260,7 @@ async def on_message_listener(message):
 
 @bot.event
 async def on_application_command_error(ctx, error):
+    # Oof something went wrong
     if isinstance(error, discord.ext.commands.errors.CommandNotFound):
         embed = discord.Embed(
             title="Error",
@@ -290,14 +294,14 @@ async def on_application_command_error(ctx, error):
         embed.set_footer(text="Is this a bug? Report it to help make this bot better!")
         await ctx.followup.send(embed=embed)
 
-#Functions
+# Functions
 def d(n):
-    #precision
+    # precision
     logging.debug("call: d()")
     return Decimal(str(n))
 
 def bround(n, a=0):
-    #better rounding
+    # better rounding
     logging.debug("call: bround()")
     if a == 0:
         return int(round(d(str(n)), a))
@@ -306,7 +310,7 @@ def bround(n, a=0):
         return float(round(d(str(n)), a))
 
 def g_role(ctx, rname):
-    #Checks if ctx.author has any one of the roles in [rname]
+    # Checks if ctx.author has any one of the roles in [rname]
     logging.debug("call: g_role()")
     role_t = []
     for item in rname:
@@ -319,7 +323,7 @@ def g_role(ctx, rname):
     return out
 
 def isCuboid(ctx):
-    #Is message author in ctx me (Cuboid)?
+    # Is message author in ctx me (Cuboid)?
     logging.debug("call: isCuboid()")
     if ctx.author.id == 588132098875850752:
         return True
@@ -328,13 +332,13 @@ def isCuboid(ctx):
         return False
 
 def isMention(text):
-    #Is text a mention?
+    # Is text a mention?
     logging.debug("call: isMention()")
     global mentionre
     return mentionre.match(text) != None
 
 def idFromMention(mention):
-    #Get User ID from mention
+    # Get User ID from mention
     logging.debug("call: idFromMention()")
     if mention.startswith("<@!"):
         return str(mention)[3:-1]
@@ -343,7 +347,7 @@ def idFromMention(mention):
         return str(mention)[2:-1]
 
 def isCB2(text):
-    #Is text CRBOT2
+    # Is text CRBOT2
     logging.debug("call: isCB2()")
     text = text.strip()
     if (text == str(bot.user.name)) or (text == str(bot.user)) or (text == "<@" + str(bot.user.id) + ">") or (text == "<@!" + str(bot.user.id) + ">"):
@@ -353,21 +357,21 @@ def isCB2(text):
         return False
 
 def isUserAndTag(text):
-    #Checks if the string contains a username and tag
+    # Checks if the string contains a username and tag
     logging.debug("call: isUserAndTag()")
     global iUAT
     if iUAT.match(text.strip()) == None:
         return False
 
     else:
-        if len(text.split("#")) != 2:
+        if len(text.split("# ")) != 2:
             return False
 
         else:
             return True
 
 def isEmpty(text):
-    #Checks if string is empty
+    # Checks if string is empty
     logging.debug("call: isEmpty()")
     if text == "" or text.isspace():
         return True
@@ -376,7 +380,7 @@ def isEmpty(text):
         return False
 
 def reasonRet(arr):
-    #Returns reason from *args
+    # Returns reason from *args
     logging.debug("call: reasonRet()")
     reason = "".join(arr)
 
@@ -386,7 +390,7 @@ def reasonRet(arr):
     return reason
 
 def rollParse(string):
-    #Parses roll number
+    # Parses roll number
     logging.debug("call: rollParse()")
     global iRPr
     if iRPr.match(string) == None:
@@ -399,25 +403,25 @@ def rollParse(string):
         return string.lower().split("d")
 
 def numform(n, a=0):
-    #Adds commas and round number.
+    # Adds commas and round number.
     logging.debug("call: numform()")
     return "{:,}".format(bround(float(n), a))
 
 def containsEveryone(message):
-    #Check if message contains @everyone pings.
+    # Check if message contains @everyone pings.
     logging.debug("call: containsEveryone()")
     return ("@everyone" in message) or ("@here" in message)
 
 def kawaii(sub):
-    #Gets GIF from kawaii.red
+    # Gets GIF from kawaii.red
     logging.debug("call: kawaii()")
     r = requests.get(f"https://kawaii.red/api/gif/{sub}/token={kawaiit}/")
     return str(r.json()['response'])
 
 def fullName(author):
-    #Returns name + tag from user/Member object
+    # Returns name + tag from user/Member object
     logging.debug("call: fullName()")
-    return author.name + "#" + author.discriminator
+    return author.name + "# " + author.discriminator
 
 async def err(
     ctx,
@@ -444,7 +448,7 @@ def prod(n):
 
     return p
 
-#Commands
+# Commands
 @bot.slash_command(guild_ids=[885685555084554294])
 async def ping(ctx):
     """pings, this is just for tests"""
@@ -455,12 +459,12 @@ async def ping(ctx):
 
 @bot.slash_command(guild_ids=[885685555084554294], aliases=["killswitch"])
 async def killcr2(ctx):
-    """Kills CRBOT2. Only Cuboid_Raptor#7340 can run this command."""
+    """Kills CRBOT2. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: killcr2()")
     await ctx.defer()
 
     if isCuboid(ctx):
-        #r u me?
+        # r u me?
         await ctx.followup.send("OH FRICK NO MY FREE TRIAL OF LIFE EXPIRED")
         print("Closing...")
         sys.exit()
@@ -649,7 +653,7 @@ async def warns(ctx, person):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 async def warnclear(ctx):
-    """Clears all warns globally. Only Cuboid_Raptor#7340 can run this command."""
+    """Clears all warns globally. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: warnclear()")
     await ctx.defer()
 
@@ -718,7 +722,7 @@ async def ban(ctx, person, *, reason):
 
             except IndexError:
                 await err(ctx, "hey bub that person doesn't exist, or some error has been thrown")
-                await ctx.followup.send("(if that person does exist, notify Cuboid_Raptor#7340)")
+                await ctx.followup.send("(if that person does exist, notify Cuboid_Raptor# 7340)")
                 return
 
             await user.ban(reason=reason)
@@ -741,7 +745,7 @@ async def unban(ctx, person, *, reason):
         if isUserAndTag(person):
             reason = reasonRet(reason)
 
-            mname, mdisc = person.split("#")
+            mname, mdisc = person.split("# ")
 
             banned_users = await ctx.message.guild.bans()
             for ban_entry in banned_users:
@@ -752,7 +756,7 @@ async def unban(ctx, person, *, reason):
                     await ctx.message.channel.send(f"{user.mention} has been unbanned by {ctx.author.mention} for {reason}!")
 
         else:
-            await err(ctx, "That person isn't a Username and Tag seperated by \"#\".")
+            await err(ctx, "That person isn't a Username and Tag seperated by \"# \".")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(kick_members=True)
@@ -1131,7 +1135,7 @@ async def leaderboard(ctx):
     curp = int(curp)
 
     try:
-        yay = "#" + str(places.index(str(ctx.author.id)) + 1)
+        yay = "# " + str(places.index(str(ctx.author.id)) + 1)
 
     except ValueError:
         yay = "Last"
@@ -1232,7 +1236,7 @@ async def color(ctx, hexcode):
     await ctx.defer()
 
     ohex = str(hexcode).upper()
-    hexcode = ohex.lstrip("\\").lstrip("#").lower()
+    hexcode = ohex.lstrip("\\").lstrip("# ").lower()
 
     if len(hexcode) != 6:
         await err(ctx, "An error occured, and your hex code could not be processed.")
@@ -1253,11 +1257,11 @@ async def color(ctx, hexcode):
     elif hexcode == "000000":
         hexcode = "000001"
 
-    ohex = ohex.lstrip("\\").lstrip("#")
+    ohex = ohex.lstrip("\\").lstrip("# ")
 
-    ohex = "\\#" + ohex
+    ohex = "\\# " + ohex
 
-    #RGB
+    # RGB
     yee = tuple(
         int(
             hexcode[i:i+2],
@@ -1279,7 +1283,7 @@ async def color(ctx, hexcode):
         )
     )
 
-    #CMYK
+    # CMYK
     cmyk = (0, 0, 0, 100)
     if rgb2 == (0, 0, 0):
         pass
@@ -1309,7 +1313,7 @@ async def color(ctx, hexcode):
             )
         )
 
-    #HSL
+    # HSL
     hsl = tuple(
         map(
             lambda a: bround(
@@ -1342,7 +1346,7 @@ async def color(ctx, hexcode):
         )
     ).replace("'", "")
 
-    #HSV
+    # HSV
     hsv = tuple(
         map(
             lambda a: bround(
@@ -1375,7 +1379,7 @@ async def color(ctx, hexcode):
         )
     ).replace("'" ,"")
 
-    #YIQ
+    # YIQ
     yiq = tuple(
         map(
             lambda a: bround(
@@ -1569,6 +1573,6 @@ async def slap(ctx, person):
 
     await ctx.followup.send(embed=embed)
 
-#R U N .
+# R U N .
 umloop.start()
 bot.run(str(os.getenv("DISCORD_TOKEN")))
