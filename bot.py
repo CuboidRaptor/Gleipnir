@@ -457,7 +457,7 @@ async def ping(ctx):
 
     await ctx.followup.send("pong")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["killswitch"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def killcr2(ctx):
     """Kills CRBOT2. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: killcr2()")
@@ -477,7 +477,7 @@ async def killcr2(ctx):
             title="Rude."
         )
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["no-u"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def no_u(ctx, person):
     """No you, people."""
     logging.debug("call: no_u()")
@@ -492,7 +492,7 @@ async def no_u(ctx, person):
     else:
         await ctx.followup.send(f"No u, {person}")
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["8ball"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def magic8ball(ctx, *, question):
     """Magic 8ball. Ask it questions."""
     logging.debug("call: magic8ball()")
@@ -1080,7 +1080,7 @@ async def points(ctx, user=None, silent=False):
     else:
         return tempd[str(user)]
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["lb"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def leaderboard(ctx):
     """Leaderboard function for points."""
     logging.debug("call: leaderboard()")
@@ -1144,7 +1144,7 @@ async def leaderboard(ctx):
 
     await ctx.followup.send(output)
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["give"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def givepoints(ctx, person, point):
     """Give points to others."""
     logging.debug("call: give()")
@@ -1229,7 +1229,7 @@ async def joke(ctx):
         await asyncio.sleep(1)
         await jsetup.edit(jk["setup"] + "\n" + jk["delivery"])
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["colour", "clr"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def color(ctx, hexcode):
     """Display a hex code colour."""
     logging.debug("call: color()")
@@ -1417,7 +1417,7 @@ yiq{yiq}""",
 
     await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["new-ticket", "new_ticket"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def newticket(ctx, *, topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
@@ -1478,7 +1478,7 @@ async def newticket(ctx, *, topic):
     )
     await ctx.followup.send(embed=embed)
 
-@bot.slash_command(guild_ids=[885685555084554294], aliases=["close-ticket", "close_ticket"])
+@bot.slash_command(guild_ids=[885685555084554294])
 async def closeticket(ctx):
     """Closes ticket."""
     logging.debug("call: closeticket()")
