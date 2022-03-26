@@ -621,7 +621,7 @@ async def warnclear(ctx):
 
     else:
         await err(ctx, "You don't have the proper permissions to run this command.")
-        
+
 @bot.slash_command(guild_ids=[885685555084554294])
 async def roll(ctx, roll):
     """Roll die."""
@@ -1275,5 +1275,4 @@ async def slap(ctx, person):
     await ctx.followup.send(embed=embed)
 
 # R U N .
-umloop.start()
 bot.run(str(os.getenv("DISCORD_TOKEN")))
