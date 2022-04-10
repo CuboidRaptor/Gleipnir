@@ -32,7 +32,6 @@ from random import randint, choice
 from discord.ext import commands, tasks
 from discord.utils import get
 from dotenv import load_dotenv
-from Levenshtein import ratio as lsr
 from decimal import Decimal
 
 try:
