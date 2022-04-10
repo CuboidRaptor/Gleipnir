@@ -110,17 +110,20 @@ async def on_member_join(member):
     logging.debug("call: on_member_join()")
     try:
         embed = discord.Embed(
-            title=f"Thank you for joining!",
-            description="Have fun!"
+            title=f"Thank you for joining Cuboid's Café!",
+            description="""Hello there!
+This is an automated message.:robot:
+I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
+I have DM'd you to say, welcome to Cuboid's Café!:coffee:
+I sincerely hope you have a great time in the server!:laughing:
+You can also interact with me in the server, do be sure to use slash commands,
+I have loads of weird thing. Need a sarcastic joke with hints of dark humour? `/joke`.
+Want to slap someone with an anime GIF? `/slap`.
+You can see a full list when you type `/`, but I digress."""
         )
         embed.set_image(url=kawaii("happy"))
 
-        await member.send("""Hello there!
-This is an automated message.:robot:
-I am **CRBOT2**, the bot made by **Cuboid_Raptor# 7340**.
-I have DM'd you to say, welcome to Cuboid's Café!:coffee:
-I sincerely hope you have a great time in the server!:laughing:
-You can also interact with me in the server, do be sure to use *[.]* as a command prefix.""",
+        await member.send(
             embed=embed
         )
     except discord.errors.HTTPException:
@@ -186,7 +189,7 @@ async def on_message_listener(message):
         dif = mtime.time() - msgst[message.author.id]
 
     except KeyError:
-        dif = 7 # Could be any number >0.5
+        dif = 7 # Could be any number >1
 
     if dif > 1:
         tempd = await pointsc.find_one(
