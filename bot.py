@@ -25,7 +25,8 @@ import time as mtime
 import requests
 import motor.motor_asyncio
 import colorsys
-
+import yfinance as yf
+import pandas as pd
 from jokeapi import Jokes
 from bson.objectid import ObjectId
 from random import randint, choice
@@ -1281,6 +1282,41 @@ async def slap(ctx, person):
     embed.set_image(url=kawaii("slap"))
 
     await ctx.followup.send(embed=embed)
+@bot.slash_command(guild_ids=[885685555084554294])
+async def stock_price(ctx, stock_symbol):
+    """Get stock price. Please use Yahoo Finance to study stocks."""
+    logging.debug("call: stock_price()")
+    await ctx.defer()
+    def get_stock_data(stock_symbol):
+        stock_info = yf.Ticker(stock_symbol).info
+        stock_data = yf.Ticker(stock_symbol).history(period="1d", interval="1m")
+        df_stock_data = pd.DataFrame(stock_data)
+        return df_stock_data, stock_info
+
+    if stock_symbol.strip() == "":
+        await ctx.followup.send("Please provide a stock symbol.")
+        return
+
+    stock_symbol = stock_symbol.upper()
+
+    stock_data, stock_info = get_stock_data(stock_symbol)
+
+    if stock_data.empty:
+            await ctx.followup.send("Please provide a valid stock symbol.")
+            return
+ 
+
+
+    embed = discord.Embed(
+        title=f"{stock_symbol} stock price",
+        description=f"{stock_info}"
+        
+            
+        
+    )
+
+    await ctx.followup.send(embed=embed)
+    await ctx.followup.send("Price: " + str(stock_data["Close"][-1]) + "Volume: " + str(stock_data["Volume"][-1]) + "Open: " + str(stock_data["Open"][-1]) + "High: " + str(stock_data["High"][-1]) + "Low: " + str(stock_data["Low"][-1]))
 
 # R U N .
 bot.run(
