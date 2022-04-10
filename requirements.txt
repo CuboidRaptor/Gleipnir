@@ -6,3 +6,4 @@ certifi
 jokeapi
 simplejson
 requests
+dnspython
