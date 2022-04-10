@@ -91,7 +91,7 @@ with open("dat.json", "r") as f:
     answers = yeetus["8ball"]
     quoteslist = yeetus["quotes"]
 
-isSwear = r"\|\|" + ("((" + ")|(".join(curselist) + "))+") + r"\|\|"
+isSwear = r"\|\|" + ("((.*" + ".*)|(.*".join(curselist) + ".*))+") + r"\|\|"
 # print(isSwear)
 isSwear = re.compile(isSwear)
 
@@ -102,6 +102,7 @@ async def on_ready():
     # logged in?
     logging.debug("call: on_ready()")
     print(f"CRBOT2 has logged on in to Discord as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="with Cuboid's brain cells"))
 
 @bot.event
 async def on_member_join(member):
@@ -163,6 +164,10 @@ async def on_message_listener(message):
 
     if message.author.bot:
         return # Prevent bots from running commands.
+
+    if "c%diagnostics%" in message.content:
+        # diagnostics
+        await message.channel.send("testing... 1 2 3 testing...")
 
     tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
 
@@ -958,9 +963,9 @@ async def color(ctx, hexcode):
     elif hexcode == "000000":
         hexcode = "000001"
 
-    ohex = ohex.lstrip("\\").lstrip("# ")
+    ohex = ohex.lstrip("\\").lstrip("#").lstrip(" ")
 
-    ohex = "\\# " + ohex
+    ohex = "\\#" + ohex
 
     # RGB
     yee = tuple(
@@ -1133,7 +1138,7 @@ async def newticket(ctx, *, topic):
         topic = " ".join(args)
 
     ticket_channel = await ctx.guild.create_text_channel(
-        f"ticket-{ctx.author.name}-{topic}",
+        f"️🎫┊️ticket-{ctx.author.name}-{topic}",
         category=get(
             bot.get_guild(
                 885685555084554294
@@ -1185,6 +1190,7 @@ async def closeticket(ctx):
     logging.debug("call: closeticket()")
     await ctx.defer()
 
+    #print(ctx.channel.name)
     if "ticket-" in ctx.channel.name:
         await ctx.channel.delete()
 
@@ -1275,4 +1281,10 @@ async def slap(ctx, person):
     await ctx.followup.send(embed=embed)
 
 # R U N .
-bot.run(str(os.getenv("DISCORD_TOKEN")))
+bot.run(
+    str(
+        os.getenv(
+            "DISCORD_TOKEN"
+        )
+    )
+)
