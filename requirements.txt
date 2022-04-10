@@ -1,8 +1,7 @@
-py-cord==2.0.0b5
+py-cord==2.0.0b7
 python-dotenv
 asyncio
 motor
 certifi
-python-Levenshtein
 jokeapi
 simplejson
