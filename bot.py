@@ -9,7 +9,7 @@ logging.basicConfig(
     filename="latest.log",
     format="[%(levelname)s]: %(message)s"
 )
-logging.debug("1.3.0.0")
+logging.debug("1.4.0.2")
 
 # Imports
 logging.debug("Importing...")
