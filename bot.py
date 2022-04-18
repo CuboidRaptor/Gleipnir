@@ -60,9 +60,11 @@ client = motor.motor_asyncio.AsyncIOMotorClient(
 db = client["CRBOT2Dat"]
 warnsc = db["warns"]
 pointsc = db["points"]
+countsc = db["count"]
 
 pointsid = "620cfe72f63ae0339129c774"
 warnid = "000000000000000000010f2c"
+countid = "625da77a041a143613c03918"
 emojismade = False
 
 msgst = {}
@@ -89,6 +91,9 @@ with open("dat.json", "r") as f:
     curselist = yeetus["curses"]
     answers = yeetus["8ball"]
     quoteslist = yeetus["quotes"]
+    no_ulist = yeetus["no u"]
+
+    del yeetus
 
 isSwear = r"\|\|" + ("((.*" + ".*)|(.*".join(curselist) + ".*))+") + r"\|\|"
 # print(isSwear)
@@ -164,8 +169,28 @@ async def on_message_listener(message):
         # Is the bot messaging.
         return
 
-    if message.author.bot:
-        return # Prevent bots from running commands.
+    if message.channel.id == 955239604007628820:
+        tempd = await countsc.find_one(
+            {
+                "_id": ObjectId(countid)
+            }
+        )
+
+        if (message.content != str(tempd["num"])) or (message.author.id == tempd["lastid"]):
+            await message.delete()
+            await message.author.send(random.choice(no_ulist) + random.choice(["", "."]))
+
+        else:
+            tempd["num"] += 1
+            tempd["lastid"] = message.author.id
+
+            await countsc.replace_one(
+                {
+                    "_id": ObjectId(countid)
+                },
+                tempd,
+                upsert=True
+            )
 
     if "c%diagnostics%" in message.content:
         # diagnostics
@@ -182,7 +207,8 @@ async def on_message_listener(message):
 
     if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str("/")) and ("announcements" not in message.channel.name.lower()):
         # Did you say bot name?
-        await message.channel.send("Hello there, I heard my name?")
+        if message.channel.id != 955239604007628820:
+            await message.channel.send("Hello there, I heard my name?")
 
     try:
         dif = mtime.time() - msgst[message.author.id]
