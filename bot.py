@@ -170,6 +170,7 @@ async def on_message_listener(message):
         return
 
     if message.channel.id == 955239604007628820:
+        # Is message in count channel?
         tempd = await countsc.find_one(
             {
                 "_id": ObjectId(countid)
@@ -177,10 +178,12 @@ async def on_message_listener(message):
         )
 
         if (message.content != str(tempd["num"])) or (message.author.id == tempd["lastid"]):
+            # Incorrect message.
             await message.delete()
             await message.author.send(random.choice(no_ulist) + random.choice(["", "."]))
 
         else:
+            # Correct message.
             tempd["num"] += 1
             tempd["lastid"] = message.author.id
 
@@ -191,6 +194,17 @@ async def on_message_listener(message):
                 tempd,
                 upsert=True
             )
+
+    else:
+        # Not in count channel? Is it in announcements or no category?
+        temp = message.channel.category
+        if (not temp) or (temp.id == 885897220707205210):
+            # No category or announcements.
+            pass
+
+        else:
+            if random.randint(1, 1000) <= 1:
+                await message.channel.send("r/woosh", reference=message)
 
     if "c%diagnostics%" in message.content:
         # diagnostics
@@ -869,7 +883,7 @@ async def leaderboard(ctx):
     curp = int(curp)
 
     try:
-        yay = "# " + str(places.index(str(ctx.author.id)) + 1)
+        yay = "#" + str(places.index(str(ctx.author.id)) + 1)
 
     except ValueError:
         yay = "Last"
