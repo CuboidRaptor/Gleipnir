@@ -863,7 +863,7 @@ async def leaderboard(ctx):
             del temp
             return 0
 
-        except (KeyError) as error:
+        except KeyError as error:
             logging.debug("Error occured in leaderboard.add(), could be incomplete leaderboard")
             logging.warning(f"{type(error).name}: {str(error)}")
             return 1
