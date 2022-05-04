@@ -21,3 +21,7 @@ __hardpull__.sh
 
 # Old Prefixed
 bot.old.py.bak
+
+# Log thingies
+logs4.bat
+logs6.bat

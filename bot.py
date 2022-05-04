@@ -25,6 +25,7 @@ import time as mtime
 import requests
 import motor.motor_asyncio
 import colorsys
+import traceback
 
 from jokeapi import Jokes
 from bson.objectid import ObjectId
@@ -77,6 +78,7 @@ logging.debug("Defining regexes...")
 mentionre = re.compile(r"(.*<@[0-9]+>.*)|(.*<@![0-9]+>.*)")
 iUAT = re.compile(r".*# [0-9]{4}")
 iRPr = re.compile(r"[0-9]+d[0-9]+")
+lineTB = re.compile(r"line \d+?")
 
 # stuff
 logging.debug("Defining bot constants...")
@@ -283,10 +285,14 @@ async def on_application_command_error(ctx, error):
     else:
         embed = discord.Embed(
             title="Error",
-            description=str(error),
+            description=str(error) + " on " + lineTB.findall(
+                traceback.format_tb(
+                    error.__traceback__
+                )[0]
+            )[~0].title(),
             color=discord.Color.red()
         )
-        embed.set_footer(text="Is this a bug? Report it to help make this bot better!")
+        embed.set_footer(text="Is this a bug? Report it to help make this dipsh- I mean, bot, better!")
         await ctx.followup.send(embed=embed)
 
 # Functions
