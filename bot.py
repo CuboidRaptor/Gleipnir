@@ -483,7 +483,12 @@ async def killcr2(ctx):
 
     if isCuboid(ctx):
         # r u me?
-        await ctx.followup.send("OH FRICK NO MY FREE TRIAL OF LIFE EXPIRED")
+        try:
+            await ctx.followup.send("OH FRICK NO MY FREE TRIAL OF LIFE EXPIRED")
+
+        except discord.errors.NotFound:
+            logging.warning("Interaction likely fiailed when running killswitch, ignoring...")
+            
         print("Closing...")
         sys.exit()
 
