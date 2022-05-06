@@ -306,11 +306,7 @@ if mode != "D":
         else:
             embed = discord.Embed(
                 title="Error",
-                description=str(error) + " on " + lineTB.findall(
-                    traceback.format_tb(
-                        error.__traceback__
-                    )[0]
-                )[~0].title(),
+                description=str(error),
                 color=discord.Color.red()
             )
             embed.set_footer(text="Is this a bug? Report it to help make this dipsh- I mean, bot, better!")
