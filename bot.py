@@ -879,8 +879,13 @@ async def leaderboard(ctx):
     async def add(a, n):
         global output, thingy
         try:
-            
-            temp = await bot.fetch_user(thingy[n][0])
+            try:
+                temp = await bot.fetch_user(thingy[n][0])
+
+            except discord.errors.NotFound:
+                del thingy[n]
+                await add(a, n)
+                return
 
             if temp.bot:
                 del thingy[n]
