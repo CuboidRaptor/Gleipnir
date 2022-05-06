@@ -48,6 +48,26 @@ except (ModuleNotFoundError, ImportError):
 logging.debug("Loading environment...")
 load_dotenv()
 
+# Getting run mode
+logging.debug("Asking for mode and parsing...")
+list = [
+    "Debug",
+    "Regular"
+]
+list2 = [item[0].upper() for item in list]
+mode = str(
+    input(
+        "".join(
+            [
+                f"[{item[0].upper()}]{item} " for item in list
+            ]
+        )
+    )
+)[0].upper()
+if mode not in list2:
+    print("Invalid mode.")
+    sys.exit()
+
 # MongoDB twash
 logging.debug("Defining MongoDB Constants...")
 client = motor.motor_asyncio.AsyncIOMotorClient(
@@ -255,45 +275,46 @@ async def on_message_listener(message):
 
         msgst[message.author.id] = mtime.time()
 
-@bot.event
-async def on_application_command_error(ctx, error):
-    # Oof something went wrong
-    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
-        embed = discord.Embed(
-            title="Error",
-            description="Unknown Command",
-            color=discord.Color.red()
-        )
-        await ctx.followup.send(embed=embed)
+if mode != "D":
+    @bot.event
+    async def on_application_command_error(ctx, error):
+        # Oof something went wrong
+        if isinstance(error, discord.ext.commands.errors.CommandNotFound):
+            embed = discord.Embed(
+                title="Error",
+                description="Unknown Command",
+                color=discord.Color.red()
+            )
+            await ctx.followup.send(embed=embed)
 
-    elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
-        embed = discord.Embed(
-            title="Error",
-            description="You're missing an argument!",
-            color=discord.Color.red()
-        )
-        await ctx.followup.send(embed=embed)
+        elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
+            embed = discord.Embed(
+                title="Error",
+                description="You're missing an argument!",
+                color=discord.Color.red()
+            )
+            await ctx.followup.send(embed=embed)
 
-    elif isinstance(error, commands.MissingPermissions):
-        embed = discord.Embed(
-            title="Error",
-            description="Insufficient permissions!",
-            color=discord.Color.red()
-        )
-        await ctx.followup.send(embed=embed)
+        elif isinstance(error, commands.MissingPermissions):
+            embed = discord.Embed(
+                title="Error",
+                description="Insufficient permissions!",
+                color=discord.Color.red()
+            )
+            await ctx.followup.send(embed=embed)
 
-    else:
-        embed = discord.Embed(
-            title="Error",
-            description=str(error) + " on " + lineTB.findall(
-                traceback.format_tb(
-                    error.__traceback__
-                )[0]
-            )[~0].title(),
-            color=discord.Color.red()
-        )
-        embed.set_footer(text="Is this a bug? Report it to help make this dipsh- I mean, bot, better!")
-        await ctx.followup.send(embed=embed)
+        else:
+            embed = discord.Embed(
+                title="Error",
+                description=str(error) + " on " + lineTB.findall(
+                    traceback.format_tb(
+                        error.__traceback__
+                    )[0]
+                )[~0].title(),
+                color=discord.Color.red()
+            )
+            embed.set_footer(text="Is this a bug? Report it to help make this dipsh- I mean, bot, better!")
+            await ctx.followup.send(embed=embed)
 
 # Functions
 def d(n):
@@ -858,6 +879,7 @@ async def leaderboard(ctx):
     async def add(a, n):
         global output, thingy
         try:
+            
             temp = await bot.fetch_user(thingy[n][0])
 
             if temp.bot:
@@ -872,12 +894,6 @@ async def leaderboard(ctx):
         except KeyError as error:
             logging.debug("Error occured in leaderboard.add(), could be incomplete leaderboard")
             logging.warning(f"{type(error).name}: {str(error)}")
-            return 1
-
-        except Exception as error:
-            logging.debug("Unexpected error occured in leaderboard.add().")
-            logging.error(f"{type(error).name}: {str(error)}")
-            return 1
 
     if not await add("🥇", 0):
         if not await add("🥈", 1):
