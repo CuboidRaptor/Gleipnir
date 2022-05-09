@@ -159,7 +159,7 @@ You can see a full list when you type `/`, but I digress."""
     except discord.errors.HTTPException:
         logging.warning("HTTPException when DMing new user")
 
-    channel = get(member.guild.text_channels, name="📢┊server-join-leave")
+    channel = get(member.guild.text_channels, id=885689981119647764)
 
     embed = discord.Embed(
         title=f"{member.mention} has joined!",
@@ -181,7 +181,7 @@ async def on_member_remove(member):
     )
     embed.set_image(url=kawaii("cry"))
 
-    channel = get(member.guild.text_channels, name="📢┊server-join-leave")
+    channel = get(member.guild.text_channels, id=885689981119647764)
     await channel.send(
         f"*{member.mention} has left. Goodbye, {member.mention}*",
         embed=embed
@@ -511,7 +511,7 @@ async def killcr2(ctx):
             await ctx.followup.send("OH FRICK NO MY FREE TRIAL OF LIFE EXPIRED")
 
         except discord.errors.NotFound:
-            logging.warning("Interaction likely fiailed when running killswitch, ignoring...")
+            logging.warning("Interaction likely failed when running killswitch, ignoring...")
 
         print("Closing...")
         sys.exit()
@@ -1374,8 +1374,37 @@ async def slap(ctx, person):
 
     await ctx.followup.send(embed=embed)
 
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.has_guild_permissions(ban_members=True)
+async def rules_refresh(ctx):
+    """Refresh rules in Discord by JSON file"""
+    logging.debug("call: rules_refresh()")
+    await ctx.defer()
+
+    guild = get(bot.guilds, id=885685555084554294)
+    channel = get(guild.text_channels, id=885886027150020620)
+
+    await channel.purge(limit=5)
+
+    out = ""
+    for i, v in enumerate(ruleslist):
+        out += f"{i+1}. {v}\n"
+
+    out += "\n***TL;DR*** __Don't be an idiot.__"
+
+    embed = discord.Embed(
+        title="Rules",
+        description=out
+    )
+
+    await channel.send(embed=embed)
+    await ctx.followup.send("Rules have been refreshed!")
+
 @bot.command()
 async def rule(ctx, num=0):
+    """Print one or all rules."""
+    logging.debug("call: rule()")
+
     if not num:
         out = ""
         for i, v in enumerate(ruleslist):
@@ -1383,9 +1412,14 @@ async def rule(ctx, num=0):
 
         out += "\n***TL;DR*** __Don't be an idiot.__"
 
-        await ctx.send(out)
+        embed = discord.Embed(
+            title="Rules",
+            description=out
+        )
 
-    elif num > len(ruleslist):
+        await ctx.send(embed=embed)
+
+    elif (num > len(ruleslist)) or (num < 0):
         await ctx.send("There's no rule with that number?")
 
     else:
