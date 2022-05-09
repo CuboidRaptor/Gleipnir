@@ -82,5 +82,23 @@
 		"actually dude",
 		"hupf",
 		"count properly pls"
+	],
+	"rules": [
+		"Don't spam, walls of text/images/GIF will not be permitted",
+		"No NSFW and/or NSFL.",
+		"Don't abuse Staff powers, e.g randomly warning/kicking/banning people for no reason",
+		"Don't be a jerk, remember that everyone else is also a human *(mostly)*",
+		"No swearing, words like \"damn\" are allowed but not words like \"f\\*\\*\\*\". If you censor it with spoilers, then you're okay. (in case you don't know, surround your text with \\|\\|, for example ||fuck||)",
+		"Get your politics out of here, except in <#946841917847650324>",
+		"No racism/sexism/classism/homophobia/hate.",
+		"No Trojan viruses, malware, ransomware, spyware/keyloggers, or ANYTHING of the like; You will be permabanned for breaking this rule.",
+		"No rude nicks/names, high amounts of diacritics (Zalgo) and weird unicode thingies with intent to annoy/disrupt will not be permitted.",
+		"Use channels for their express purpose only. *(also, don't mess with the logs if you are staff)*",
+		"No excessive mentioning, e.g `@everyone` and `@here` or mass pinging one person repeatedly large amounts of times.",
+		"Use common sense to interpret these rules.",
+		"Do not try to find loopholes, if you do something that is not included on the rules above and below, you will still be caught and punished. Staff can decide if you are breaking rules. If you're staff, *__don't erase evidence from the other person's alleged rule-break.__*",
+		"No ads for servers or social media or anything like that in text or voice channels, ads on your profile are fine.",
+		"Do not try to make people harm themselves or others in the real world.",
+		"Do not make loud or disruptive noises or play extremely loud/annoying music in VCs without prior consent of *everyone* in the channel."
 	]
 }

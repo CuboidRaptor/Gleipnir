@@ -103,7 +103,10 @@ lineTB = re.compile(r"line \d+?")
 # stuff
 logging.debug("Defining bot constants...")
 intents = discord.Intents.all()
+pf = "."
 bot = commands.Bot(
+    command_prefix=pf,
+    strip_after_prefix=True,
     intents=intents
 )
 with open("dat.json", "r") as f:
@@ -114,6 +117,7 @@ with open("dat.json", "r") as f:
     answers = yeetus["8ball"]
     quoteslist = yeetus["quotes"]
     no_ulist = yeetus["no u"]
+    ruleslist = yeetus["rules"]
 
     del yeetus
 
@@ -277,7 +281,7 @@ async def on_message_listener(message):
 
 if mode != "D":
     @bot.event
-    async def on_application_command_error(ctx, error):
+    async def on_application_command_error(ctx, error, prefixed=False):
         # Oof something went wrong
         if isinstance(error, discord.ext.commands.errors.CommandNotFound):
             embed = discord.Embed(
@@ -285,7 +289,11 @@ if mode != "D":
                 description="Unknown Command",
                 color=discord.Color.red()
             )
-            await ctx.followup.send(embed=embed)
+            if prefixed:
+                await ctx.send(embed=embed)
+
+            else:
+                await ctx.followup.send(embed=embed)
 
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             embed = discord.Embed(
@@ -293,7 +301,11 @@ if mode != "D":
                 description="You're missing an argument!",
                 color=discord.Color.red()
             )
-            await ctx.followup.send(embed=embed)
+            if prefixed:
+                await ctx.send(embed=embed)
+
+            else:
+                await ctx.followup.send(embed=embed)
 
         elif isinstance(error, commands.MissingPermissions):
             embed = discord.Embed(
@@ -301,7 +313,11 @@ if mode != "D":
                 description="Insufficient permissions!",
                 color=discord.Color.red()
             )
-            await ctx.followup.send(embed=embed)
+            if prefixed:
+                await ctx.send(embed=embed)
+
+            else:
+                await ctx.followup.send(embed=embed)
 
         else:
             embed = discord.Embed(
@@ -310,7 +326,15 @@ if mode != "D":
                 color=discord.Color.red()
             )
             embed.set_footer(text="Is this a bug? Report it to help make this dipsh- I mean, bot, better!")
-            await ctx.followup.send(embed=embed)
+            if prefixed:
+                await ctx.send(embed=embed)
+
+            else:
+                await ctx.followup.send(embed=embed)
+
+    @bot.event
+    async def on_command_error(ctx, error):
+        await on_application_command_error(ctx, error, prefixed=True)
 
 # Functions
 def d(n):
@@ -488,7 +512,7 @@ async def killcr2(ctx):
 
         except discord.errors.NotFound:
             logging.warning("Interaction likely fiailed when running killswitch, ignoring...")
-            
+
         print("Closing...")
         sys.exit()
 
@@ -1349,6 +1373,23 @@ async def slap(ctx, person):
     embed.set_image(url=kawaii("slap"))
 
     await ctx.followup.send(embed=embed)
+
+@bot.command()
+async def rule(ctx, num=0):
+    if not num:
+        out = ""
+        for i, v in enumerate(ruleslist):
+            out += f"{i+1}. {v}\n"
+
+        out += "\n***TL;DR*** __Don't be an idiot.__"
+
+        await ctx.send(out)
+
+    elif num > len(ruleslist):
+        await ctx.send("There's no rule with that number?")
+
+    else:
+        await ctx.send(f">>> {ruleslist[num-1]}")
 
 # R U N .
 bot.run(
