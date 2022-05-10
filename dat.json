@@ -100,5 +100,62 @@
 		"No ads for servers or social media or anything like that in text or voice channels, ads on your profile are fine.",
 		"Do not try to make people harm themselves or others in the real world.",
 		"Do not make loud or disruptive noises or play extremely loud/annoying music in VCs without prior consent of *everyone* in the channel."
+	],
+	"faq": [
+		[
+			"Q: Where should I get verified?",
+			"A: <#885690652434784317>, and don't forget to get a gender role (if applicable)."
+		],
+		[
+			"Q: How do I make suggestions, report bugs, etc.",
+			"A: Use the ticketing system (/newticket reason opens a ticket, run /closeticket to close the ticket.) Note, Only you and staff can see/send messages in tickets."
+		],
+		[
+			"Q: Where is your youtube channel?",
+			"A: https://www.youtube.com/channel/UCgflfRaclxHt80aU9C4q1vg"
+		],
+		[
+			"Q: Where is your discord server?",
+			"A: Think about what you're asking about for a second.",
+			"Although, if you want to invite a friend, you can use this link:",
+			"https://discord.gg/EV7xyV8YsC"
+		],
+		[
+			"Q: Where can I donate?",
+			"A: You can buy me a ko-fi here:",
+			"https://ko-fi.com/cuboidraptor90827",
+			"Or if crypto is your thing, you can send me BTC here: `bc1ql36cy07mg7rlhtz6ewygkyr4r4gcn2zqta6p0x`",
+			"Another option is to boost this server. There are perks for boosters, shown in <#945129104951357471>!",
+			"And if you donate using any method, then I'd like to say that I appreciate you for doing that."
+		],
+		[
+			"Q: omg what are the prefixes for your dumb bot-",
+			"A: slash. `/`. Unless you're using certain shorthands, in which case it's `-`."
+		],
+		[
+			"Q: Is there a difference between the 5 general VCs?",
+			"A: There is, actually, and that's why I put this question here. It's not like you guys actually ask questions.",
+			"Anyways, <#953087489252405288> and <#953087489252405288> are 32 kbps instead of 64 kbps, so if you're on bad internet and you don't want to be DDoSed when you VC, you can use those ones.",
+			"Same with the Muzak ones, <#953087749597048872> is lower quality for those with bad internet."
+		],
+		[
+			"Q: Why did you switch to slash commands? Why did you disable prefixed?",
+			"A: https://www.reddit.com/r/discordapp/comments/ouh0w0/psa_discord_is_forcing_bots_to_move_to_slash/ .",
+			"Need I say more? And if you're going to suggest that I just don't migrate because Discord doesn't care about me, I didn't know about that until I already migrated ;-;"
+		],
+		[
+			"Q: Where can I report bugs for the crappy piece of ||shit|| you call your bot?",
+			"A: That's very rude of you to say, although CRBOT2 *is* very ||shitty||, but you can do it here: ",
+			"https://github.com/CuboidRaptor/CRBOT2/issues"
+		],
+		[
+			"Q: Can I please get rickrolled?",
+			"A: Sure! Here you go. https://youtu.be/dQw4w9WgXcQ"
+		],
+		[
+			"Q: What is CP?",
+			"A: Basically, I made a thingy where you get points for talking. You can also give those points to others, essentially a currency.",
+			"And before you think of spamming, I have a hard limit so you can only get points at a max rate."
+		]
 	]
 }

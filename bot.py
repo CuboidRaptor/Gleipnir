@@ -103,7 +103,7 @@ lineTB = re.compile(r"line \d+?")
 # stuff
 logging.debug("Defining bot constants...")
 intents = discord.Intents.all()
-pf = "."
+pf = "-"
 bot = commands.Bot(
     command_prefix=pf,
     strip_after_prefix=True,
@@ -118,6 +118,7 @@ with open("dat.json", "r") as f:
     quoteslist = yeetus["quotes"]
     no_ulist = yeetus["no u"]
     ruleslist = yeetus["rules"]
+    faqlist = yeetus["faq"]
 
     del yeetus
 
@@ -1394,11 +1395,40 @@ async def rules_refresh(ctx):
 
     embed = discord.Embed(
         title="Rules",
-        description=out
+        description=out,
+        color=0x01FEAA
     )
 
     await channel.send(embed=embed)
     await ctx.followup.send("Rules have been refreshed!")
+
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.has_guild_permissions(ban_members=True)
+async def faq_refresh(ctx):
+    """Refresh FAQ in Discord by JSON file"""
+    logging.debug("call: faq_refresh()")
+    await ctx.defer()
+
+    guild = get(bot.guilds, id=885685555084554294)
+    channel = get(guild.text_channels, id=949085184047853589)
+
+    await channel.purge(limit=5)
+
+    out = "FAQ: (broken into pieces bcuz discord is mean)\n\n"
+    for i, v in enumerate(faqlist):
+        temp = "\n".join(v) + "\n\n"
+        out += f"{i+1}.\n{temp}"
+
+    embed = discord.Embed(
+        title="FAQ/Info",
+        description=out,
+        color=0x01FEAA
+    )
+
+    await channel.send(embed=embed)
+    await ctx.followup.send("FAQ has been refreshed!")
+
+# Prefixed stuff, generally shortcuts for when saying something
 
 @bot.command()
 async def rule(ctx, num=0):
@@ -1414,7 +1444,8 @@ async def rule(ctx, num=0):
 
         embed = discord.Embed(
             title="Rules",
-            description=out
+            description=out,
+            color=0x01FEAA
         )
 
         await ctx.send(embed=embed)
@@ -1424,6 +1455,31 @@ async def rule(ctx, num=0):
 
     else:
         await ctx.send(f">>> {ruleslist[num-1]}")
+
+@bot.command()
+async def faq(ctx, num=0):
+    """Print one or all FAQ stuff."""
+    logging.debug("call: faq()")
+
+    if not num:
+        out = "FAQ: (broken into pieces bcuz discord is mean)\n\n"
+        for i, v in enumerate(faqlist):
+            temp = "\n".join(v) + "\n\n"
+            out += f"{i+1}.\n{temp}"
+
+        embed = discord.Embed(
+            title="FAQ/Info",
+            description=out,
+            color=0x01FEAA
+        )
+
+        await ctx.send(embed=embed)
+
+    elif (num > len(faqlist)) or (num < 0):
+        await ctx.send("There's no FAQ entry with that number?")
+
+    else:
+        await ctx.send(f">>> " + "\n".join(faqlist[num-1]))
 
 # R U N .
 bot.run(
