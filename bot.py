@@ -1414,7 +1414,7 @@ async def faq_refresh(ctx):
 
     await channel.purge(limit=5)
 
-    out = "FAQ: (broken into pieces bcuz discord is mean)\n\n"
+    out = ""
     for i, v in enumerate(faqlist):
         temp = "\n".join(v) + "\n\n"
         out += f"{i+1}.\n{temp}"
@@ -1462,7 +1462,7 @@ async def faq(ctx, num=0):
     logging.debug("call: faq()")
 
     if not num:
-        out = "FAQ: (broken into pieces bcuz discord is mean)\n\n"
+        out = ""
         for i, v in enumerate(faqlist):
             temp = "\n".join(v) + "\n\n"
             out += f"{i+1}.\n{temp}"
