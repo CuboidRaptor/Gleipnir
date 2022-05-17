@@ -156,6 +156,15 @@
 			"Q: What is CP?",
 			"A: Basically, I made a thingy where you get points for talking. You can also give those points to others, essentially a currency.",
 			"And before you think of spamming, I have a hard limit so you can only get points at a max rate."
+		],
+		[
+			"Q: Why are your bot jokes so crude?",
+			"A: Idk, I just used someone else' API. Blame, uh... wait, let me check the code...... Sv443.",
+			"Yeah. That guy."
+		],
+		[
+			"Q: When is server birthday?",
+			"A: September 9th. My channel's birthday is April 19th."
 		]
 	]
 }
