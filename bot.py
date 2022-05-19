@@ -363,7 +363,7 @@ if mode != "D":
         elif isinstance(error, commands.CommandOnCooldown):
             embed = discord.Embed(
                 title="Error",
-                description="Command still on cooldown! Wait 1-{globalCD} secs!",
+                description=f"Command still on cooldown! Wait 1-{globalCD} secs!",
                 color=discord.Color.red()
             )
             if prefixed:
