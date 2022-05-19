@@ -82,10 +82,13 @@ db = client["CRBOT2Dat"]
 warnsc = db["warns"]
 pointsc = db["points"]
 countsc = db["count"]
+snipesc = db["snipes"]
 
 pointsid = "620cfe72f63ae0339129c774"
 warnid = "000000000000000000010f2c"
 countid = "625da77a041a143613c03918"
+snipeid = "62858c9d61724b7e6d4c8be8"
+esnipeid = "628644be441599814d71a07a"
 emojismade = False
 
 msgst = {}
@@ -98,7 +101,7 @@ logging.debug("Defining regexes...")
 mentionre = re.compile(r"(.*<@[0-9]+>.*)|(.*<@![0-9]+>.*)")
 iUAT = re.compile(r".*# [0-9]{4}")
 iRPr = re.compile(r"[0-9]+d[0-9]+")
-lineTB = re.compile(r"line \d+?")
+gifSwear = re.compile(r"(https?\:\/\/tenor\.com\/view\/.+)|(https\:\/\/giphy\.com\/gifs\/.+)")
 
 # stuff
 logging.debug("Defining bot constants...")
@@ -125,6 +128,7 @@ with open("dat.json", "r") as f:
 isSwear = r"\|\|" + ("((.*" + ".*)|(.*".join(curselist) + ".*))+") + r"\|\|"
 # print(isSwear)
 isSwear = re.compile(isSwear)
+globalCD = 2
 
 # events
 
@@ -237,48 +241,84 @@ async def on_message_listener(message):
         # diagnostics
         await message.channel.send("testing... 1 2 3 testing...")
 
-    tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
-
-    for word in curselist:
-        if word in tingy:
-            # you swore, idot.
-            print("somebody swore uh oh")
-            await message.channel.send(f"Don't swear, {message.author.mention}")
-            return
+    if gifSwear.search(message.content) == None:
+        tingy = isSwear.sub("", str(message.content).lower().replace("```brainfuck", "```bf"))
+        if message.channel.id != 976592452997750795:
+            for word in curselist:
+                if word in tingy:
+                    # you swore, idot.
+                    print("somebody swore uh oh")
+                    await message.channel.send(f"Don't swear, {message.author.mention}")
+                    return
 
     if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str("/")) and ("announcements" not in message.channel.name.lower()):
         # Did you say bot name?
         if message.channel.id != 955239604007628820:
             await message.channel.send("Hello there, I heard my name?")
 
-    try:
-        dif = mtime.time() - msgst[message.author.id]
-
-    except KeyError:
-        dif = 7 # Could be any number >1
-
-    if dif > 1:
-        tempd = await pointsc.find_one(
-            {
-                "_id": ObjectId(pointsid)
-            }
-        )
-
+    if message.channel.id != 976592452997750795:
         try:
-            tempd[str(message.author.id)] += 10
+            dif = mtime.time() - msgst[message.author.id]
 
         except KeyError:
-            tempd[str(message.author.id)] = 10
+            dif = 69420 # Could be any number >1
 
-        await pointsc.replace_one(
-            {
-                "_id": ObjectId(pointsid)
-            },
-            tempd,
-            upsert=True
-        )
+        if dif > 1:
+            tempd = await pointsc.find_one(
+                {
+                    "_id": ObjectId(pointsid)
+                }
+            )
 
-        msgst[message.author.id] = mtime.time()
+            try:
+                tempd[str(message.author.id)] += 10
+
+            except KeyError:
+                tempd[str(message.author.id)] = 10
+
+            await pointsc.replace_one(
+                {
+                    "_id": ObjectId(pointsid)
+                },
+                tempd,
+                upsert=True
+            )
+
+            msgst[message.author.id] = mtime.time()
+
+@bot.event
+async def on_message_delete(message):
+    #Snipe log
+    tempd = await snipesc.find_one(
+        {
+            "_id": ObjectId(snipeid)
+        }
+    )
+    tempd[str(message.channel.id)] = [message.content, message.author.id, message.id, message.created_at.hour, message.created_at.minute]
+    await snipesc.replace_one(
+        {
+            "_id": ObjectId(snipeid)
+        },
+        tempd,
+        upsert=True
+    )
+
+@bot.event
+async def on_message_edit(message_before, message_after):
+    #Esnipe log
+    tempd = await snipesc.find_one(
+        {
+            "_id": ObjectId(esnipeid)
+        }
+    )
+    tempd[str(message_before.channel.id)] = [message_before.content, message_after.content, message_before.author.id, message_before.id, message_before.created_at.hour, message_before.created_at.minute]
+    await snipesc.replace_one(
+        {
+            "_id": ObjectId(esnipeid)
+        },
+        tempd,
+        upsert=True
+    )
 
 if mode != "D":
     @bot.event
@@ -320,6 +360,18 @@ if mode != "D":
             else:
                 await ctx.followup.send(embed=embed)
 
+        elif isinstance(error, commands.CommandOnCooldown):
+            embed = discord.Embed(
+                title="Error",
+                description="Command still on cooldown! Wait 1-{globalCD} secs!",
+                color=discord.Color.red()
+            )
+            if prefixed:
+                await ctx.send(embed=embed)
+
+            else:
+                await ctx.followup.send(embed=embed)
+
         else:
             embed = discord.Embed(
                 title="Error",
@@ -327,6 +379,7 @@ if mode != "D":
                 color=discord.Color.red()
             )
             embed.set_footer(text="Is this a bug? Report it to help make this dipsh- I mean, bot, better!")
+
             if prefixed:
                 await ctx.send(embed=embed)
 
@@ -493,6 +546,7 @@ def prod(n):
 
 # Commands
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def ping(ctx):
     """pings, this is just for tests"""
     logging.debug("call: ping()")
@@ -501,6 +555,7 @@ async def ping(ctx):
     await ctx.followup.send("pong")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def killcr2(ctx):
     """Kills CRBOT2. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: killcr2()")
@@ -526,6 +581,7 @@ async def killcr2(ctx):
         )
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def no_u(ctx, person):
     """No you, people."""
     logging.debug("call: no_u()")
@@ -541,6 +597,7 @@ async def no_u(ctx, person):
         await ctx.followup.send(f"No u, {person}")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def magic8ball(ctx, *, question):
     """Magic 8ball. Ask it questions."""
     logging.debug("call: magic8ball()")
@@ -551,6 +608,7 @@ async def magic8ball(ctx, *, question):
     await ctx.followup.send(f"In response to question \"{question}\":\n" + choice(answers))
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def quote(ctx):
     """Draws from my quotesbook and prints in chat."""
     logging.debug("call: quote()")
@@ -560,6 +618,7 @@ async def quote(ctx):
     await ctx.followup.send(choice(quoteslist))
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def shoot(ctx, person):
     """Shoot people. Idk y."""
     logging.debug("call: shoot()")
@@ -597,6 +656,7 @@ async def shoot(ctx, person):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(kick_members=True)
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def warn(ctx, person, *, reason):
     """Warn people."""
     logging.debug("call: warn()")
@@ -635,6 +695,7 @@ async def warn(ctx, person, *, reason):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(kick_members=True)
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def rmwarn(ctx, person, *, reason):
     """Remove warn from people."""
     logging.debug("call: rmwarn()")
@@ -678,6 +739,7 @@ async def rmwarn(ctx, person, *, reason):
             await ctx.followup.send(f"A warn has been removed from {person} by {ctx.author.mention} for {reason}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def warns(ctx, person):
     """Shows warns of people"""
     logging.debug("call: warns()")
@@ -700,6 +762,7 @@ async def warns(ctx, person):
             await ctx.followup.send(f"{person} has " + out + " warns!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def warnclear(ctx):
     """Clears all warns globally. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: warnclear()")
@@ -723,6 +786,7 @@ async def warnclear(ctx):
         await err(ctx, "You don't have the proper permissions to run this command.")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def roll(ctx, roll):
     """Roll die."""
     logging.debug("call: roll()")
@@ -745,6 +809,7 @@ async def roll(ctx, roll):
             await err(ctx, "That isn't a valid roll.")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def ship(ctx, person, person2=None):
     """Ship ship ship"""
     logging.debug("call: ship()")
@@ -834,6 +899,7 @@ async def ship(ctx, person, person2=None):
         )
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def points(ctx, user=None, silent=False):
     """Show number of points of others, or yourself."""
     logging.debug("call: points()")
@@ -882,6 +948,7 @@ async def points(ctx, user=None, silent=False):
         return tempd[str(user)]
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def leaderboard(ctx):
     """Leaderboard function for points."""
     logging.debug("call: leaderboard()")
@@ -946,6 +1013,7 @@ async def leaderboard(ctx):
     await ctx.followup.send(output)
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def givepoints(ctx, person, point):
     """Give points to others."""
     logging.debug("call: give()")
@@ -993,6 +1061,7 @@ async def givepoints(ctx, person, point):
     await ctx.followup.send(f"{point} cp have been sent to {person}!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def coinflip(ctx):
     """Flip a coin, 'cuz why not."""
     logging.debug("call: coinflip()")
@@ -1005,6 +1074,7 @@ async def coinflip(ctx):
         await ctx.followup.send("You flipped a coin and got tails!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def joke(ctx):
     """Prints a random corny joke."""
     logging.debug("call: joke()")
@@ -1031,6 +1101,7 @@ async def joke(ctx):
         await jsetup.edit(jk["setup"] + "\n" + jk["delivery"])
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def color(ctx, hexcode):
     """Display a hex code colour."""
     logging.debug("call: color()")
@@ -1219,6 +1290,7 @@ yiq{yiq}""",
     await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def newticket(ctx, *, topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
@@ -1280,6 +1352,7 @@ async def newticket(ctx, *, topic):
     await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def closeticket(ctx):
     """Closes ticket."""
     logging.debug("call: closeticket()")
@@ -1298,6 +1371,7 @@ async def closeticket(ctx):
         await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def kill(ctx, person):
     """Kill people to death. Why do I add these features?"""
     logging.debug("call: kill()")
@@ -1337,6 +1411,7 @@ async def kill(ctx, person):
     await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def slap(ctx, person):
     """Slap person. I'm just using Kawaii, ok? I'M BORED."""
     logging.debug("call: slap()")
@@ -1377,6 +1452,7 @@ async def slap(ctx, person):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(ban_members=True)
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def rules_refresh(ctx):
     """Refresh rules in Discord by JSON file"""
     logging.debug("call: rules_refresh()")
@@ -1404,6 +1480,7 @@ async def rules_refresh(ctx):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(ban_members=True)
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def faq_refresh(ctx):
     """Refresh FAQ in Discord by JSON file"""
     logging.debug("call: faq_refresh()")
@@ -1428,9 +1505,94 @@ async def faq_refresh(ctx):
     await channel.send(embed=embed)
     await ctx.followup.send("FAQ has been refreshed!")
 
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
+async def snipe(ctx):
+    """Snipe last deleted message"""
+    logging.debug("call: snipe()")
+    await ctx.defer()
+
+    tempd = await snipesc.find_one(
+        {
+            "_id": ObjectId(snipeid)
+        }
+    )
+
+    try:
+        temp = tempd[str(ctx.channel.id)]
+
+        userName = (await bot.fetch_user(temp[1])).name
+
+        embed = discord.Embed(
+            title=f"Message sent by {userName} sniped >:)",
+            description=temp[0],
+            color=0x01FEAA
+        )
+        if len(str(temp[3])) < 2:
+            temp3 = f"0{str(temp[3])}"
+
+        else:
+            temp3 = temp[3]
+
+        if len(str(temp[4])) < 2:
+            temp4 = f"0{str(temp[4])}"
+
+        else:
+            temp4 = temp[4]
+
+        embed.set_footer(text=f"Message with msgID \"{temp[2]}\" sent at {temp3}:{temp4} UTC+0000")
+
+        await ctx.followup.send(embed=embed)
+
+    except KeyError:
+        await ctx.followup.send("No snipe could be found in this channel.")
+
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
+async def esnipe(ctx):
+    """Snipe last deleted message"""
+    logging.debug("call: esnipe()")
+    await ctx.defer()
+
+    tempd = await snipesc.find_one(
+        {
+            "_id": ObjectId(esnipeid)
+        }
+    )
+
+    try:
+        temp = tempd[str(ctx.channel.id)]
+
+        userName = (await bot.fetch_user(temp[2])).name
+
+        embed = discord.Embed(
+            title=f"Message edited by {userName} esniped >:)",
+            description=f"{temp[0]}\n↓\n{temp[1]}",
+            color=0x01FEAA
+        )
+        if len(str(temp[4])) < 2:
+            temp4 = f"0{str(temp[4])}"
+
+        else:
+            temp4 = temp[4]
+
+        if len(str(temp[5])) < 2:
+            temp5 = f"0{str(temp[5])}"
+
+        else:
+            temp5 = temp[5]
+
+        embed.set_footer(text=f"Message with msgID \"{temp[3]}\" sent at {temp4}:{temp5} UTC+0000")
+
+        await ctx.followup.send(embed=embed)
+
+    except KeyError:
+        await ctx.followup.send("No esnipe could be found in this channel.")
+
 # Prefixed stuff, generally shortcuts for when saying something
 
 @bot.command()
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def rule(ctx, num=0):
     """Print one or all rules."""
     logging.debug("call: rule()")
@@ -1457,6 +1619,7 @@ async def rule(ctx, num=0):
         await ctx.send(f">>> {ruleslist[num-1]}")
 
 @bot.command()
+@commands.cooldown(1, globalCD, commands.BucketType.user)
 async def faq(ctx, num=0):
     """Print one or all FAQ stuff."""
     logging.debug("call: faq()")

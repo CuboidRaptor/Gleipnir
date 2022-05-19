@@ -84,7 +84,7 @@
 		"count properly pls"
 	],
 	"rules": [
-		"Don't spam, walls of text/images/GIF will not be permitted",
+		"Don't spam, walls of text/images/GIF will not be permitted except in <#976592452997750795>. Neither will posting the same message several times in multiple channels.",
 		"No NSFW and/or NSFL.",
 		"Don't abuse Staff powers, e.g randomly warning/kicking/banning people for no reason",
 		"Don't be a jerk, remember that everyone else is also a human *(mostly)*",
@@ -94,7 +94,7 @@
 		"No Trojan viruses, malware, ransomware, spyware/keyloggers, or ANYTHING of the like; You will be permabanned for breaking this rule.",
 		"No rude nicks/names, high amounts of diacritics (Zalgo) and weird unicode thingies with intent to annoy/disrupt will not be permitted.",
 		"Use channels for their express purpose only. *(also, don't mess with the logs if you are staff)*",
-		"No excessive mentioning, e.g `@everyone` and `@here` or mass pinging one person repeatedly large amounts of times.",
+		"No excessive mentioning, e.g `@everyone` and `@here` or mass pinging one person repeatedly large amounts of times or pinging a role for no reason for example `@Verified Member`.",
 		"Use common sense to interpret these rules.",
 		"Do not try to find loopholes, if you do something that is not included on the rules above and below, you will still be caught and punished. Staff can decide if you are breaking rules. If you're staff, *__don't erase evidence from the other person's alleged rule-break.__*",
 		"No ads for servers or social media or anything like that in text or voice channels, ads on your profile are fine.",
