@@ -369,7 +369,7 @@ if mode != "D":
         elif isinstance(error, commands.CommandOnCooldown):
             embed = discord.Embed(
                 title="Error",
-                description=f"Command still on cooldown! Wait 1-{globalCD} secs!",
+                description=f"Command still on cooldown! Wait a few seconds to use this command!",
                 color=discord.Color.red()
             )
             if prefixed:
@@ -1132,6 +1132,9 @@ async def coinflip(ctx):
 async def joke(ctx):
     """Prints a random corny joke."""
     logging.debug("call: joke()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     j = await Jokes()
@@ -1347,7 +1350,7 @@ yiq{yiq}""",
     await ctx.followup.send(embed=embed)
 
 @bot.slash_command(guild_ids=[885685555084554294])
-@commands.cooldown(1, globalCD, commands.BucketType.user)
+@commands.cooldown(1, 30, commands.BucketType.user)
 async def newticket(ctx, *, topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
