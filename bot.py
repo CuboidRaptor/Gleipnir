@@ -256,7 +256,7 @@ async def on_message_listener(message):
         if message.channel.id != 955239604007628820:
             await message.channel.send("Hello there, I heard my name?")
 
-    if message.channel.id != 976592452997750795:
+    if (message.channel.id != 976592452997750795) and (message.channel.id != 955239604007628820):
         try:
             dif = mtime.time() - msgst[message.author.id]
 
@@ -289,36 +289,38 @@ async def on_message_listener(message):
 @bot.event
 async def on_message_delete(message):
     #Snipe log
-    tempd = await snipesc.find_one(
-        {
-            "_id": ObjectId(snipeid)
-        }
-    )
-    tempd[str(message.channel.id)] = [message.content, message.author.id, message.id, message.created_at.hour, message.created_at.minute]
-    await snipesc.replace_one(
-        {
-            "_id": ObjectId(snipeid)
-        },
-        tempd,
-        upsert=True
-    )
+    if message.author.id != bot.user.id:
+        tempd = await snipesc.find_one(
+            {
+                "_id": ObjectId(snipeid)
+            }
+        )
+        tempd[str(message.channel.id)] = [message.content, message.author.id, message.id, message.created_at.hour, message.created_at.minute]
+        await snipesc.replace_one(
+            {
+                "_id": ObjectId(snipeid)
+            },
+            tempd,
+            upsert=True
+        )
 
 @bot.event
 async def on_message_edit(message_before, message_after):
     #Esnipe log
-    tempd = await snipesc.find_one(
-        {
-            "_id": ObjectId(esnipeid)
-        }
-    )
-    tempd[str(message_before.channel.id)] = [message_before.content, message_after.content, message_before.author.id, message_before.id, message_before.created_at.hour, message_before.created_at.minute]
-    await snipesc.replace_one(
-        {
-            "_id": ObjectId(esnipeid)
-        },
-        tempd,
-        upsert=True
-    )
+    if message_before.author.id != bot.user.id:
+        tempd = await snipesc.find_one(
+            {
+                "_id": ObjectId(esnipeid)
+            }
+        )
+        tempd[str(message_before.channel.id)] = [message_before.content, message_after.content, message_before.author.id, message_before.id, message_before.created_at.hour, message_before.created_at.minute]
+        await snipesc.replace_one(
+            {
+                "_id": ObjectId(esnipeid)
+            },
+            tempd,
+            upsert=True
+        )
 
 if mode != "D":
     @bot.event
@@ -1550,7 +1552,7 @@ async def snipe(ctx):
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.cooldown(1, globalCD, commands.BucketType.user)
 async def esnipe(ctx):
-    """Snipe last deleted message"""
+    """Esnipe last edited message"""
     logging.debug("call: esnipe()")
     await ctx.defer()
 
