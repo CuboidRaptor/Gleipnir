@@ -289,7 +289,7 @@ async def on_message_listener(message):
 @bot.event
 async def on_message_delete(message):
     #Snipe log
-    if message.author.id != bot.user.id:
+    if not message.author.bot:
         tempd = await snipesc.find_one(
             {
                 "_id": ObjectId(snipeid)
@@ -307,7 +307,7 @@ async def on_message_delete(message):
 @bot.event
 async def on_message_edit(message_before, message_after):
     #Esnipe log
-    if message_before.author.id != bot.user.id:
+    if not message_before.author.bot:
         tempd = await snipesc.find_one(
             {
                 "_id": ObjectId(esnipeid)
@@ -326,6 +326,10 @@ if mode != "D":
     @bot.event
     async def on_application_command_error(ctx, error, prefixed=False):
         # Oof something went wrong
+        if ctx.channel.id == 955239604007628820:
+            logging.error(str(error))
+            return
+
         if isinstance(error, discord.ext.commands.errors.CommandNotFound):
             embed = discord.Embed(
                 title="Error",
@@ -552,6 +556,9 @@ def prod(n):
 async def ping(ctx):
     """pings, this is just for tests"""
     logging.debug("call: ping()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     await ctx.followup.send("pong")
@@ -561,6 +568,9 @@ async def ping(ctx):
 async def killcr2(ctx):
     """Kills CRBOT2. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: killcr2()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isCuboid(ctx):
@@ -587,6 +597,9 @@ async def killcr2(ctx):
 async def no_u(ctx, person):
     """No you, people."""
     logging.debug("call: no_u()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if containsEveryone(person):
@@ -603,6 +616,9 @@ async def no_u(ctx, person):
 async def magic8ball(ctx, *, question):
     """Magic 8ball. Ask it questions."""
     logging.debug("call: magic8ball()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     question = "".join(question)
@@ -614,6 +630,9 @@ async def magic8ball(ctx, *, question):
 async def quote(ctx):
     """Draws from my quotesbook and prints in chat."""
     logging.debug("call: quote()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     global quoteslist
@@ -624,6 +643,9 @@ async def quote(ctx):
 async def shoot(ctx, person):
     """Shoot people. Idk y."""
     logging.debug("call: shoot()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isMention(person):
@@ -662,6 +684,9 @@ async def shoot(ctx, person):
 async def warn(ctx, person, *, reason):
     """Warn people."""
     logging.debug("call: warn()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isCB2(person):
@@ -701,6 +726,9 @@ async def warn(ctx, person, *, reason):
 async def rmwarn(ctx, person, *, reason):
     """Remove warn from people."""
     logging.debug("call: rmwarn()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isCB2(person):
@@ -745,6 +773,9 @@ async def rmwarn(ctx, person, *, reason):
 async def warns(ctx, person):
     """Shows warns of people"""
     logging.debug("call: warns()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if not isMention(person):
@@ -768,6 +799,9 @@ async def warns(ctx, person):
 async def warnclear(ctx):
     """Clears all warns globally. Only Cuboid_Raptor# 7340 can run this command."""
     logging.debug("call: warnclear()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isCuboid(ctx):
@@ -792,6 +826,9 @@ async def warnclear(ctx):
 async def roll(ctx, roll):
     """Roll die."""
     logging.debug("call: roll()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if not rollParse(roll):
@@ -815,6 +852,9 @@ async def roll(ctx, roll):
 async def ship(ctx, person, person2=None):
     """Ship ship ship"""
     logging.debug("call: ship()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if person2 == None:
@@ -905,6 +945,9 @@ async def ship(ctx, person, person2=None):
 async def points(ctx, user=None, silent=False):
     """Show number of points of others, or yourself."""
     logging.debug("call: points()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     if not silent:
         await ctx.defer()
 
@@ -954,6 +997,9 @@ async def points(ctx, user=None, silent=False):
 async def leaderboard(ctx):
     """Leaderboard function for points."""
     logging.debug("call: leaderboard()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     global output, thingy
@@ -1019,6 +1065,9 @@ async def leaderboard(ctx):
 async def givepoints(ctx, person, point):
     """Give points to others."""
     logging.debug("call: give()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     point = bround(point)
@@ -1067,6 +1116,9 @@ async def givepoints(ctx, person, point):
 async def coinflip(ctx):
     """Flip a coin, 'cuz why not."""
     logging.debug("call: coinflip()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if random.randint(0, 1):
@@ -1107,6 +1159,9 @@ async def joke(ctx):
 async def color(ctx, hexcode):
     """Display a hex code colour."""
     logging.debug("call: color()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     ohex = str(hexcode).upper()
@@ -1296,6 +1351,9 @@ yiq{yiq}""",
 async def newticket(ctx, *, topic):
     """Opens new ticket."""
     logging.debug("call: newticket()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     args = "".join(topic).split(" ")
@@ -1358,6 +1416,9 @@ async def newticket(ctx, *, topic):
 async def closeticket(ctx):
     """Closes ticket."""
     logging.debug("call: closeticket()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     #print(ctx.channel.name)
@@ -1377,6 +1438,9 @@ async def closeticket(ctx):
 async def kill(ctx, person):
     """Kill people to death. Why do I add these features?"""
     logging.debug("call: kill()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isMention(person):
@@ -1417,6 +1481,9 @@ async def kill(ctx, person):
 async def slap(ctx, person):
     """Slap person. I'm just using Kawaii, ok? I'M BORED."""
     logging.debug("call: slap()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     if isMention(person):
@@ -1458,6 +1525,9 @@ async def slap(ctx, person):
 async def rules_refresh(ctx):
     """Refresh rules in Discord by JSON file"""
     logging.debug("call: rules_refresh()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     guild = get(bot.guilds, id=885685555084554294)
@@ -1486,6 +1556,9 @@ async def rules_refresh(ctx):
 async def faq_refresh(ctx):
     """Refresh FAQ in Discord by JSON file"""
     logging.debug("call: faq_refresh()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     guild = get(bot.guilds, id=885685555084554294)
@@ -1512,6 +1585,9 @@ async def faq_refresh(ctx):
 async def snipe(ctx):
     """Snipe last deleted message"""
     logging.debug("call: snipe()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     tempd = await snipesc.find_one(
@@ -1554,6 +1630,9 @@ async def snipe(ctx):
 async def esnipe(ctx):
     """Esnipe last edited message"""
     logging.debug("call: esnipe()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
     await ctx.defer()
 
     tempd = await snipesc.find_one(
@@ -1598,6 +1677,8 @@ async def esnipe(ctx):
 async def rule(ctx, num=0):
     """Print one or all rules."""
     logging.debug("call: rule()")
+    if ctx.channel.id == 955239604007628820:
+        return
 
     if not num:
         out = ""
@@ -1625,6 +1706,8 @@ async def rule(ctx, num=0):
 async def faq(ctx, num=0):
     """Print one or all FAQ stuff."""
     logging.debug("call: faq()")
+    if ctx.channel.id == 955239604007628820:
+        return
 
     if not num:
         out = ""
