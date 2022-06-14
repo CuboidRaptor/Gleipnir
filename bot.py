@@ -152,9 +152,15 @@ I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
 I have DM'd you to say, welcome to Cuboid's Café!:coffee:
 I sincerely hope you have a great time in the server!:laughing:
 You can also interact with me in the server, do be sure to use slash commands,
-I have loads of weird thing. Need a sarcastic joke with hints of dark humour? `/joke`.
+I have loads of weird things. Need a sarcastic joke with hints of dark humour? `/joke`.
 Want to slap someone with an anime GIF? `/slap`.
-You can see a full list when you type `/`, but I digress."""
+You can see a full list when you type `/`, but I digress.
+Basically, have fun!
+
+Or I will slap you.
+
+
+Really hard."""
         )
         embed.set_image(url=kawaii("happy"))
 
@@ -1606,7 +1612,9 @@ async def snipe(ctx):
 
         embed = discord.Embed(
             title=f"Message sent by {userName} sniped >:)",
-            description=temp[0],
+            description=temp[0]
+                .replace("@everyone", "`@everyone`")
+                .replace("@here", "`@here`"),
             color=0x01FEAA
         )
         if len(str(temp[3])) < 2:
@@ -1731,6 +1739,39 @@ async def faq(ctx, num=0):
 
     else:
         await ctx.send(f">>> " + "\n".join(faqlist[num-1]))
+
+@bot.command()
+@commands.cooldown(1, globalCD, commands.BucketType.user)
+async def format(ctx):
+    """How to format code."""
+    logging.debug("call: format()")
+    if ctx.channel.id == 955239604007628820:
+        return
+
+    embed = discord.Embed(
+        title="How to format code and stuff.",
+        description="""To format code:
+\\`\\`\\`<language name>
+<code or something>
+\\`\\`\\`
+
+Example ig:
+\\`\\`\\`python
+import foo
+
+print("bar")
+\\`\\`\\`
+
+Will display as:
+```python
+import foo
+
+print("bar")
+```""",
+        color=0x01FEAA
+    )
+
+    await ctx.send(embed=embed)
 
 # R U N .
 bot.run(
