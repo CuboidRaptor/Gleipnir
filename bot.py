@@ -292,6 +292,21 @@ async def on_message_listener(message):
 
             msgst[message.author.id] = mtime.time()
 
+    if message.channel.id == 991059083018772480:
+        try:
+            await message.delete()
+
+        except Exception as error:
+            logging.error(f"`await message.delete()` Error: {type(error).__name__}: {str(error)}")
+
+        try:
+            await message.author.send("You have been kicked because you were captured by the bot trap. If you aren't a bot, I don't even know what to say.")
+
+        except Exception as error:
+            logging.error(f"`await message.author.send(...)` Error: {type(error).__name__}: {str(error)}")
+
+        await message.author.kick(reason="Bot Trap")
+
 @bot.event
 async def on_message_delete(message):
     #Snipe log
@@ -843,6 +858,11 @@ async def roll(ctx, roll):
     else:
         proll = rollParse(roll)
         proll[0], proll[1] = proll[0].replace(",", ""), proll[1].replace(",", "")
+        
+        if (int(proll[0]) > 32767) or (int(proll[1]) > 32767):
+            await ctx.followup.send(f"Your roll is too big, my server will explode")
+            return
+
         s = 0
         try:
             for i in range(0, int(proll[0])):
