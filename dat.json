@@ -84,22 +84,22 @@
 		"count properly pls"
 	],
 	"rules": [
-		"Don't spam, walls of text/images/GIF will not be permitted except in <#976592452997750795>. Neither will posting the same message several times in multiple channels, or spamming bot commands.",
-		"No NSFW and/or NSFL.",
+		"Don't spam, walls of text/images/GIF will not be permitted. Neither will posting the same message several times in multiple channels, or spamming bot commands, or copypastas. This rule doesn't apply in <#976592452997750795>. Yes, I recommend you mute that channel.",
+		"No NSFW, no porn, just. don't.",
 		"Don't abuse Staff powers, e.g randomly warning/kicking/banning people for no reason",
 		"Don't be a jerk, remember that everyone else is also a human *(mostly)*",
-		"No swearing, words like \"damn\" are allowed but not words like \"f\\*\\*\\*\". If you censor it with spoilers, then you're okay. (in case you don't know, surround your text with \\|\\|, for example ||fuck||)",
-		"Get your politics out of here, except in <#946841917847650324>",
+		"No swearing, words like \"damn\" are allowed but not words like \"f\\*\\*\\*\". If you censor it with spoilers, then you're okay. (in case you don't know, surround your text with \\|\\|, for example ||fuck||). For a full list of swear words, head over to https://imtoolazytomakealistofbannedswearwordsjustdontswearalright.com",
+		"No politics, except in <#946841917847650324>. If you mention Trump, I will **a n g e r y**.",
 		"No racism/sexism/classism/homophobia/hate.",
-		"No Trojan viruses, malware, ransomware, spyware/keyloggers, or ANYTHING of the like; You will be permabanned for breaking this rule.",
+		"No Trojan viruses, malware, ransomware, spyware/keyloggers, or ANYTHING of the like; You will be permabanned for breaking this rule. And if I even *see* the word \"nitroclaimer\" appear from someone advertising it I will ban you so hard that your brains will liquefy.",
 		"No rude nicks/names, high amounts of diacritics (Zalgo) and weird unicode thingies with intent to annoy/disrupt will not be permitted.",
 		"Use channels for their express purpose only. *(also, don't mess with the logs if you are staff)*",
 		"No excessive mentioning, e.g `@everyone` and `@here` or mass pinging one person repeatedly large amounts of times or pinging a role for no reason for example `@Verified Member`.",
-		"Use common sense to interpret these rules.",
-		"Do not try to find loopholes, if you do something that is not included on the rules above and below, you will still be caught and punished. Staff can decide if you are breaking rules. If you're staff, *__don't erase evidence from the other person's alleged rule-break.__*",
-		"No ads for servers or social media or anything like that in text or voice channels, ads on your profile are fine.",
-		"Do not try to make people harm themselves or others in the real world.",
-		"Do not make loud or disruptive noises or play extremely loud/annoying music in VCs without prior consent of *everyone* in the channel."
+		"Use common sense to interpret these rules, unless you are physically incapable of doing that (*\\*cough\\**, CRBOT2, *\\*cough\\**)",
+		"Do not try to find loopholes, if you do something that is not included on the rules above and below, you will still be caught and punished. Staff can decide if you are breaking rules.",
+		"No ads for servers or social media or anything like that in text or voice channels, ads on your about me/status/somewhere where it won't annoy are fine.",
+		"Do not try to make people harm themselves or others in the real world. Tf is even the point of doing this?",
+		"Do not make loud or disruptive noises or play extremely loud/annoying music in VCs without prior consent of *everyone* in the channel. And I do mean everyone. No Earrape Mogolovonio until *all the people in the VC* have agreed."
 	],
 	"faq": [
 		[
@@ -145,7 +145,7 @@
 		],
 		[
 			"Q: Where can I report bugs for the crappy piece of ||shit|| you call your bot?",
-			"A: That's very rude of you to say, although CRBOT2 *is* very ||shitty||, but you can do it here: ",
+			"A: That's very rude of you to say, although CRBOT2 *is* very ||shit||ty, but you can do it here: ",
 			"https://github.com/CuboidRaptor/CRBOT2/issues"
 		],
 		[
@@ -165,6 +165,10 @@
 		[
 			"Q: When is server birthday?",
 			"A: September 9th. My channel's birthday is April 19th."
+		],
+		[
+			"Q: Where's your website?",
+			"A: Why thank you, person who I made up that asks really convienient questions, it's here: https://cuboidraptor.github.io ."
 		]
 	]
 }

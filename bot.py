@@ -1750,19 +1750,19 @@ async def format(ctx):
 
     embed = discord.Embed(
         title="How to format code and stuff.",
-        description="""To format code:
+        description="""__**To format code:**__
 \\`\\`\\`<language name>
 <code or something>
 \\`\\`\\`
 
-Example ig:
+__**Example ig:**__
 \\`\\`\\`python
 import foo
 
 print("bar")
 \\`\\`\\`
 
-Will display as:
+__**Will display as:**__
 ```python
 import foo
 
