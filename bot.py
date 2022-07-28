@@ -1734,6 +1734,24 @@ async def proxy(ctx):
     else:
         await ctx.followup.send("Unproxied!")
 
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
+async def proxysay(ctx, text):
+    """shhhhhhhhhhhhh this is also a secret"""
+    logging.debug("call: proxysay()")
+
+    if ctx.channel.id == 955239604007628820:
+        return
+
+    await ctx.defer(ephemeral=True)
+
+    if not isCuboid(ctx):
+        await ctx.followup.send("hey you can't do that")
+        return
+
+    await ctx.followup.send("0")
+    await ctx.send(text)
+
 # Prefixed stuff, generally shortcuts for when saying something
 
 @bot.command()
