@@ -1566,7 +1566,7 @@ async def rules_refresh(ctx):
     if ctx.channel.id == 955239604007628820:
         return
 
-    await ctx.defer()
+    await ctx.defer(ephemeral=True)
 
     guild = get(bot.guilds, id=885685555084554294)
     channel = get(guild.text_channels, id=885886027150020620)
@@ -1575,12 +1575,12 @@ async def rules_refresh(ctx):
 
     out = ""
     for i, v in enumerate(ruleslist):
-        out += f"{i+1}. {v}\n"
+        out += f"{i+1}. {v}\n\n"
 
-    out += "\n***TL;DR*** __Don't be an idiot.__"
+    out += "\n***TL;DR*** __Just don't be an idiot.__"
 
     embed = discord.Embed(
-        title="Rules",
+        title="Rules, I guess.",
         description=out,
         color=0x01FEAA
     )
@@ -1597,7 +1597,7 @@ async def faq_refresh(ctx):
     if ctx.channel.id == 955239604007628820:
         return
 
-    await ctx.defer()
+    await ctx.defer(ephemeral=True)
 
     guild = get(bot.guilds, id=885685555084554294)
     channel = get(guild.text_channels, id=949085184047853589)
@@ -1610,7 +1610,7 @@ async def faq_refresh(ctx):
         out += f"{i+1}.\n{temp}"
 
     embed = discord.Embed(
-        title="FAQ/Info",
+        title="FAQ/Info ¯\_(ツ)_/¯",
         description=out,
         color=0x01FEAA
     )
