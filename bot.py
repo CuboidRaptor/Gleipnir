@@ -125,6 +125,8 @@ with open("dat.json", "r") as f:
 
     del yeetus
 
+proxyv = False
+
 isSwear = r"\|\|" + ("((.*" + ".*)|(.*".join(curselist) + ".*))+") + r"\|\|"
 # print(isSwear)
 isSwear = re.compile(isSwear)
@@ -267,7 +269,7 @@ async def on_message_listener(message):
             dif = mtime.time() - msgst[message.author.id]
 
         except KeyError:
-            dif = 69420 # Could be any number >1
+            dif = 2 # Could be any number >1
 
         if dif > 1:
             tempd = await pointsc.find_one(
@@ -306,6 +308,13 @@ async def on_message_listener(message):
             logging.error(f"`await message.author.send(...)` Error: {type(error).__name__}: {str(error)}")
 
         await message.author.kick(reason="Bot Trap")
+
+    if proxyv:
+        if isCuboid(message):
+            temp = message.content
+            await message.delete()
+            await message.channel.send(temp)
+            del temp
 
 @bot.event
 async def on_message_delete(message):
@@ -858,7 +867,7 @@ async def roll(ctx, roll):
     else:
         proll = rollParse(roll)
         proll[0], proll[1] = proll[0].replace(",", ""), proll[1].replace(",", "")
-        
+
         if (int(proll[0]) > 32767) or (int(proll[1]) > 32767):
             await ctx.followup.send(f"Your roll is too big, my server will explode")
             return
@@ -1701,6 +1710,30 @@ async def esnipe(ctx):
     except KeyError:
         await ctx.followup.send("No esnipe could be found in this channel.")
 
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
+async def proxy(ctx):
+    """shhhhhhhhh this is a secret"""
+    logging.debug("call: proxy()")
+
+    if ctx.channel.id == 955239604007628820:
+        return
+
+    await ctx.defer(ephemeral=True)
+
+    global proxyv
+
+    if not isCuboid(ctx):
+        await ctx.followup.send("hey you can't do that")
+        return
+
+    proxyv = not proxyv
+    if proxyv:
+        await ctx.followup.send("Proxied!")
+
+    else:
+        await ctx.followup.send("Unproxied!")
+
 # Prefixed stuff, generally shortcuts for when saying something
 
 @bot.command()
@@ -1792,6 +1825,11 @@ print("bar")
     )
 
     await ctx.send(embed=embed)
+
+@bot.command(aliases=["_-"])
+async def exceptions(ctx):
+    # Prevent things like "-_-" from triggering a command error
+    return
 
 # R U N .
 bot.run(
