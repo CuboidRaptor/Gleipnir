@@ -1712,7 +1712,7 @@ async def esnipe(ctx):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.cooldown(1, globalCD, commands.BucketType.user)
-async def proxy(ctx):
+async def toggleautoproxy(ctx):
     """shhhhhhhhh this is a secret"""
     logging.debug("call: proxy()")
 
