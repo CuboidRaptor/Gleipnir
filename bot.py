@@ -138,7 +138,7 @@ globalCD = 2
 async def on_ready():
     # logged in?
     logging.debug("call: on_ready()")
-    print(f"CRBOT2 has logged on in to Discord as {bot.user}")
+    print(f"Gleipnir has logged on in to Discord as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="with Cuboid's brain cells"))
 
 @bot.event
@@ -150,7 +150,7 @@ async def on_member_join(member):
             title=f"Thank you for joining Cuboid's Café!",
             description="""Hello there!
 This is an automated message.:robot:
-I am **CRBOT2**, the bot made by **Cuboid_Raptor#7340**.
+I am **Gleipnir**, the bot made by **Cuboid_Raptor#7340**.
 I have DM'd you to say, welcome to Cuboid's Café!:coffee:
 I sincerely hope you have a great time in the server!:laughing:
 You can also interact with me in the server, do be sure to use slash commands,
@@ -478,9 +478,9 @@ def idFromMention(mention):
     else:
         return str(mention)[2:-1]
 
-def isCB2(text):
-    # Is text CRBOT2
-    logging.debug("call: isCB2()")
+def isGP2(text):
+    # Is text Gleipnir
+    logging.debug("call: isGP2()")
     text = text.strip()
     if (text == str(bot.user.name)) or (text == str(bot.user)) or (text == "<@" + str(bot.user.id) + ">") or (text == "<@!" + str(bot.user.id) + ">"):
         return True
@@ -595,9 +595,9 @@ async def ping(ctx):
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.cooldown(1, globalCD, commands.BucketType.user)
-async def killcr2(ctx):
-    """Kills CRBOT2. Only Cuboid_Raptor# 7340 can run this command."""
-    logging.debug("call: killcr2()")
+async def killgp2(ctx):
+    """Kills Gleipnir. Only Cuboid_Raptor# 7340 can run this command."""
+    logging.debug("call: killgp2()")
     if ctx.channel.id == 955239604007628820:
         return
 
@@ -635,7 +635,7 @@ async def no_u(ctx, person):
     if containsEveryone(person):
         await ctx.followup.send(f"***\\*GASP\\****")
 
-    elif isCB2(person):
+    elif isGP2(person):
         await ctx.followup.send(f"I have been vaccinated against no-u's.")
 
     else:
@@ -692,7 +692,7 @@ async def shoot(ctx, person):
         await ctx.followup.send("Mass genocide isn't allowed yet. Try again later.")
         return
 
-    if isCB2(person):
+    if isGP2(person):
         await ctx.followup.send("I pull out a handheld CIWS and shoot you. Who's the shooter now?")
         return
 
@@ -719,7 +719,7 @@ async def warn(ctx, person, *, reason):
 
     await ctx.defer()
 
-    if isCB2(person):
+    if isGP2(person):
         await ctx.followup.send("I HAVEN'T DONE ANYTHING!")
 
     else:
@@ -761,7 +761,7 @@ async def rmwarn(ctx, person, *, reason):
 
     await ctx.defer()
 
-    if isCB2(person):
+    if isGP2(person):
         await ctx.followup.send("I haven't been warned yet. I wouldn't warn myself.")
 
     else:
@@ -895,7 +895,7 @@ async def ship(ctx, person, person2=None):
     if person2 == None:
         person2 = ctx.author.mention
 
-    if isCB2(person) or isCB2(person2):
+    if isGP2(person) or isGP2(person2):
         await ctx.followup.send("bruh why")
 
     else:
@@ -1495,7 +1495,7 @@ async def kill(ctx, person):
         await ctx.followup.send("You should see a psychologist about the fact that you want to kill everyone.")
         return
 
-    if isCB2(person):
+    if isGP2(person):
         await ctx.followup.send("I am deeply saddened by this.")
         return
 
@@ -1538,7 +1538,7 @@ async def slap(ctx, person):
         await ctx.followup.send("There's too many people to slap.")
         return
 
-    if isCB2(person):
+    if isGP2(person):
         await ctx.followup.send("I have not wronged you yet (I hope).")
         return
 
