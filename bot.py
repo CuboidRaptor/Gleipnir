@@ -1585,8 +1585,8 @@ async def rules_refresh(ctx):
         color=0x01FEAA
     )
 
+    await ctx.followup.send(f"Rules have been refreshed! Len({len(out)})")
     await channel.send(embed=embed)
-    await ctx.followup.send("Rules have been refreshed!")
 
 @bot.slash_command(guild_ids=[885685555084554294])
 @commands.has_guild_permissions(ban_members=True)
@@ -1751,6 +1751,47 @@ async def proxysay(ctx, text):
 
     await ctx.followup.send("0")
     await ctx.send(text)
+
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, globalCD, commands.BucketType.user)
+async def owoify(ctx, text):
+    """Creds to Cic1e for coding this"""
+    logging.debug("call: owoify()")
+
+    if ctx.channel.id == 955239604007628820:
+        return
+
+    await ctx.defer()
+
+    prefixes = [
+        "<3", "0w0", "H-hewwo??", "HIIII!", "Haiiii!",
+        "Huohhhh.", "OWO", "OwO", "UwU", "Whats this?"
+    ]
+    suffixes = [
+        "( ͡° ᴥ ͡°)", "(இωஇ )", "(๑•́ ₃ •̀๑)", "(• o •)", "(●´ω｀●)",
+        "(◠‿◠✿)", "(✿ ♡‿♡)", "(❁´◡`❁)", "(人◕ω◕)", "(；ω；)",
+        "(｀へ´)", "._.", "\\*nuzzles u\\*", ":3", ":D",
+        ":P", ";-;", ";3", ";_;", "<{^v^}>",
+        ">_<", ">_>", "UwU", "XDDD", "^-^",
+        "^_^", "x3c", "x3", "xD", "ÙωÙ",
+        "ʕʘ‿ʘʔ", "ㅇㅅㅇ", "fwendo", "(＾ｖ＾)", "nya~"
+    ]
+    substitutions = {
+        "love": "wuv", "Love": "Wuv", "loving": "wuving", "Loving": "Wuving",
+        "r": "w", "l": "w", "R": "W", "L": "W",
+        "th ": "f ", "no": "nu", "No": "Nu", "has": "haz",
+        "Has": "Haz", "have": "haz", "Have": "Haz", " says": " sez",
+        "you": "uu", "I've": "I", "the ": "da ", "The ": "Da ",
+        "THE ": "THE ", "qu": "qw", "Qu": "Qw", "pause ": "paws ",
+        "Pause ": "Paws ", "paus": "paws", "Paus": "paws", "u": "wu"
+    }
+    prefix = random.choice(prefixes)
+    suffix = random.choice(suffixes)
+
+    for word, ini in substitutions.items():
+        text = text.replace(word.lower(), ini)
+
+    await ctx.followup.send(f"{prefix} {text} {suffix}")
 
 # Prefixed stuff, generally shortcuts for when saying something
 
