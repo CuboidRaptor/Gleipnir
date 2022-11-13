@@ -1176,13 +1176,20 @@ async def joke(ctx):
     jk = {}
 
     while jk == {}:
-        jk = await j.get_joke(
-            blacklist=[
-                "nsfw",
-                "racist",
-                "sexist"
-            ]
-        )
+        while True:
+            jk = await j.get_joke(
+                blacklist=[
+                    "nsfw",
+                    "racist",
+                    "sexist"
+                ]
+            )
+            if jk["category"].lower() != "dark":
+                break
+
+            else:
+                asyncio.sleep(0.1)
+                continue
 
     if jk["type"] == "single":
         await ctx.followup.send(jk["joke"])
