@@ -1188,7 +1188,7 @@ async def joke(ctx):
                 break
 
             else:
-                asyncio.sleep(0.1)
+                await asyncio.sleep(0.1)
                 continue
 
     if jk["type"] == "single":
