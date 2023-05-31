@@ -1107,7 +1107,7 @@ async def givepoints(ctx, person, point):
 
     point = bround(point)
 
-    if points < 0:
+    if point < 0:
         await err(ctx, "get. out fexxis")
         return
 
