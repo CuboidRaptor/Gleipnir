@@ -1107,6 +1107,10 @@ async def givepoints(ctx, person, point):
 
     point = bround(point)
 
+    if points < 0:
+        await err(ctx, "get. out fexxis")
+        return
+
     tempd = await pointsc.find_one(
         {
             "_id": ObjectId(pointsid)
