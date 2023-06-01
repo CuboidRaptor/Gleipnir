@@ -216,7 +216,7 @@ async def on_message_listener(message):
             }
         )
 
-        if (not message.content.startswith(str(tempd["num"]))) or (message.author.id == tempd["lastid"]):
+        if (not message.content.startswith(str(tempd["num"]) + " ")) or (message.author.id == tempd["lastid"]):
             # Incorrect message.
             await message.delete()
             await message.author.send(random.choice(no_ulist) + random.choice(["", "."]))
