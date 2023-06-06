@@ -210,13 +210,20 @@ async def on_message_listener(message):
 
     if message.channel.id == 955239604007628820:
         # Is message in count channel?
+
         tempd = await countsc.find_one(
             {
                 "_id": ObjectId(countid)
             }
         )
 
-        if (not message.content.startswith(str(tempd["num"]) + " ")) or (message.author.id == tempd["lastid"]):
+        if ((
+            not message.content.startswith(str(tempd["num"]) + " ")
+        ) and (
+            message.content != str(tempd["num"])
+        )) or (
+            message.author.id == tempd["lastid"]
+        ):
             # Incorrect message.
             await message.delete()
             await message.author.send(random.choice(no_ulist) + random.choice(["", "."]))
