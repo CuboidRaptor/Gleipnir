@@ -1811,6 +1811,23 @@ async def owoify(ctx, text):
 
     await ctx.followup.send(f"{prefix} {text} {suffix}")
 
+@bot.slash_command(guild_ids=[885685555084554294])
+@commands.cooldown(1, 30, commands.BucketType.user)
+async def debugcount(ctx):
+    """Show next #count number and last user"""
+    logging.debug("call: debugcount()")
+
+    await ctx.defer(ephemeral=True)
+
+    tempd = await countsc.find_one(
+        {
+            "_id": ObjectId(countid)
+        }
+    )
+
+    await ctx.followup.send(f"""Next number: {tempd['num']}
+Last counter: {tempd['lastid']}""", ephemeral=True)
+
 # Prefixed stuff, generally shortcuts for when saying something
 
 @bot.command()
