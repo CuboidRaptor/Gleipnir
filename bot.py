@@ -1826,7 +1826,8 @@ async def debugcount(ctx):
     )
 
     await ctx.followup.send(f"""Next number: {tempd['num']}
-Last counter: {tempd['lastid']}""", ephemeral=True)
+Last counter: <@{tempd['lastid']}>
+Last counter id: {tempd['lastid']}""", ephemeral=True)
 
 # Prefixed stuff, generally shortcuts for when saying something
 
