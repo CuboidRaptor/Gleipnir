@@ -266,12 +266,7 @@ async def on_message_listener(message):
                     await message.channel.send(f"Don't swear, {message.author.mention}")
                     return
 
-    if ((bot.user.name in message.content) or ((str(bot.user.id) + ">") in message.content)) and not message.content.startswith(str("/")) and ("announcements" not in message.channel.name.lower()):
-        # Did you say bot name?
-        if message.channel.id != 955239604007628820:
-            await message.channel.send("Hello there, I heard my name?")
-
-    if (message.channel.id != 976592452997750795) and (message.channel.id != 955239604007628820):
+    if (message.channel.id != 976592452997750795):
         try:
             dif = mtime.time() - msgst[message.author.id]
 
