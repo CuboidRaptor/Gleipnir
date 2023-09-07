@@ -106,7 +106,7 @@ gifSwear = re.compile(r"(https?\:\/\/tenor\.com\/view\/.+)|(https\:\/\/giphy\.co
 # stuff
 logging.debug("Defining bot constants...")
 intents = discord.Intents.all()
-pf = "-"
+pf = "="
 bot = commands.Bot(
     command_prefix=pf,
     strip_after_prefix=True,
@@ -1915,11 +1915,6 @@ print("bar")
     )
 
     await ctx.send(embed=embed)
-
-@bot.command(aliases=["_-"])
-async def exceptions(ctx):
-    # Prevent things like "-_-" from triggering a command error
-    return
 
 # R U N .
 bot.run(
